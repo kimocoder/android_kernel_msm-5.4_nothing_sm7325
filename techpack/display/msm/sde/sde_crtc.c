@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  * Copyright (c) 2014-2021 The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -42,6 +41,7 @@
 #include "sde_core_perf.h"
 #include "sde_trace.h"
 #include "sde_vm.h"
+#include "dsi_display.h"
 
 #define SDE_PSTATES_MAX (SDE_STAGE_MAX * 4)
 #define SDE_MULTIRECT_PLANE_MAX (SDE_STAGE_MAX * 2)
@@ -1560,6 +1560,9 @@ static void _sde_crtc_blend_setup_mixer(struct drm_crtc *crtc,
 			for (i = 0; i < cstate->num_dim_layers; i++)
 				_sde_crtc_setup_dim_layer_cfg(crtc, sde_crtc,
 						mixer, &cstate->dim_layer[i]);
+			if (cstate->fod_dim_layer)
+				_sde_crtc_setup_dim_layer_cfg(crtc, sde_crtc,
+						mixer, cstate->fod_dim_layer);
 			clear_bit(SDE_CRTC_DIRTY_DIM_LAYERS, cstate->dirty);
 		}
 	}
@@ -3478,7 +3481,6 @@ static void sde_crtc_destroy_state(struct drm_crtc *crtc,
 	struct sde_crtc_state *cstate;
 	struct drm_encoder *enc;
 	struct sde_kms *sde_kms;
-	u32 encoder_mask;
 
 	if (!crtc || !state) {
 		SDE_ERROR("invalid argument(s)\n");
@@ -3494,11 +3496,9 @@ static void sde_crtc_destroy_state(struct drm_crtc *crtc,
 		return;
 	}
 
-	encoder_mask = state->encoder_mask ? state->encoder_mask :
-				crtc->state->encoder_mask;
-	SDE_DEBUG("crtc%d\n, encoder_mask=%d", crtc->base.id, encoder_mask);
+	SDE_DEBUG("crtc%d\n", crtc->base.id);
 
-	drm_for_each_encoder_mask(enc, crtc->dev, encoder_mask)
+	drm_for_each_encoder_mask(enc, crtc->dev, state->encoder_mask)
 		sde_rm_release(&sde_kms->rm, enc, true);
 
 	__drm_atomic_helper_crtc_destroy_state(state);
@@ -4884,6 +4884,110 @@ static int _sde_crtc_check_zpos(struct drm_crtc_state *state,
 	return rc;
 }
 
+static struct sde_hw_dim_layer *
+sde_crtc_setup_fod_dim_layer(struct sde_crtc_state *cstate, uint32_t stage)
+{
+	struct drm_crtc_state *crtc_state = &cstate->base;
+	struct drm_display_mode *mode = &crtc_state->adjusted_mode;
+	struct sde_hw_dim_layer *dim_layer = NULL;
+	struct dsi_display *display;
+	struct sde_kms *kms;
+	uint32_t alpha;
+	uint32_t layer_stage;
+
+	kms = _sde_crtc_get_kms(crtc_state->crtc);
+	if (!kms || !kms->catalog) {
+		SDE_ERROR("Invalid kms\n");
+		goto error;
+	}
+
+	layer_stage = SDE_STAGE_0 + stage;
+	if (layer_stage >= kms->catalog->mixer[0].sblk->maxblendstages) {
+		SDE_ERROR("Stage too large %u vs max %u\n", layer_stage,
+			  kms->catalog->mixer[0].sblk->maxblendstages);
+		goto error;
+	}
+
+	if (cstate->num_dim_layers == SDE_MAX_DIM_LAYERS) {
+		SDE_ERROR("Max dim layers reached\n");
+		goto error;
+	}
+
+	display = get_main_display();
+	if (!display || !display->panel) {
+		SDE_ERROR("Invalid primary display\n");
+		goto error;
+	}
+
+	mutex_lock(&display->panel->panel_lock);
+	alpha = display->panel->fod_dim_alpha;
+	mutex_unlock(&display->panel->panel_lock);
+
+	dim_layer = &cstate->dim_layer[cstate->num_dim_layers];
+	dim_layer->flags = SDE_DRM_DIM_LAYER_INCLUSIVE;
+	dim_layer->stage = layer_stage;
+	dim_layer->rect.x = 0;
+	dim_layer->rect.y = 0;
+	dim_layer->rect.w = mode->hdisplay;
+	dim_layer->rect.h = mode->vdisplay;
+	dim_layer->color_fill.color_0 = 0;
+	dim_layer->color_fill.color_1 = 0;
+	dim_layer->color_fill.color_2 = 0;
+	dim_layer->color_fill.color_3 = alpha;
+
+error:
+	return dim_layer;
+}
+
+static void
+sde_crtc_fod_atomic_check(struct sde_crtc_state *cstate,
+			  struct plane_state *pstates, int cnt)
+{
+	struct sde_hw_dim_layer *fod_dim_layer;
+	struct dsi_display *display;
+	struct dsi_panel *panel;
+	uint32_t dim_layer_stage;
+	bool force_fod_ui;
+	int plane_idx;
+
+	display = get_main_display();
+	if (!display || !display->panel) {
+		SDE_ERROR("Invalid primary display\n");
+		return;
+	}
+
+	panel = display->panel;
+
+	force_fod_ui = dsi_panel_get_force_fod_ui(panel);
+
+	for (plane_idx = 0; plane_idx < cnt; plane_idx++)
+		if (sde_plane_is_fod_layer(pstates[plane_idx].drm_pstate))
+			break;
+
+	if (plane_idx == cnt && !force_fod_ui) {
+		fod_dim_layer = NULL;
+	} else {
+		if (force_fod_ui)
+			dim_layer_stage = pstates[cnt - 1].stage + 1;
+		else
+			dim_layer_stage = pstates[plane_idx].stage;
+		fod_dim_layer = sde_crtc_setup_fod_dim_layer(cstate,
+							     dim_layer_stage);
+	}
+
+	if (fod_dim_layer == cstate->fod_dim_layer)
+		return;
+
+	cstate->fod_dim_layer = fod_dim_layer;
+
+	if (!fod_dim_layer)
+		return;
+
+	for (plane_idx = 0; plane_idx < cnt; plane_idx++)
+		if (pstates[plane_idx].stage >= dim_layer_stage)
+			pstates[plane_idx].stage++;
+}
+
 static int _sde_crtc_atomic_check_pstates(struct drm_crtc *crtc,
 		struct drm_crtc_state *state,
 		struct plane_state *pstates,
@@ -4912,6 +5016,8 @@ static int _sde_crtc_atomic_check_pstates(struct drm_crtc *crtc,
 			plane, multirect_plane, &cnt);
 	if (rc)
 		return rc;
+
+	sde_crtc_fod_atomic_check(cstate, pstates, cnt);
 
 	/* assign mixer stages based on sorted zpos property */
 	rc = _sde_crtc_check_zpos(state, sde_crtc, pstates, cstate, mode, cnt);
