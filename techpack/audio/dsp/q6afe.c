@@ -40,6 +40,15 @@
 #define AFE_PORT_ID_TFADSP_RX              (0x1000)
 #define AFE_PORT_ID_TFADSP_TX              (0x1001)
 
+/* Paired Rx Structure Info */
+static struct afe_tdm_intf_paired_rx_cfg afe_tdm_paired_rx_cfg[AFE_TDM_INTERFACE_MAX] = {
+	{0}, /*Primary*/
+	{0}, /*secondary*/
+	{0}, /*Tertiary*/
+	{0}, /*Quaternary*/
+	{0}, /*QUINARY*/
+};
+static atomic_t afe_tdm_port_ref[AFE_MAX_PORTS] = {0};
 
 struct afe_avcs_payload_port_mapping {
 	u16 port_id;

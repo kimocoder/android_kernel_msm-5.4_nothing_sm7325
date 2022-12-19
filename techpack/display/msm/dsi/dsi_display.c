@@ -247,6 +247,13 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 		goto error;
 	}
 
+	/*set TE gpio to panel struct only when panel-ic is rm692e5*/
+	if (!strcmp("rm692e5 amoled fhd+ 120hz cmd mode dsi visionox panel", panel->name)) {
+		if (bl_lvl == panel->bl_config.bl_hbm_level) {
+			panel->bl_config.te_gpio = dsi_display->disp_te_gpio;
+		}
+	}
+
 	rc = dsi_panel_set_backlight(panel, (u32)bl_temp);
 	if (rc)
 		DSI_ERR("unable to set backlight\n");
