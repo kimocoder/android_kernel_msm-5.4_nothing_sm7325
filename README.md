@@ -1,4 +1,15 @@
+# Kali NetHunter Release Notes
+```
+R1.
+  - Merged latest Qualcomm (CAF) tags: MSM-5.4, WIFI SoC and techpack drivers.
+  - Supports a long list of USB adapters, SDR, WiFi, Serial, Bluetooth .. most of whats possible.
+  - HID/Gadets and game controllers (even mice and keyboards) is added.
+  - Added NetHunter related patches, which is for WiFi injection, internal BT support and others.
+```
+
+
 # NOTHING Phone(1) Release Note
+```
 1. OS 1.0.1
   - First release opensource of kernel and devicetree
   - devicetree
@@ -43,5 +54,5 @@
 
 9. OS 1.1.7
   - Update log scheme
-
+```
 
