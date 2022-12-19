@@ -89,12 +89,12 @@ if [ -f "$kernel" ] && [ -d "$dts_dir" ]; then
 	cp $kernel AnyKernel3
 	cat $dts_dir/*.dtb > AnyKernel3/dtb
 	python2 scripts/dtc/libfdt/mkdtboimg.py create AnyKernel3/dtbo.img --page_size=4096 $dts_dir/*.dtbo
-	mkdir AnyKernel3/modules/vendor/lib/modules/5.4.197-NetHunter/
+	mkdir AnyKernel3/modules/vendor/lib/modules/5.4.210-NetHunter/
 	#cp $(find $OUT_DIR/modules/lib/modules/5.4* -name '*.ko') AnyKernel3/modules/vendor/lib/modules/
-	cp out/modules/lib/modules/5.4*/modules.{alias,dep,softdep} AnyKernel3/modules/vendor/lib/modules/5.4.197-NetHunter/
-	cp out/modules/lib/modules/5.4*/modules.order AnyKernel3/modules/vendor/lib/modules/5.4.197-NetHunter/modules.load
-	cp out/modules/lib/modules/5.4.*/modules.* AnyKernel3/modules/vendor/lib/modules/5.4.197-NetHunter/
-	sed -i 's/\(kernel\/[^: ]*\/\)\([^: ]*\.ko\)/\/vendor\/lib\/modules\/\2/g' AnyKernel3/modules/vendor/lib/modules/5.4.197-NetHunter/modules.dep
+	cp out/modules/lib/modules/5.4*/modules.{alias,dep,softdep} AnyKernel3/modules/vendor/lib/modules/5.4.210-NetHunter/
+	cp out/modules/lib/modules/5.4*/modules.order AnyKernel3/modules/vendor/lib/modules/5.4.210-NetHunter/modules.load
+	cp out/modules/lib/modules/5.4.*/modules.* AnyKernel3/modules/vendor/lib/modules/5.4.210-NetHunter/
+	sed -i 's/\(kernel\/[^: ]*\/\)\([^: ]*\.ko\)/\/vendor\/lib\/modules\/\2/g' AnyKernel3/modules/vendor/lib/modules/5.4.210-NetHunter/modules.dep
 	#sed -i 's/.*\///g' AnyKernel3/modules/vendor/lib/modules/5.4.*/modules.load
 	rm -rf out/arch/arm64/boot out/modules
 	cd AnyKernel3
