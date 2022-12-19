@@ -2155,9 +2155,10 @@ int cam_sensor_core_power_up(struct cam_sensor_power_ctrl_t *ctrl,
 		case SENSOR_VAF_PWDM:
 		case SENSOR_CUSTOM_REG1:
 		case SENSOR_CUSTOM_REG2:
-			if (power_setting->seq_val == INVALID_VREG && !gpio_num_info)
+			if (power_setting->seq_val == INVALID_VREG)
 				break;
-			if (power_setting->seq_val >= CAM_VREG_MAX && !gpio_num_info) {
+
+			if (power_setting->seq_val >= CAM_VREG_MAX) {
 				CAM_ERR(CAM_SENSOR, "vreg index %d >= max %d",
 					power_setting->seq_val,
 					CAM_VREG_MAX);
@@ -2195,7 +2196,7 @@ int cam_sensor_core_power_up(struct cam_sensor_power_ctrl_t *ctrl,
 				}
 				power_setting->data[0] =
 						soc_info->rgltr[vreg_idx];
-			} else if (!gpio_num_info){
+			} else {
 				CAM_ERR(CAM_SENSOR, "usr_idx:%d dts_idx:%d",
 					power_setting->seq_val, num_vreg);
 			}
@@ -2427,7 +2428,7 @@ int cam_sensor_util_power_down(struct cam_sensor_power_ctrl_t *ctrl,
 		case SENSOR_VAF_PWDM:
 		case SENSOR_CUSTOM_REG1:
 		case SENSOR_CUSTOM_REG2:
-			if (pd->seq_val == INVALID_VREG && !gpio_num_info)
+			if (pd->seq_val == INVALID_VREG)
 				break;
 
 			ps = msm_camera_get_power_settings(
@@ -2459,7 +2460,7 @@ int cam_sensor_util_power_down(struct cam_sensor_power_ctrl_t *ctrl,
 					}
 					ps->data[0] =
 						soc_info->rgltr[ps->seq_val];
-				} else if (!gpio_num_info) {
+				} else {
 					CAM_ERR(CAM_SENSOR,
 						"seq_val:%d > num_vreg: %d",
 						 pd->seq_val,

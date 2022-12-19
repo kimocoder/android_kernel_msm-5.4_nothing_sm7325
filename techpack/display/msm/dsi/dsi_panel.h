@@ -125,7 +125,6 @@ struct dsi_backlight_config {
 	u32 bl_scale;
 	u32 bl_scale_sv;
 	bool bl_inverted_dbv;
-	u32 real_bl_level;
 
 	int en_gpio;
 	/* PWM params */
@@ -203,12 +202,6 @@ struct dsi_panel_ops {
 	int (*parse_power_cfg)(struct dsi_panel *panel);
 };
 
-#define BRIGHTNESS_ALPHA_PAIR_LEN 2
-struct brightness_alpha_pair {
-	u16 brightness;
-	u8 alpha;
-};
-
 struct dsi_panel {
 	const char *name;
 	const char *type;
@@ -274,14 +267,6 @@ struct dsi_panel {
 	u32 tlmm_gpio_count;
 
 	struct dsi_panel_ops panel_ops;
-
-	struct brightness_alpha_pair *fod_dim_lut;
-	unsigned int fod_dim_lut_len;
-	u8 fod_dim_alpha;
-	bool fod_hbm_enabled;
-	bool fod_ui;
-	bool force_fod_ui;
-	bool force_fod_dim_alpha;
 };
 
 static inline bool dsi_panel_ulps_feature_enabled(struct dsi_panel *panel)
@@ -417,8 +402,4 @@ int dsi_panel_create_cmd_packets(const char *data, u32 length, u32 count,
 void dsi_panel_destroy_cmd_packets(struct dsi_panel_cmd_set *set);
 
 void dsi_panel_dealloc_cmd_packets(struct dsi_panel_cmd_set *set);
-bool dsi_panel_get_fod_ui(struct dsi_panel *panel);
-void dsi_panel_set_fod_ui(struct dsi_panel *panel, bool status);
-bool dsi_panel_get_force_fod_ui(struct dsi_panel *panel);
-
 #endif /* _DSI_PANEL_H_ */
