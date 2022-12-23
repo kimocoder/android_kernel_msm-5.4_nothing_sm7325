@@ -2485,7 +2485,7 @@ static u8 get_direct_play_max_amplitude(struct haptics_chip *chip)
 			amplitude = DIRECT_PLAY_MAX_AMPLITUDE;
 	}
 
-	dev_dbg(chip->dev, "max amplitude for direct play: %#x\n", amplitude);
+	//dev_dbg(chip->dev, "max amplitude for direct play: %#x\n", amplitude);
 	return (u8)amplitude;
 }
 
@@ -2684,7 +2684,7 @@ static void haptics_set_gain(struct input_dev *dev, u16 gain)
 	if (gain > 0x7fff)
 		gain = 0x7fff;
 
-	dev_dbg(chip->dev, "Set gain: %#x\n", gain);
+	//dev_dbg(chip->dev, "Set gain: %#x\n", gain);
 
 	/* scale amplitude when playing in DIRECT_PLAY mode */
 	if (chip->play.pattern_src == DIRECT_PLAY) {
@@ -2692,7 +2692,7 @@ static void haptics_set_gain(struct input_dev *dev, u16 gain)
 		amplitude *= gain;
 		amplitude /= 0x7fff;
 
-		dev_dbg(chip->dev, "Set amplitude: %#x\n", amplitude);
+		//dev_dbg(chip->dev, "Set amplitude: %#x\n", amplitude);
 		haptics_set_direct_play(chip, (u8)amplitude);
 		return;
 	}
@@ -5393,8 +5393,8 @@ static enum hrtimer_restart haptics_disable_hbst_timer(struct hrtimer *timer)
 	rc = haptics_boost_vreg_enable(chip, false);
 	if (rc < 0)
 		dev_err(chip->dev, "disable boost vreg failed, rc=%d\n", rc);
-	else
-		dev_dbg(chip->dev, "boost vreg is disabled\n");
+	//else
+		//dev_dbg(chip->dev, "boost vreg is disabled\n");
 
 	return HRTIMER_NORESTART;
 }
