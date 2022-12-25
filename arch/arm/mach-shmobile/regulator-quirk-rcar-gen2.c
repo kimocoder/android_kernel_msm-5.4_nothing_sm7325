@@ -125,7 +125,6 @@ remove:
 
 	list_for_each_entry_safe(pos, tmp, &quirk_list, list) {
 		list_del(&pos->list);
-		of_node_put(pos->np);
 		kfree(pos);
 	}
 
@@ -175,12 +174,11 @@ static int __init rcar_gen2_regulator_quirk(void)
 		memcpy(&quirk->i2c_msg, id->data, sizeof(quirk->i2c_msg));
 
 		quirk->id = id;
-		quirk->np = of_node_get(np);
+		quirk->np = np;
 		quirk->i2c_msg.addr = addr;
 
 		ret = of_irq_parse_one(np, 0, argsa);
 		if (ret) {	/* Skip invalid entry and continue */
-			of_node_put(np);
 			kfree(quirk);
 			continue;
 		}
@@ -227,7 +225,6 @@ err_free:
 err_mem:
 	list_for_each_entry_safe(pos, tmp, &quirk_list, list) {
 		list_del(&pos->list);
-		of_node_put(pos->np);
 		kfree(pos);
 	}
 
