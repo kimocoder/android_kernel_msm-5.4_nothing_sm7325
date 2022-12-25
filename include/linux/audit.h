@@ -179,6 +179,10 @@ static inline unsigned int audit_get_sessionid(struct task_struct *tsk)
 {
 	return tsk->sessionid;
 }
+extern inline int audit_update_lsm_rules(void)
+{
+	return 0;
+}
 
 extern u32 audit_enabled;
 

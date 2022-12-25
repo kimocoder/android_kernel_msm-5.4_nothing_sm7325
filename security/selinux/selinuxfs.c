@@ -126,7 +126,7 @@ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
 	ssize_t length;
 
 	length = scnprintf(tmpbuf, TMPBUFLEN, "%d",
-			   enforcing_enabled(fsi->state));
+			   0);
 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
 }
 
