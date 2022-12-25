@@ -1028,7 +1028,7 @@ static int msm_pcm_open(struct snd_pcm_substream *substream)
 	ret = snd_pcm_hw_constraint_integer(runtime,
 					    SNDRV_PCM_HW_PARAM_PERIODS);
 	if (ret < 0)
-		pr_info("snd_pcm_hw_constraint_integer failed\n");
+		pr_debug("snd_pcm_hw_constraint_integer failed\n");
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
 		ret = snd_pcm_hw_constraint_minmax(runtime,
@@ -1504,7 +1504,7 @@ static int msm_pcm_ioctl(struct snd_pcm_substream *substream,
 	}
 
 	if (!substream->runtime) {
-		pr_err("%s substream runtime not found\n", __func__);
+		pr_debug("%s substream runtime not found\n", __func__);
 		return -EINVAL;
 	}
 

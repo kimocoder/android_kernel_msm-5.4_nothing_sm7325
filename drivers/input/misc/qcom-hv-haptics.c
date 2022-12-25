@@ -628,7 +628,7 @@ static inline int get_max_fifo_samples(struct haptics_chip *chip)
 		val = 1024;
 		break;
 	default:
-		pr_err("Invalid pattern revision\n");
+		pr_debug("Invalid pattern revision\n");
 		break;
 	}
 
@@ -650,7 +650,7 @@ static int get_fifo_empty_threshold(struct haptics_chip *chip)
 		val = 288;
 		break;
 	default:
-		pr_err("Invalid pattern revision\n");
+		pr_debug("Invalid pattern revision\n");
 		break;
 	}
 
@@ -672,7 +672,7 @@ static int get_fifo_threshold_per_bit(struct haptics_chip *chip)
 		val = 32;
 		break;
 	default:
-		pr_err("Invalid pattern revision\n");
+		pr_debug("Invalid pattern revision\n");
 		break;
 	}
 
@@ -3213,7 +3213,7 @@ static ssize_t pattern_s_dbgfs_write(struct file *fp,
 	for (j = 0; j < i / 3; j++) {
 		if (tmp[3 * j] > 0x1ff || tmp[3 * j + 1] > T_LRA_X_8 ||
 				tmp[3 * j + 2] > 1) {
-			pr_err("allowed tuples: [amplitude(<= 0x1ff) period(<=6(T_LRA_X_8)) f_lra_x2(0,1)]\n");
+			pr_debug("allowed tuples: [amplitude(<= 0x1ff) period(<=6(T_LRA_X_8)) f_lra_x2(0,1)]\n");
 			rc = -EINVAL;
 			goto exit;
 		}
@@ -3230,7 +3230,7 @@ static ssize_t pattern_s_dbgfs_write(struct file *fp,
 	effect->pattern->play_length_us =
 		get_pattern_play_length_us(effect->pattern);
 	if (effect->pattern->play_length_us == -EINVAL) {
-		pr_err("get pattern play length failed\n");
+		pr_debug("get pattern play length failed\n");
 		rc = -EINVAL;
 		goto exit;
 	}
@@ -3268,7 +3268,7 @@ static int pattern_play_rate_us_dbgfs_write(void *data, u64 val)
 	effect->pattern->play_length_us =
 		get_pattern_play_length_us(effect->pattern);
 	if (effect->pattern->play_length_us == -EINVAL) {
-		pr_err("get pattern play length failed\n");
+		pr_debug("get pattern play length failed\n");
 		return -EINVAL;
 	}
 
@@ -3352,7 +3352,7 @@ static ssize_t fifo_s_dbgfs_write(struct file *fp,
 	memcpy(fifo->samples, samples, fifo->num_s);
 	fifo->play_length_us = get_fifo_play_length_us(fifo, effect->t_lra_us);
 	if (fifo->play_length_us == -EINVAL) {
-		pr_err("get fifo play length failed\n");
+		pr_debug("get fifo play length failed\n");
 		rc = -EINVAL;
 		goto exit2;
 	}
@@ -3392,7 +3392,7 @@ static int fifo_period_dbgfs_write(void *data, u64 val)
 	fifo->period_per_s = (enum s_period)val;
 	fifo->play_length_us = get_fifo_play_length_us(fifo, effect->t_lra_us);
 	if (fifo->play_length_us == -EINVAL) {
-		pr_err("get fifo play length failed\n");
+		pr_debug("get fifo play length failed\n");
 		return -EINVAL;
 	}
 
@@ -3532,7 +3532,7 @@ static ssize_t brake_mode_dbgfs_write(struct file *fp,
 	} else if (strcmp(kbuf, "auto") == 0) {
 		brake->mode = AUTO_BRAKE;
 	} else {
-		pr_err("%s brake mode is not supported\n", kbuf);
+		pr_debug("%s brake mode is not supported\n", kbuf);
 		rc = -EINVAL;
 	}
 
