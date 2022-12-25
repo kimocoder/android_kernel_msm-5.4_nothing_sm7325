@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Kernel
-git pull msm-5.4 $1
+#git pull msm-5.4 $1
 
 # Techpacks
 git subtree add --prefix=techpack/audio audio $1
