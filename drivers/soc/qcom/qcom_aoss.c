@@ -489,10 +489,8 @@ static int qmp_cooling_devices_register(struct qmp *qmp)
 			continue;
 		ret = qmp_cooling_device_add(qmp, &qmp->cooling_devs[count++],
 					     child);
-		if (ret) {
-			of_node_put(child);
+		if (ret)
 			goto unroll;
-		}
 	}
 
 	if (!count)
