@@ -31,14 +31,14 @@
 #define SP_V4_NUM_MAX_SPKRS SP_V2_NUM_MAX_SPKRS
 #define MAX_LSM_SESSIONS 8
 
-#define AFE_MODULE_ID_TFADSP_RX             (0x1000B911)
-#define AFE_MODULE_ID_TFADSP_TX             (0x1000B912)
-#define AFE_PARAM_ID_TFADSP_TX_SET_ENABLE         (0x1000B920)
-#define AFE_PARAM_ID_TFADSP_RX_CFG                             (0x1000B921)
-#define AFE_PARAM_ID_TFADSP_RX_GET_RESULT         (0x1000B922)
-#define AFE_PARAM_ID_TFADSP_RX_SET_BYPASS         (0x1000B923)
-#define AFE_PORT_ID_TFADSP_RX              (0x1000)
-#define AFE_PORT_ID_TFADSP_TX              (0x1001)
+#define AFE_MODULE_ID_TFADSP_RX                 (0x1000B911)
+#define AFE_MODULE_ID_TFADSP_TX                 (0x1000B912)
+#define AFE_PARAM_ID_TFADSP_TX_SET_ENABLE       (0x1000B920)
+#define AFE_PARAM_ID_TFADSP_RX_CFG              (0x1000B921)
+#define AFE_PARAM_ID_TFADSP_RX_GET_RESULT       (0x1000B922)
+#define AFE_PARAM_ID_TFADSP_RX_SET_BYPASS       (0x1000B923)
+#define AFE_PORT_ID_TFADSP_RX                   (0x1000)
+#define AFE_PORT_ID_TFADSP_TX                   (0x1001)
 
 /* Paired Rx Structure Info */
 static struct afe_tdm_intf_paired_rx_cfg afe_tdm_paired_rx_cfg[AFE_TDM_INTERFACE_MAX] = {

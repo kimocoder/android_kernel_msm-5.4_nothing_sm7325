@@ -51,14 +51,12 @@
 #define KEY_GESTURE_V                           KEY_V
 #define KEY_GESTURE_C                           KEY_C
 #define KEY_GESTURE_Z                           KEY_Z
-#define KEY_GESTURE_CLICK                       KEY_WAKEUP
 #define KEY_GESTURE_FINGER                      KEY_FINGER
 
 #define GESTURE_LEFT                            0x20
 #define GESTURE_RIGHT                           0x21
 #define GESTURE_UP                              0x22
 #define GESTURE_DOWN                            0x23
-#define GESTURE_DOUBLECLICK                     0x24
 #define GESTURE_O                               0x30
 #define GESTURE_W                               0x31
 #define GESTURE_M                               0x32
@@ -68,7 +66,6 @@
 #define GESTURE_V                               0x54
 #define GESTURE_Z                               0x41
 #define GESTURE_C                               0x34
-#define GESTURE_CLICK                           0x25
 #define GESTURE_FINGER                          0x26
 
 /*****************************************************************************
@@ -226,6 +223,36 @@ static ssize_t fts_gesture_fod_pressed_show(
     return sprintf(buf, "%d,%d,%d\n", fp_x, fp_y, fp_down);
 }
 
+static ssize_t fts_gesture_single_tap_pressed_show(
+    struct device *dev, struct device_attribute *attr, char *buf)
+{
+    int single_tap_pressed = 0;
+    struct fts_ts_data *ts_data = dev_get_drvdata(dev);
+
+    mutex_lock(&ts_data->input_dev->mutex);
+    if (ts_data->gesture_support) {
+        single_tap_pressed = ts_data->single_tap_pressed;
+    }
+    mutex_unlock(&ts_data->input_dev->mutex);
+
+    return snprintf(buf, PAGE_SIZE, "%u\n", single_tap_pressed);
+}
+
+static ssize_t fts_gesture_double_tap_pressed_show(
+    struct device *dev, struct device_attribute *attr, char *buf)
+{
+    int double_tap_pressed = 0;
+    struct fts_ts_data *ts_data = dev_get_drvdata(dev);
+
+    mutex_lock(&ts_data->input_dev->mutex);
+    if (ts_data->gesture_support) {
+        double_tap_pressed = ts_data->double_tap_pressed;
+    }
+    mutex_unlock(&ts_data->input_dev->mutex);
+
+    return snprintf(buf, PAGE_SIZE, "%u\n", double_tap_pressed);
+}
+
 /* sysfs gesture node
  *   read example: cat  fts_gesture_mode       ---read gesture mode
  *   write example:echo 1 > fts_gesture_mode   --- write gesture mode to 1
@@ -245,11 +272,19 @@ static DEVICE_ATTR(fts_gesture_bm, S_IRUGO | S_IWUSR,
 static DEVICE_ATTR(fts_gesture_fod_pressed, S_IRUGO,
                    fts_gesture_fod_pressed_show, NULL);
 
+static DEVICE_ATTR(fts_gesture_single_tap_pressed, S_IRUGO,
+                   fts_gesture_single_tap_pressed_show, NULL);
+
+static DEVICE_ATTR(fts_gesture_double_tap_pressed, S_IRUGO,
+                   fts_gesture_double_tap_pressed_show, NULL);
+
 static struct attribute *fts_gesture_mode_attrs[] = {
     &dev_attr_fts_gesture_mode.attr,
     &dev_attr_fts_gesture_buf.attr,
     &dev_attr_fts_gesture_bm.attr,
     &dev_attr_fts_gesture_fod_pressed.attr,
+    &dev_attr_fts_gesture_single_tap_pressed.attr,
+    &dev_attr_fts_gesture_double_tap_pressed.attr,
     NULL,
 };
 
@@ -316,9 +351,6 @@ static void fts_gesture_report(struct fts_ts_data *ts_data,struct input_dev *inp
     case GESTURE_DOWN:
         gesture = KEY_GESTURE_DOWN;
         break;
-    case GESTURE_DOUBLECLICK:
-        gesture = KEY_GESTURE_U;
-        break;
     case GESTURE_O:
         gesture = KEY_GESTURE_O;
         break;
@@ -346,9 +378,6 @@ static void fts_gesture_report(struct fts_ts_data *ts_data,struct input_dev *inp
     case  GESTURE_C:
         gesture = KEY_GESTURE_C;
         break;
-    case  GESTURE_CLICK:
-        gesture = KEY_GESTURE_CLICK;
-        break;
     case  GESTURE_FINGER:
         gesture = KEY_GESTURE_FINGER;
         break;
@@ -373,6 +402,12 @@ static void fts_gesture_report(struct fts_ts_data *ts_data,struct input_dev *inp
             input_report_key(input_dev, gesture, 0);
             input_sync(input_dev);
         }
+    } else if (gesture_id == 0x25) {
+        ts_data->single_tap_pressed = 1;
+        sysfs_notify(&ts_data->dev->kobj, NULL, "fts_gesture_single_tap_pressed");
+    } else if (gesture_id == 0x24) {
+        ts_data->double_tap_pressed = 1;
+        sysfs_notify(&ts_data->dev->kobj, NULL, "fts_gesture_double_tap_pressed");
     } else if (gesture != -1) {
         FTS_DEBUG("Gesture Code=%d", gesture);
         input_report_key(input_dev, gesture, 1);
@@ -541,7 +576,6 @@ int fts_gesture_init(struct fts_ts_data *ts_data)
     input_set_capability(input_dev, EV_KEY, KEY_GESTURE_V);
     input_set_capability(input_dev, EV_KEY, KEY_GESTURE_Z);
     input_set_capability(input_dev, EV_KEY, KEY_GESTURE_C);
-    input_set_capability(input_dev, EV_KEY, KEY_GESTURE_CLICK);
     input_set_capability(input_dev, EV_KEY, KEY_GESTURE_FINGER);
 
     __set_bit(KEY_GESTURE_RIGHT, input_dev->keybit);
@@ -558,7 +592,6 @@ int fts_gesture_init(struct fts_ts_data *ts_data)
     __set_bit(KEY_GESTURE_V, input_dev->keybit);
     __set_bit(KEY_GESTURE_C, input_dev->keybit);
     __set_bit(KEY_GESTURE_Z, input_dev->keybit);
-    __set_bit(KEY_GESTURE_CLICK, input_dev->keybit);
     __set_bit(KEY_GESTURE_FINGER, input_dev->keybit);
 
     fts_create_gesture_sysfs(ts_data->dev);

@@ -5790,7 +5790,7 @@ static void *def_wcd_mbhc_cal(void)
 
 	btn_high[0] = 75;
 	btn_high[1] = 237;
-	btn_high[2] = 237;//key_code[2] = 0 now,not useful
+	btn_high[2] = 237;
 	btn_high[3] = 500;
 	btn_high[4] = 500;
 	btn_high[5] = 500;

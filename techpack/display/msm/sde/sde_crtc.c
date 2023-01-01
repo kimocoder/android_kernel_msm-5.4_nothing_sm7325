@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  * Copyright (c) 2014-2021 The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -3481,6 +3482,7 @@ static void sde_crtc_destroy_state(struct drm_crtc *crtc,
 	struct sde_crtc_state *cstate;
 	struct drm_encoder *enc;
 	struct sde_kms *sde_kms;
+	u32 encoder_mask;
 
 	if (!crtc || !state) {
 		SDE_ERROR("invalid argument(s)\n");
@@ -3496,9 +3498,11 @@ static void sde_crtc_destroy_state(struct drm_crtc *crtc,
 		return;
 	}
 
-	SDE_DEBUG("crtc%d\n", crtc->base.id);
+	encoder_mask = state->encoder_mask ? state->encoder_mask :
+				crtc->state->encoder_mask;
+	SDE_DEBUG("crtc%d\n, encoder_mask=%d", crtc->base.id, encoder_mask);
 
-	drm_for_each_encoder_mask(enc, crtc->dev, state->encoder_mask)
+	drm_for_each_encoder_mask(enc, crtc->dev, encoder_mask)
 		sde_rm_release(&sde_kms->rm, enc, true);
 
 	__drm_atomic_helper_crtc_destroy_state(state);
@@ -4944,33 +4948,17 @@ sde_crtc_fod_atomic_check(struct sde_crtc_state *cstate,
 			  struct plane_state *pstates, int cnt)
 {
 	struct sde_hw_dim_layer *fod_dim_layer;
-	struct dsi_display *display;
-	struct dsi_panel *panel;
 	uint32_t dim_layer_stage;
-	bool force_fod_ui;
 	int plane_idx;
-
-	display = get_main_display();
-	if (!display || !display->panel) {
-		SDE_ERROR("Invalid primary display\n");
-		return;
-	}
-
-	panel = display->panel;
-
-	force_fod_ui = dsi_panel_get_force_fod_ui(panel);
 
 	for (plane_idx = 0; plane_idx < cnt; plane_idx++)
 		if (sde_plane_is_fod_layer(pstates[plane_idx].drm_pstate))
 			break;
 
-	if (plane_idx == cnt && !force_fod_ui) {
+	if (plane_idx == cnt) {
 		fod_dim_layer = NULL;
 	} else {
-		if (force_fod_ui)
-			dim_layer_stage = pstates[cnt - 1].stage + 1;
-		else
-			dim_layer_stage = pstates[plane_idx].stage;
+		dim_layer_stage = pstates[plane_idx].stage;
 		fod_dim_layer = sde_crtc_setup_fod_dim_layer(cstate,
 							     dim_layer_stage);
 	}

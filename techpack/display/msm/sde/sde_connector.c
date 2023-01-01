@@ -128,7 +128,7 @@ static int sde_backlight_device_update_status(struct backlight_device *bd)
 
 	display->panel->bl_config.real_bl_level = bl_lvl;
 
-	/*if enable hbm_mode, set brightness to HBM brightness*/
+	/*if hbm_mode is enabled, set brightness to HBM brightness*/
 	if (rm692e5_hbm_flag) {
 		bl_lvl = display->panel->bl_config.bl_hbm_level;
 	}
@@ -177,6 +177,25 @@ static const struct backlight_ops sde_backlight_device_ops = {
 	.update_status = sde_backlight_device_update_status,
 	.get_brightness = sde_backlight_device_get_brightness,
 };
+
+void sde_connector_hbm_control(struct sde_connector *c_conn,
+	bool status)
+{
+	struct dsi_display *display;
+
+	display = (struct dsi_display *) c_conn->display;
+	if (rm692e5_aod_flag == 1) {
+		if (status) {
+			dsi_panel_set_nolp(display->panel);
+		} else {
+			dsi_panel_set_lp1(display->panel);
+		}
+	}
+
+	rm692e5_hbm_flag = status ? 1 : 0;
+
+	sde_backlight_device_update_status(c_conn->bl_device);
+}
 
 static int sde_backlight_cooling_cb(struct notifier_block *nb,
 					unsigned long val, void *data)
@@ -866,20 +885,7 @@ static void sde_connector_pre_update_fod_hbm(struct sde_connector *c_conn)
 	if (status)
 		sde_encoder_wait_for_event(c_conn->encoder, MSM_ENC_VBLANK);
 
-	if (status) {
-		if (rm692e5_aod_flag == 1) {
-			dsi_panel_set_nolp(panel);
-		}
-		rm692e5_hbm_flag = 1;
-	} else {
-		if (rm692e5_aod_flag == 1) {
-			dsi_panel_set_lp1(panel);
-		}
-		rm692e5_hbm_flag = 0;
-	}
-
-	panel->fod_hbm_enabled = status;
-	sde_backlight_device_update_status(c_conn->bl_device);
+	sde_connector_hbm_control(c_conn, status);
 
 	if (!status)
 		sde_encoder_wait_for_event(c_conn->encoder, MSM_ENC_VBLANK);
@@ -2977,15 +2983,12 @@ static ssize_t hbm_mode_store(struct device *device,
 		return rc;
 
 	if (hbm_mode) {
-		if (rm692e5_aod_flag == 1) {
+		if (rm692e5_aod_flag == 1)
 			dsi_panel_set_nolp(dsi_display->panel);
-		}
 		rm692e5_hbm_flag = 1;
-	}
-	else {
-		if (rm692e5_aod_flag == 1) {
+	} else {
+		if (rm692e5_aod_flag == 1)
 			dsi_panel_set_lp1(dsi_display->panel);
-		}
 		rm692e5_hbm_flag = 0;
 	}
 
@@ -3092,7 +3095,6 @@ end:
 	sde_vm_unlock(sde_kms);
 	kfree(input);
 	return rc;
-
 }
 
 static ssize_t tx_cmd_show(struct device *device,
@@ -3208,8 +3210,6 @@ end1:
 end:
 	kfree(input);
 	return rc;
-
-
 }
 
 static ssize_t rx_cmd_show(struct device *device,
@@ -3275,7 +3275,6 @@ static ssize_t panel_id_show(struct device *device,
 	c_conn = to_sde_connector(connector);
 
 	tx_cmd_store(device, NULL, change_page_cmd, code_len);
-
 	rx_cmd_store(device, NULL, read_id_cmd, code_len);
 
 	SDE_ERROR("ccc rx_cmd_show before c_conn->cmd_rx_buf[0] = 0x%.2x\n", c_conn->cmd_rx_buf[0]);
