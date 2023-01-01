@@ -658,7 +658,7 @@ int proc_get_read_reg(struct seq_file *m, void *v)
 	return 0;
 }
 
-ssize_t proc_set_read_reg(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
+ssize_t proc_set_read_reg2(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
 {
 	struct net_device *dev = data;
 	char tmp[16];
@@ -1376,7 +1376,7 @@ ssize_t proc_set_survey_info(struct file *file, const char __user *buffer, size_
 		goto cancel_ps_deny;
 	}
 
-	if (rtw_mi_busy_traffic_check(padapter, _FALSE)) {
+	if (rtw_mi_busy_traffic_check2(padapter, _FALSE)) {
 		RTW_INFO("scan abort!! BusyTraffic == _TRUE\n");
 		goto cancel_ps_deny;
 	}

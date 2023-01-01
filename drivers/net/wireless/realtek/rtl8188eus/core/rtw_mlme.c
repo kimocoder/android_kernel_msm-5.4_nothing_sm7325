@@ -3025,7 +3025,7 @@ void rtw_drv_scan_by_self(_adapter *padapter, u8 reason)
 	if (!rtw_is_adapter_up(padapter))
 		goto exit;
 
-	if (rtw_mi_busy_traffic_check(padapter, _FALSE)) {
+	if (rtw_mi_busy_traffic_check2(padapter, _FALSE)) {
 #ifdef CONFIG_LAYER2_ROAMING
 		if (rtw_chk_roam_flags(padapter, RTW_ROAM_ACTIVE) && pmlmepriv->need_to_roam == _TRUE) {
 			RTW_INFO("need to roam, don't care BusyTraffic\n");
@@ -3314,7 +3314,7 @@ void rtw_dynamic_check_timer_handlder(void *ctx)
 
 	collect_traffic_statistics(adapter);
 	collect_sta_traffic_statistics(adapter);
-	rtw_mi_dynamic_check_timer_handlder(adapter);
+	rtw_mi_dynamic_check_timer_handlder2(adapter);
 
 	if (!is_drv_in_lps(adapter))
 		rtw_dynamic_chk_wk_cmd(adapter);

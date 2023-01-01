@@ -469,7 +469,7 @@ u32 rtw_aes_encrypt(_adapter *padapter, u8 *pxmitframe);
 u32 rtw_tkip_encrypt(_adapter *padapter, u8 *pxmitframe);
 void rtw_wep_encrypt2(_adapter *padapter, u8  *pxmitframe);
 
-u32 rtw_aes_decrypt(_adapter *padapter, u8  *precvframe);
+u32 rtw_aes_decrypt2(_adapter *padapter, u8  *precvframe);
 u32 rtw_tkip_decrypt(_adapter *padapter, u8  *precvframe);
 void rtw_wep_decrypt2(_adapter *padapter, u8  *precvframe);
 #ifdef CONFIG_IEEE80211W

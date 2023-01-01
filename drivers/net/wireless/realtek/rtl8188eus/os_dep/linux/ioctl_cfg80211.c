@@ -3002,7 +3002,7 @@ static int cfg80211_rtw_scan(struct wiphy *wiphy
 #endif /* CONFIG_CONCURRENT_MODE */
 
 	/* busy traffic check*/
-	if (rtw_mi_busy_traffic_check(padapter, _TRUE)) {
+	if (rtw_mi_busy_traffic_check2(padapter, _TRUE)) {
 		need_indicate_scan_done = _TRUE;
 		goto check_need_indicate_scan_done;
 	}

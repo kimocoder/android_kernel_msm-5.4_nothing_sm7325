@@ -234,7 +234,7 @@ void rtw_indicate_wx_disassoc_event(_adapter *padapter)
 }
 
 /*
-uint	rtw_is_cckrates_included(u8 *rate)
+uint	rtw_is_cckrates_included2(u8 *rate)
 {
 		u32	i = 0;
 
@@ -438,7 +438,7 @@ static inline char *iwe_stream_protocol_process(_adapter *padapter,
 			snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11bn");
 		else
 			snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11b");
-	} else if ((rtw_is_cckrates_included((u8 *)&pnetwork->network.SupportedRates)) == _TRUE) {
+	} else if ((rtw_is_cckrates_included2((u8 *)&pnetwork->network.SupportedRates)) == _TRUE) {
 		if (ht_cap == _TRUE)
 			snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11bgn");
 		else
@@ -1230,7 +1230,7 @@ static int rtw_wx_get_name(struct net_device *dev,
 				snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11bn");
 			else
 				snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11b");
-		} else if ((rtw_is_cckrates_included((u8 *)prates)) == _TRUE) {
+		} else if ((rtw_is_cckrates_included2((u8 *)prates)) == _TRUE) {
 			if (ht_cap == _TRUE)
 				snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11bgn");
 			else
@@ -1967,7 +1967,7 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 	/* When Busy Traffic, driver do not site survey. So driver return success. */
 	/* wpa_supplicant will not issue SIOCSIWSCAN cmd again after scan timeout. */
 	/* modify by thomas 2011-02-22. */
-	if (rtw_mi_busy_traffic_check(padapter, _FALSE)) {
+	if (rtw_mi_busy_traffic_check2(padapter, _FALSE)) {
 		indicate_wx_scan_complete_event(padapter);
 		goto cancel_ps_deny;
 	}

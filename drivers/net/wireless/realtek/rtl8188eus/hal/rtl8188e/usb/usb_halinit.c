@@ -1662,7 +1662,7 @@ void _ps_open_RF(_adapter *padapter)
 	/* phy_SsPwrSwitch92CU(padapter, rf_on, 1); */
 }
 
-void _ps_close_RF(_adapter *padapter)
+void _ps_close_RF2(_adapter *padapter)
 {
 	/* here call with bRegSSPwrLvl 1, bRegSSPwrLvl 2 needs to be verified */
 	/* phy_SsPwrSwitch92CU(padapter, rf_off, 1); */
@@ -1778,7 +1778,7 @@ u32 rtl8188eu_hal_deinit(PADAPTER Adapter)
 #ifdef SUPPORT_HW_RFOFF_DETECTED
 	RTW_INFO("bkeepfwalive(%x)\n", pwrctl->bkeepfwalive);
 	if (pwrctl->bkeepfwalive) {
-		_ps_close_RF(Adapter);
+		_ps_close_RF2(Adapter);
 		if ((pwrctl->bHWPwrPindetect) && (pwrctl->bHWPowerdown))
 			rtl8188eu_hw_power_down(Adapter);
 	} else

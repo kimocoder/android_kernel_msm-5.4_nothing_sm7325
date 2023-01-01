@@ -3373,7 +3373,7 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SEQ("seq_file_test", &seq_file_test, NULL),
 #endif
 	RTW_PROC_HDL_SSEQ("write_reg", NULL, proc_set_write_reg2),
-	RTW_PROC_HDL_SSEQ("read_reg", proc_get_read_reg, proc_set_read_reg),
+	RTW_PROC_HDL_SSEQ("read_reg", proc_get_read_reg, proc_set_read_reg2),
 	RTW_PROC_HDL_SSEQ("tx_rate_bmp", proc_get_dump_tx_rate_bmp2, NULL),
 	RTW_PROC_HDL_SSEQ("adapters_status", proc_get_dump_adapters_status2, NULL),
 #ifdef CONFIG_RTW_CUSTOMER_STR

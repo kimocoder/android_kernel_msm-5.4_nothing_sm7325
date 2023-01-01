@@ -854,7 +854,7 @@ void rtw_mi_buddy_xmit_tasklet_schedule(_adapter *padapter)
 }
 #endif
 
-u8 _rtw_mi_busy_traffic_check(_adapter *padapter, void *data)
+u8 _rtw_mi_busy_traffic_check2(_adapter *padapter, void *data)
 {
 	u32 passtime;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
@@ -876,17 +876,17 @@ u8 _rtw_mi_busy_traffic_check(_adapter *padapter, void *data)
 	return _FALSE;
 }
 
-u8 rtw_mi_busy_traffic_check(_adapter *padapter, bool check_sc_interval)
+u8 rtw_mi_busy_traffic_check2(_adapter *padapter, bool check_sc_interval)
 {
 	bool in_data = check_sc_interval;
 
-	return _rtw_mi_process(padapter, _FALSE, &in_data, _rtw_mi_busy_traffic_check);
+	return _rtw_mi_process(padapter, _FALSE, &in_data, _rtw_mi_busy_traffic_check2);
 }
 u8 rtw_mi_buddy_busy_traffic_check(_adapter *padapter, bool check_sc_interval)
 {
 	bool in_data = check_sc_interval;
 
-	return _rtw_mi_process(padapter, _TRUE, &in_data, _rtw_mi_busy_traffic_check);
+	return _rtw_mi_process(padapter, _TRUE, &in_data, _rtw_mi_busy_traffic_check2);
 }
 static u8 _rtw_mi_check_mlmeinfo_state(_adapter *padapter, void *data)
 {
@@ -1070,23 +1070,23 @@ void rtw_mi_adapter_reset(_adapter *padapter)
 	_rtw_mi_adapter_reset(padapter, _FALSE);
 }
 
-void rtw_mi_buddy_adapter_reset(_adapter *padapter)
+void rtw_mi_buddy_adapter_reset2(_adapter *padapter)
 {
 	_rtw_mi_adapter_reset(padapter, _TRUE);
 }
 
-static u8 _rtw_mi_dynamic_check_timer_handlder(_adapter *adapter, void *data)
+static u8 _rtw_mi_dynamic_check_timer_handlder2(_adapter *adapter, void *data)
 {
 	rtw_iface_dynamic_check_timer_handlder(adapter);
 	return _TRUE;
 }
-u8 rtw_mi_dynamic_check_timer_handlder(_adapter *padapter)
+u8 rtw_mi_dynamic_check_timer_handlder2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_dynamic_check_timer_handlder);
+	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_dynamic_check_timer_handlder2);
 }
 u8 rtw_mi_buddy_dynamic_check_timer_handlder(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_dynamic_check_timer_handlder);
+	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_dynamic_check_timer_handlder2);
 }
 
 static u8 _rtw_mi_dev_unload(_adapter *adapter, void *data)

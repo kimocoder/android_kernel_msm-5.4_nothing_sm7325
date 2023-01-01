@@ -1908,7 +1908,7 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	return res;
 }
 
-u32	rtw_aes_decrypt(_adapter *padapter, u8 *precvframe)
+u32	rtw_aes_decrypt2(_adapter *padapter, u8 *precvframe)
 {
 	/* exclude ICV */
 
@@ -1939,7 +1939,7 @@ u32	rtw_aes_decrypt(_adapter *padapter, u8 *precvframe)
 				static u32 no_gkey_bc_cnt = 0;
 				static u32 no_gkey_mc_cnt = 0;
 
-				/* RTW_INFO("rx bc/mc packets, to perform sw rtw_aes_decrypt\n"); */
+				/* RTW_INFO("rx bc/mc packets, to perform sw rtw_aes_decrypt2\n"); */
 				/* prwskey = psecuritypriv->dot118021XGrpKey[psecuritypriv->dot118021XGrpKeyid].skey; */
 				if ((!MLME_IS_MESH(padapter) && psecuritypriv->binstallGrpkey == _FALSE)
 					#ifdef CONFIG_RTW_MESH

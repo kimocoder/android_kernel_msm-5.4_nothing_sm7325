@@ -182,7 +182,7 @@ void rtw_mi_xmit_tasklet_schedule(_adapter *padapter);
 void rtw_mi_buddy_xmit_tasklet_schedule(_adapter *padapter);
 #endif
 
-u8 rtw_mi_busy_traffic_check(_adapter *padapter, bool check_sc_interval);
+u8 rtw_mi_busy_traffic_check2(_adapter *padapter, bool check_sc_interval);
 u8 rtw_mi_buddy_busy_traffic_check(_adapter *padapter, bool check_sc_interval);
 
 u8 rtw_mi_check_mlmeinfo_state(_adapter *padapter, u32 state);
@@ -228,9 +228,9 @@ u8 rtw_mi_buddy_dequeue_writeport(_adapter *padapter);
 #endif
 
 void rtw_mi_adapter_reset(_adapter *padapter);
-void rtw_mi_buddy_adapter_reset(_adapter *padapter);
+void rtw_mi_buddy_adapter_reset2(_adapter *padapter);
 
-u8 rtw_mi_dynamic_check_timer_handlder(_adapter *padapter);
+u8 rtw_mi_dynamic_check_timer_handlder2(_adapter *padapter);
 u8 rtw_mi_buddy_dynamic_check_timer_handlder(_adapter *padapter);
 
 u8 rtw_mi_dev_unload(_adapter *padapter);

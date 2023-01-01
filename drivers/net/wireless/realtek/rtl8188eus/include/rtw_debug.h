@@ -247,7 +247,7 @@ void dump_sec_cam_cache2(void *sel, _adapter *adapter);
 #ifdef CONFIG_PROC_DEBUG
 ssize_t proc_set_write_reg2(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 int proc_get_read_reg(struct seq_file *m, void *v);
-ssize_t proc_set_read_reg(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
+ssize_t proc_set_read_reg2(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 
 int proc_get_fwstate(struct seq_file *m, void *v);
 int proc_get_sec_info2(struct seq_file *m, void *v);

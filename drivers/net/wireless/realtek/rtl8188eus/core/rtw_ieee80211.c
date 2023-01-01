@@ -128,7 +128,7 @@ int rtw_get_bit_value_from_ieee_value2(u8 val)
 	return 0;
 }
 
-uint	rtw_is_cckrates_included(u8 *rate)
+uint	rtw_is_cckrates_included2(u8 *rate)
 {
 	u32	i = 0;
 
@@ -162,14 +162,14 @@ uint	rtw_is_cckratesonly_included2(u8 *rate)
 int rtw_check_network_type2(unsigned char *rate, int ratelen, int channel)
 {
 	if (channel > 14) {
-		if ((rtw_is_cckrates_included(rate)) == _TRUE)
+		if ((rtw_is_cckrates_included2(rate)) == _TRUE)
 			return WIRELESS_INVALID;
 		else
 			return WIRELESS_11A;
 	} else { /* could be pure B, pure G, or B/G */
 		if ((rtw_is_cckratesonly_included2(rate)) == _TRUE)
 			return WIRELESS_11B;
-		else if ((rtw_is_cckrates_included(rate)) == _TRUE)
+		else if ((rtw_is_cckrates_included2(rate)) == _TRUE)
 			return	WIRELESS_11BG;
 		else
 			return WIRELESS_11G;

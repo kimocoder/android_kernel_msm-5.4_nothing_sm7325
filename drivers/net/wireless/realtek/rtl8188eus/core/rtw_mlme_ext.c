@@ -14474,7 +14474,7 @@ u8 rtw_scan_sparse(_adapter *adapter, struct rtw_ieee80211_channel *ch, u8 ch_nu
 	interval = rtw_get_passing_time_ms(mlmeext->last_scan_time);
 
 
-	if (rtw_mi_busy_traffic_check(adapter, _FALSE))
+	if (rtw_mi_busy_traffic_check2(adapter, _FALSE))
 		busy_traffic = _TRUE;
 
 	if (rtw_mi_check_miracast_enabled(adapter))

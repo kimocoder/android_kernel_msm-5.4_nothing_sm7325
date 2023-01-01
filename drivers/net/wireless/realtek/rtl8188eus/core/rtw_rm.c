@@ -439,7 +439,7 @@ int ready_for_scan(struct rm_obj *prm)
 	if (!rtw_is_adapter_up(padapter))
 		return _FALSE;
 
-	if (rtw_mi_busy_traffic_check(padapter, _FALSE))
+	if (rtw_mi_busy_traffic_check2(padapter, _FALSE))
 		return _FALSE;
 
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE)

@@ -540,7 +540,7 @@ u8 halbtcoutsrc_IsWifiBusy(PADAPTER padapter)
 {
 	if (rtw_mi_check_status2(padapter, MI_AP_ASSOC))
 		return _TRUE;
-	if (rtw_mi_busy_traffic_check(padapter, _FALSE))
+	if (rtw_mi_busy_traffic_check2(padapter, _FALSE))
 		return _TRUE;
 
 	return _FALSE;

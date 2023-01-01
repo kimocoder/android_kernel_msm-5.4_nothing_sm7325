@@ -17,12 +17,6 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-#if defined(PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
-
-	#error "Shall be Linux or Windows, but not both!\n"
-
-#endif
-
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 static void rtw_signal_stat_timer_hdl(void *ctx);
@@ -46,9 +40,6 @@ u8 signal_stat_calc_profile[SIGNAL_STAT_CALC_PROFILE_MAX][2] = {
 
 void _rtw_init_sta_recv_priv(struct sta_recv_priv *psta_recvpriv)
 {
-
-
-
 	_rtw_memset((u8 *)psta_recvpriv, 0, sizeof(struct sta_recv_priv));
 
 	_rtw_spinlock_init(&psta_recvpriv->lock);
@@ -624,7 +615,7 @@ union recv_frame *decryptor(_adapter *padapter, union recv_frame *precv_frame)
 			break;
 		case _AES_:
 			DBG_COUNTER(padapter->rx_logs.core_rx_post_decrypt_aes);
-			res = rtw_aes_decrypt(padapter, (u8 *)precv_frame);
+			res = rtw_aes_decrypt2(padapter, (u8 *)precv_frame);
 			break;
 #ifdef CONFIG_WAPI_SUPPORT
 		case _SMS4_:
