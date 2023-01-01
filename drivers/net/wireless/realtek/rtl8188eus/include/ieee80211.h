@@ -16,15 +16,6 @@
 #define __IEEE80211_H
 
 
-#ifndef CONFIG_RTL8711FW
-
-	#if defined PLATFORM_OS_XP
-		#include <ntstrsafe.h>
-	#endif
-#else
-
-#endif
-
 #define MGMT_QUEUE_NUM 5
 
 #define ETH_ALEN	6
@@ -1998,8 +1989,8 @@ enum secondary_ch_offset {
 	SCB = 3,  /* secondary channel below */
 };
 u8 secondary_ch_offset_to_hal_ch_offset(u8 ch_offset);
-u8 hal_ch_offset_to_secondary_ch_offset(u8 ch_offset);
-u8 *rtw_set_ie_ch_switch(u8 *buf, u32 *buf_len, u8 ch_switch_mode, u8 new_ch, u8 ch_switch_cnt);
+u8 hal_ch_offset_to_secondary_ch_offset2(u8 ch_offset);
+u8 *rtw_set_ie_ch_switch2(u8 *buf, u32 *buf_len, u8 ch_switch_mode, u8 new_ch, u8 ch_switch_cnt);
 u8 *rtw_set_ie_secondary_ch_offset(u8 *buf, u32 *buf_len, u8 secondary_ch_offset);
 u8 *rtw_set_ie_mesh_ch_switch_parm(u8 *buf, u32 *buf_len, u8 ttl, u8 flags, u16 reason, u16 precedence);
 
@@ -2105,13 +2096,13 @@ uint	rtw_get_rateset_len(u8	*rateset);
 struct registry_priv;
 int rtw_generate_ie(struct registry_priv *pregistrypriv);
 
-int rtw_get_bit_value_from_ieee_value(u8 val);
+int rtw_get_bit_value_from_ieee_value2(u8 val);
 
 uint	rtw_is_cckrates_included(u8 *rate);
 
-uint	rtw_is_cckratesonly_included(u8 *rate);
+uint	rtw_is_cckratesonly_included2(u8 *rate);
 
-int rtw_check_network_type(unsigned char *rate, int ratelen, int channel);
+int rtw_check_network_type2(unsigned char *rate, int ratelen, int channel);
 
 void rtw_get_bcn_info(struct wlan_network *pnetwork);
 

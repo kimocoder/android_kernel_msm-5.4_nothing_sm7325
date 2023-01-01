@@ -23,7 +23,7 @@ extern void rtw_indicate_sta_assoc_event(_adapter *padapter, struct sta_info *ps
 extern void rtw_indicate_sta_disassoc_event(_adapter *padapter, struct sta_info *psta);
 
 
-void init_mlme_ap_info(_adapter *padapter);
+void init_mlme_ap_info2(_adapter *padapter);
 void free_mlme_ap_info(_adapter *padapter);
 u8 rtw_set_tim_ie2(u8 dtim_cnt, u8 dtim_period
 	, const u8 *tim_bmp, u8 tim_bmp_len, u8 *tim_ie);
@@ -35,9 +35,9 @@ void _update_beacon(_adapter *padapter, u8 ie_id, u8 *oui, u8 tx, const char *ta
 
 void rtw_ap_update_sta_ra_info(_adapter *padapter, struct sta_info *psta);
 
-void expire_timeout_chk(_adapter *padapter);
+void expire_timeout_chk2(_adapter *padapter);
 void update_sta_info_apmode(_adapter *padapter, struct sta_info *psta);
-void rtw_start_bss_hdl_after_chbw_decided(_adapter *adapter);
+void rtw_start_bss_hdl_after_chbw_decided2(_adapter *adapter);
 void start_bss_network(_adapter *padapter, struct createbss_parm *parm);
 int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len);
 void rtw_ap_restore_network(_adapter *padapter);
@@ -66,7 +66,7 @@ u8 ap_free_sta(_adapter *padapter, struct sta_info *psta, bool active, u16 reaso
 int rtw_sta_flush(_adapter *padapter, bool enqueue);
 int rtw_ap_inform_ch_switch(_adapter *padapter, u8 new_ch, u8 ch_offset);
 void start_ap_mode(_adapter *padapter);
-void stop_ap_mode(_adapter *padapter);
+void stop_ap_mode2(_adapter *padapter);
 #endif
 
 void rtw_ap_update_bss_chbw(_adapter *adapter, WLAN_BSSID_EX *bss, u8 ch, u8 bw, u8 offset);

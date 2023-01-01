@@ -691,7 +691,7 @@ void sitesurvey_set_offch_state(_adapter *adapter, u8 scan_state);
 	do { \
 		((mlmeext)->sitesurvey_res.state = (_state)); \
 		((mlmeext)->sitesurvey_res.next_state = (_state)); \
-		rtw_mi_update_iface_status(&((container_of(mlmeext, _adapter, mlmeextpriv)->mlmepriv)), 0); \
+		rtw_mi_update_iface_status2(&((container_of(mlmeext, _adapter, mlmeextpriv)->mlmepriv)), 0); \
 		/* RTW_INFO("set_scan_state:%s\n", scan_state_str(_state)); */ \
 		sitesurvey_set_offch_state(container_of(mlmeext, _adapter, mlmeextpriv), _state); \
 	} while (0)
@@ -882,7 +882,7 @@ void rtw_camctl_clr_flags(_adapter *adapter, u32 flags);
 bool _rtw_camctl_chk_flags(_adapter *adapter, u32 flags);
 
 struct sec_cam_bmp;
-void dump_sec_cam_map(void *sel, struct sec_cam_bmp *map, u8 max_num);
+void dump_sec_cam_map2(void *sel, struct sec_cam_bmp *map, u8 max_num);
 void rtw_sec_cam_map_clr_all(struct sec_cam_bmp *map);
 
 bool _rtw_camid_is_gk(_adapter *adapter, u8 cam_id);
@@ -1186,7 +1186,7 @@ u8 rtw_getmacreg_hdl(_adapter *padapter, u8 *pbuf);
 
 #ifdef _RTW_CMD_C_
 
-struct cmd_hdl wlancmds[] = {
+struct cmd_hdl wlancmds2[] = {
 	GEN_DRV_CMD_HANDLER(sizeof(struct readMAC_parm), rtw_getmacreg) /*0*/
 	GEN_DRV_CMD_HANDLER(0, NULL)
 	GEN_DRV_CMD_HANDLER(0, NULL)

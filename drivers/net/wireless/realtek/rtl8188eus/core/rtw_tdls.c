@@ -409,7 +409,7 @@ exit:
 void rtw_tdls_set_key(_adapter *padapter, struct sta_info *ptdls_sta)
 {
 	ptdls_sta->dot118021XPrivacy = _AES_;
-	rtw_setstakey_cmd(padapter, ptdls_sta, TDLS_KEY, _TRUE);
+	rtw_setstakey_cmd2(padapter, ptdls_sta, TDLS_KEY, _TRUE);
 }
 
 #ifdef CONFIG_80211N_HT
@@ -1302,8 +1302,8 @@ int _issue_tdls_teardown(_adapter *padapter, struct tdls_txmgmt *ptxmgmt, struct
 	if (pmgntframe == NULL)
 		goto exit;
 
-	rtw_mi_set_scan_deny(padapter, 550);
-	rtw_mi_scan_abort(padapter, _TRUE);
+	rtw_mi_set_scan_deny2(padapter, 550);
+	rtw_mi_scan_abort2(padapter, _TRUE);
 
 	pattrib = &pmgntframe->attrib;
 

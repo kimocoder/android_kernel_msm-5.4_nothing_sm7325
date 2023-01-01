@@ -17,7 +17,7 @@
 #include <hal_data.h>
 
 /* A mapping from HalData to ODM. */
-enum odm_board_type boardType(u8 InterfaceSel)
+enum odm_board_type boardType2(u8 InterfaceSel)
 {
 	enum odm_board_type        board	= ODM_BOARD_DEFAULT;
 
@@ -60,7 +60,7 @@ enum odm_board_type boardType(u8 InterfaceSel)
 	}
 
 #endif
-	/* RTW_INFO("===> boardType(): (pHalData->InterfaceSel, pDM_Odm->BoardType) = (%d, %d)\n", InterfaceSel, board); */
+	/* RTW_INFO("===> boardType2(): (pHalData->InterfaceSel, pDM_Odm->BoardType2) = (%d, %d)\n", InterfaceSel, board); */
 
 	return board;
 }
@@ -79,30 +79,10 @@ void rtw_hal_update_iqk_fw_offload_cap(_adapter *adapter)
 	RTW_INFO("IQK FW offload:%s\n", hal->RegIQKFWOffload ? "enable" : "disable");
 }
 
-#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
-void rtw_phydm_iqk_trigger(_adapter *adapter)
-{
-	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
-	u8 clear = _TRUE;
-	u8 segment = _FALSE;
-	u8 rfk_forbidden = _FALSE;
-
-	/*segment = _rtw_phydm_iqk_segment_chk(adapter);*/
-	halrf_cmn_info_set(p_dm_odm, HALRF_CMNINFO_RFK_FORBIDDEN, rfk_forbidden);
-	halrf_cmn_info_set(p_dm_odm, HALRF_CMNINFO_IQK_SEGMENT, segment);
-	halrf_segment_iqk_trigger(p_dm_odm, clear, segment);
-}
-#endif
-
 void rtw_phydm_iqk_trigger_dbg(_adapter *adapter, bool recovery, bool clear, bool segment)
 {
 	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
-
-#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
-		halrf_segment_iqk_trigger(p_dm_odm, clear, segment);
-#else
-		halrf_iqk_trigger(p_dm_odm, recovery);
-#endif
+	halrf_iqk_trigger(p_dm_odm, recovery);
 }
 void rtw_phydm_lck_trigger(_adapter *adapter)
 {
@@ -203,7 +183,7 @@ void Init_ODM_ComInfo(_adapter *adapter)
 
 	odm_cmn_info_init(pDM_Odm, ODM_CMNINFO_PLATFORM, ODM_CE);
 
-	rtw_odm_init_ic_type(adapter);
+	rtw_odm_init_ic_type2(adapter);
 
 	if (rtw_get_intf_type(adapter) == RTW_GSPI)
 		odm_cmn_info_init(pDM_Odm, ODM_CMNINFO_INTERFACE, ODM_ITRF_SDIO);
@@ -1070,7 +1050,7 @@ static u8 _rtw_phydm_rfk_condition_check(_adapter *adapter, u8 is_scaning, u8 if
 			RTW_ERR("[RFK-CHK] RF-K not allowed due to ifaces under site-survey\n");
 		}
 		else {
-			rfk_allowed = rtw_mi_stayin_union_ch_chk(adapter) ? _TRUE : _FALSE;
+			rfk_allowed = rtw_mi_stayin_union_ch_chk2(adapter) ? _TRUE : _FALSE;
 			if (rfk_allowed == _FALSE)
 				RTW_ERR("[RFK-CHK] RF-K not allowed due to ld_iface not stayin union ch\n");
 		}
@@ -1244,7 +1224,7 @@ void rtw_phydm_watchdog(_adapter *adapter)
 		halrf_cmn_info_set(&pHalData->odmpriv, HALRF_CMNINFO_RATE_INDEX, tx_unlinked_low_rate);
 	}
 
-	/*if (!rtw_mi_stayin_union_band_chk(adapter)) {
+	/*if (!rtw_mi_stayin_union_band_chk2(adapter)) {
 		#ifdef DBG_PHYDM_STATE_CHK
 		RTW_ERR("Not stay in union band, skip phydm\n");
 		#endif

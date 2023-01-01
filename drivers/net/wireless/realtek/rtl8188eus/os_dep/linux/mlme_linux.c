@@ -13,9 +13,7 @@
  *
  *****************************************************************************/
 
-
 #define _MLME_OSDEP_C_
-
 #include <drv_types.h>
 
 
@@ -39,8 +37,6 @@ void Linkdown_workitem_callback(struct work_struct *work)
 {
 	struct mlme_priv *pmlmepriv = container_of(work, struct mlme_priv, Linkdown_workitem);
 	_adapter *padapter = container_of(pmlmepriv, _adapter, mlmepriv);
-
-
 
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 12))
 	kobject_uevent(&padapter->pnetdev->dev.kobj, KOBJ_LINKDOWN);
@@ -147,11 +143,9 @@ void rtw_reset_securitypriv(_adapter *adapter)
 	RTW_INFO(FUNC_ADPT_FMT" - End to Disconnect\n", FUNC_ADPT_ARG(adapter));
 }
 
-void rtw_os_indicate_disconnect(_adapter *adapter,  u16 reason, u8 locally_generated)
+void rtw_os_indicate_disconnect2(_adapter *adapter,  u16 reason, u8 locally_generated)
 {
 	/* RT_PMKID_LIST   backupPMKIDList[NUM_PMKID_CACHE]; */
-
-
 	rtw_netif_carrier_off(adapter->pnetdev); /* Do it first for tx broadcast pkt after disconnection issue! */
 
 #ifdef CONFIG_IOCTL_CFG80211
@@ -165,17 +159,13 @@ void rtw_os_indicate_disconnect(_adapter *adapter,  u16 reason, u8 locally_gener
 #endif
 	/* modify for CONFIG_IEEE80211W, none 11w also can use the same command */
 	rtw_reset_securitypriv_cmd(adapter);
-
-
 }
 
-void rtw_report_sec_ie(_adapter *adapter, u8 authmode, u8 *sec_ie)
+void rtw_report_sec_ie2(_adapter *adapter, u8 authmode, u8 *sec_ie)
 {
 	uint	len;
 	u8	*buff, *p, i;
 	union iwreq_data wrqu;
-
-
 
 	buff = NULL;
 	if (authmode == _WPA_IE_ID_) {

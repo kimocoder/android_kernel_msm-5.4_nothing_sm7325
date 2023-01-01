@@ -1333,8 +1333,8 @@ void rtw_surveydone_event_callback(_adapter	*adapter, u8 *pbuf)
 					/*pmlmepriv->fw_state = WIFI_ADHOC_MASTER_STATE;*/
 					init_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE);
 
-					if (rtw_create_ibss_cmd(adapter, 0) != _SUCCESS)
-						RTW_ERR("rtw_create_ibss_cmd FAIL\n");
+					if (rtw_create_ibss_cmd2(adapter, 0) != _SUCCESS)
+						RTW_ERR("rtw_create_ibss_cmd2 FAIL\n");
 
 					pmlmepriv->to_join = _FALSE;
 				}
@@ -1354,12 +1354,12 @@ void rtw_surveydone_event_callback(_adapter	*adapter, u8 *pbuf)
 
 				if (rtw_to_roam(adapter) != 0) {
 
-					rtw_init_sitesurvey_parm(adapter, &parm);
+					rtw_init_sitesurvey_parm2(adapter, &parm);
 					_rtw_memcpy(&parm.ssid[0], &pmlmepriv->assoc_ssid, sizeof(NDIS_802_11_SSID));
 					parm.ssid_num = 1;
 
 					if (rtw_dec_to_roam(adapter) == 0
-					    || _SUCCESS != rtw_sitesurvey_cmd(adapter, &parm)
+					    || _SUCCESS != rtw_sitesurvey_cmd2(adapter, &parm)
 					   ) {
 						rtw_set_to_roam(adapter, 0);
 #ifdef CONFIG_INTEL_WIDI
@@ -1437,7 +1437,7 @@ void rtw_surveydone_event_callback(_adapter	*adapter, u8 *pbuf)
 		ch = rtw_mesh_select_operating_ch(adapter);
 		if (ch && pmlmepriv->cur_network.network.Configuration.DSConfig != ch) {
 			/* trigger channel switch with bw specified by upper layer */
-			rtw_change_bss_chbw_cmd(adapter, RTW_CMDF_DIRECTLY, ch, adapter->mlmepriv.ori_bw, -1);
+			rtw_change_bss_chbw_cmd2(adapter, RTW_CMDF_DIRECTLY, ch, adapter->mlmepriv.ori_bw, -1);
 			issue_probereq_ex(adapter, &pmlmepriv->cur_network.network.mesh_id, NULL, 0, 0, 0, 0);
 		}
 	}
@@ -1558,7 +1558,7 @@ void rtw_free_assoc_resources(_adapter *adapter, u8 lock_scanned_queue)
 		rtw_free_network_nolock(adapter, pwlan);
 #ifdef CONFIG_P2P
 		if (!rtw_p2p_chk_state(&adapter->wdinfo, P2P_STATE_NONE)) {
-			rtw_mi_set_scan_deny(adapter, 2000);
+			rtw_mi_set_scan_deny2(adapter, 2000);
 			/* rtw_clear_scan_deny(adapter);			 */
 		}
 #endif /* CONFIG_P2P */
@@ -1568,7 +1568,6 @@ void rtw_free_assoc_resources(_adapter *adapter, u8 lock_scanned_queue)
 		if (check_fwstate(pmlmepriv, WIFI_UNDER_WPS))
 			RTW_INFO("donot free disconnecting network of scanned_queue when WIFI_UNDER_WPS\n\n");
 	}
-
 
 	if ((check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE) && (adapter->stapriv.asoc_sta_count == 1))
 	    /*||check_fwstate(pmlmepriv, WIFI_STATION_STATE)*/) {
@@ -1582,8 +1581,6 @@ void rtw_free_assoc_resources(_adapter *adapter, u8 lock_scanned_queue)
 	adapter->securitypriv.key_mask = 0;
 
 	rtw_reset_rx_info(adapter);
-
-
 }
 
 /*
@@ -1616,11 +1613,8 @@ void rtw_indicate_connect(_adapter *padapter)
 	}
 #endif /* CONFIG_INTEL_WIDI */
 	if (!MLME_IS_AP(padapter) && !MLME_IS_MESH(padapter))
-		rtw_mi_set_scan_deny(padapter, 3000);
-
-
+		rtw_mi_set_scan_deny2(padapter, 3000);
 }
-
 
 /*
 *rtw_indicate_disconnect: the caller has to lock pmlmepriv->lock
@@ -1674,7 +1668,7 @@ void rtw_indicate_disconnect(_adapter *padapter, u16 reason, u8 locally_generate
 	    || (rtw_to_roam(padapter) <= 0)
 	   ) {
 
-		rtw_os_indicate_disconnect(padapter, reason, locally_generated);
+		rtw_os_indicate_disconnect2(padapter, reason, locally_generated);
 
 		/* set ips_deny_time to avoid enter IPS before LPS leave */
 		rtw_set_ips_deny(padapter, 3000);
@@ -2306,7 +2300,7 @@ u8 rtw_sta_media_status_rpt_cmd(_adapter *adapter, struct sta_info *sta, bool co
 	cmd_parm->pbuf = (u8 *)rpt_parm;
 	init_h2fwcmd_w_parm_no_rsp(cmdobj, cmd_parm, GEN_CMD_CODE(_Set_Drv_Extra));
 
-	res = rtw_enqueue_cmd(cmdpriv, cmdobj);
+	res = rtw_enqueue_cmd2(cmdpriv, cmdobj);
 
 exit:
 	return res;
@@ -2421,14 +2415,7 @@ void rtw_stassoc_event_callback(_adapter *adapter, u8 *pbuf)
 
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
-
 	mlmeext_sta_add_event_callback(adapter, psta);
-
-#ifdef CONFIG_RTL8711
-	/* submit SetStaKey_cmd to tell fw, fw will allocate an CAM entry for this sta	 */
-	rtw_setstakey_cmd(adapter, psta, GROUP_KEY, _TRUE);
-#endif
-
 exit:
 	return;
 }
@@ -2609,7 +2596,7 @@ u8 rtw_roam_nb_scan_list_set(
 	if (!pparm)
 		return ret;
 
-	rtw_init_sitesurvey_parm(padapter, pparm);
+	rtw_init_sitesurvey_parm2(padapter, pparm);
 	if (rtw_roam_busy_scan(padapter, pnb)) {
 		pparm->ch_num = 1;
 		pparm->ch[pmlmepriv->ch_cnt].hw_value = 
@@ -2631,11 +2618,11 @@ u8 rtw_roam_nb_scan_list_set(
 	}
 
 	pmlmepriv->nb_info.nb_rpt_valid = _FALSE;
-	pmlmepriv->ch_cnt = 0;		
+	pmlmepriv->ch_cnt = 0;
 	ret = _TRUE;
 
 set_bssid_list:
-	rtw_set_802_11_bssid_list_scan(padapter, pparm);
+	rtw_set_802_11_bssid_list_scan2(padapter, pparm);
 	return ret;
 }
 #endif
@@ -2832,8 +2819,8 @@ void rtw_stadel_event_callback(_adapter *adapter, u8 *pbuf)
 				_clr_fwstate_(pmlmepriv, WIFI_ADHOC_STATE);
 			}
 
-			if (rtw_create_ibss_cmd(adapter, 0) != _SUCCESS)
-				RTW_ERR("rtw_create_ibss_cmd FAIL\n");
+			if (rtw_create_ibss_cmd2(adapter, 0) != _SUCCESS)
+				RTW_ERR("rtw_create_ibss_cmd2 FAIL\n");
 
 		}
 
@@ -2991,7 +2978,7 @@ void rtw_mlme_reset_auto_scan_int(_adapter *adapter, u8 *reason)
 	u32 interval_ms = 0xffffffff; /* 0xffffffff: special value to make min() works well, also means no auto scan */
 
 	*reason = RTW_AUTO_SCAN_REASON_UNSPECIFIED;
-	rtw_mi_get_ch_setting_union(adapter, &u_ch, NULL, NULL);
+	rtw_mi_get_ch_setting_union2(adapter, &u_ch, NULL, NULL);
 
 	if (hal_chk_bw_cap(adapter, BW_CAP_40M)
 		&& is_client_associated_to_ap(adapter) == _TRUE
@@ -3069,23 +3056,23 @@ void rtw_drv_scan_by_self(_adapter *padapter, u8 reason)
 
 	/* only for 20/40 BSS */
 	if (reason == RTW_AUTO_SCAN_REASON_2040_BSS) {
-		rtw_init_sitesurvey_parm(padapter, &parm);
+		rtw_init_sitesurvey_parm2(padapter, &parm);
 		for (i=0;i<14;i++) {
 			parm.ch[i].hw_value = i + 1;
 			parm.ch[i].flags = RTW_IEEE80211_CHAN_PASSIVE_SCAN;
 		}
 		parm.ch_num = 14;
-		rtw_set_802_11_bssid_list_scan(padapter, &parm);
+		rtw_set_802_11_bssid_list_scan2(padapter, &parm);
 		goto exit;
 	}
 
 #if defined(CONFIG_RTW_WNM) || defined(CONFIG_RTW_80211K)
-	if ((reason == RTW_AUTO_SCAN_REASON_ROAM) 
+	if ((reason == RTW_AUTO_SCAN_REASON_ROAM)
 		&& (rtw_roam_nb_scan_list_set(padapter, &parm)))
 		goto exit;
 #endif
 
-	rtw_set_802_11_bssid_list_scan(padapter, NULL);
+	rtw_set_802_11_bssid_list_scan2(padapter, NULL);
 exit:
 	return;
 }
@@ -3160,7 +3147,7 @@ void rtw_iface_dynamic_check_timer_handlder(_adapter *adapter)
 #ifdef CONFIG_AP_MODE
 	if (MLME_IS_AP(adapter)|| MLME_IS_MESH(adapter)) {
 		#ifndef CONFIG_ACTIVE_KEEP_ALIVE_CHECK
-		expire_timeout_chk(adapter);
+		expire_timeout_chk2(adapter);
 		#endif /* !CONFIG_ACTIVE_KEEP_ALIVE_CHECK */
 
 		#ifdef CONFIG_BMC_TX_RATE_SELECT
@@ -3712,7 +3699,7 @@ candidate_exist:
 		} else
 #endif
 		{
-			rtw_disassoc_cmd(adapter, 0, 0);
+			rtw_disassoc_cmd2(adapter, 0, 0);
 			rtw_indicate_disconnect(adapter, 0, _FALSE);
 			rtw_free_assoc_resources_cmd(adapter, _TRUE);
 		}
@@ -3769,19 +3756,12 @@ sint rtw_set_auth(_adapter *adapter, struct security_priv *psecuritypriv)
 	pcmd->rsp = NULL;
 	pcmd->rspsz = 0;
 
-
 	_rtw_init_listhead(&pcmd->list);
 
-
-	res = rtw_enqueue_cmd(pcmdpriv, pcmd);
-
+	res = rtw_enqueue_cmd2(pcmdpriv, pcmd);
 exit:
-
-
 	return res;
-
 }
-
 
 sint rtw_set_key(_adapter *adapter, struct security_priv *psecuritypriv, sint keyid, u8 set_tx, bool enqueue)
 {
@@ -3856,7 +3836,7 @@ sint rtw_set_key(_adapter *adapter, struct security_priv *psecuritypriv, sint ke
 
 		/* _rtw_init_sema(&(pcmd->cmd_sem), 0); */
 
-		res = rtw_enqueue_cmd(pcmdpriv, pcmd);
+		res = rtw_enqueue_cmd2(pcmdpriv, pcmd);
 	} else {
 		setkey_hdl(adapter, (u8 *)psetkeyparm);
 		rtw_mfree((u8 *) psetkeyparm, sizeof(struct setkey_parm));
@@ -4174,7 +4154,7 @@ sint rtw_restruct_sec_ie(_adapter *adapter, u8 *out_ie)
 			printk("\n");
 		}*/
 		ielength = psecuritypriv->supplicant_ie[1] + 2;
-		rtw_report_sec_ie(adapter, authmode, psecuritypriv->supplicant_ie);
+		rtw_report_sec_ie2(adapter, authmode, psecuritypriv->supplicant_ie);
 	}
 
 	if (authmode == WLAN_EID_RSN) {

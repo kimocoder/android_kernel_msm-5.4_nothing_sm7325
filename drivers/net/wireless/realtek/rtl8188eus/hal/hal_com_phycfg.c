@@ -3040,11 +3040,11 @@ PHY_GetTxPowerLimit(_adapter *adapter
 		if (tlrs == TXPWR_LMT_RS_CCK || tlrs == TXPWR_LMT_RS_OFDM)
 			bw_bmp = BW_CAP_20M; /* CCK, OFDM only BW 20M */
 		else if (tlrs == TXPWR_LMT_RS_HT) {
-			bw_bmp = rtw_get_tx_bw_bmp_of_ht_rate(dvobj, rate, bw);
+			bw_bmp = rtw_get_tx_bw_bmp_of_ht_rate2(dvobj, rate, bw);
 			if (bw_bmp == 0)
 				bw_bmp = ch_width_to_bw_cap(bw > CHANNEL_WIDTH_40 ? CHANNEL_WIDTH_40 : bw);
 		} else if (tlrs == TXPWR_LMT_RS_VHT) {
-			bw_bmp = rtw_get_tx_bw_bmp_of_vht_rate(dvobj, rate, bw);
+			bw_bmp = rtw_get_tx_bw_bmp_of_vht_rate2(dvobj, rate, bw);
 			if (bw_bmp == 0)
 				bw_bmp = ch_width_to_bw_cap(bw > CHANNEL_WIDTH_160 ? CHANNEL_WIDTH_160 : bw);
 		} else
@@ -3284,9 +3284,9 @@ void phy_txpwr_limit_bandwidth_chk(_adapter *adapter)
 				continue;
 
 			if (band == BAND_ON_2_4G)
-				ch_num = center_chs_2g_num(bw);
+				ch_num = center_chs_2g_num2(bw);
 			else
-				ch_num = center_chs_5g_num(bw);
+				ch_num = center_chs_5g_num2(bw);
 
 			if (ch_num == 0) {
 				rtw_warn_on(1);
@@ -3367,7 +3367,7 @@ void phy_txpwr_limit_bandwidth_chk(_adapter *adapter)
 
 						do {
 							for (bw_pos = bw; bw_pos >= CHANNEL_WIDTH_40; bw_pos--)
-								cch_by_bw[bw_pos - 1] = rtw_get_scch_by_cch_offset(cch_by_bw[bw_pos], bw_pos, offset_by_bw & BIT(bw_pos) ? HAL_PRIME_CHNL_OFFSET_UPPER : HAL_PRIME_CHNL_OFFSET_LOWER);
+								cch_by_bw[bw_pos - 1] = rtw_get_scch_by_cch_offset2(cch_by_bw[bw_pos], bw_pos, offset_by_bw & BIT(bw_pos) ? HAL_PRIME_CHNL_OFFSET_UPPER : HAL_PRIME_CHNL_OFFSET_LOWER);
 
 							head = &rfctl->txpwr_lmt_list;
 							cur = get_next(head);

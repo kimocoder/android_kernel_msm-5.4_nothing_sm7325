@@ -20,10 +20,6 @@
 #include "../../hal/phydm/phydm_precomp.h"
 
 
-#if defined(CONFIG_RTL8723B)
-	#include <rtw_bt_mp.h>
-#endif
-
 /*
  * Input Format: %s,%d,%d
  *	%s is width, could be
@@ -376,7 +372,7 @@ int rtw_mp_start(struct net_device *dev,
 	LeaveAllPowerSaveMode(padapter);
 
 	if (rtw_mi_check_fwstate(padapter, _FW_UNDER_SURVEY))
-		rtw_mi_scan_abort(padapter, _FALSE);
+		rtw_mi_scan_abort2(padapter, _FALSE);
 
 	if (rtw_mp_cmd(padapter, MP_START, RTW_CMDF_WAIT_ACK) != _SUCCESS)
 		ret = -EPERM;
@@ -1117,7 +1113,6 @@ int rtw_mp_psd(struct net_device *dev,
 	return 0;
 }
 
-
 int rtw_mp_thermal(struct net_device *dev,
 		   struct iw_request_info *info,
 		   struct iw_point *wrqu, char *extra)
@@ -1127,30 +1122,6 @@ int rtw_mp_thermal(struct net_device *dev,
 
 #ifdef CONFIG_RTL8188E
 	u16 addr = EEPROM_THERMAL_METER_88E;
-#endif
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8814A)
-	u16 addr = EEPROM_THERMAL_METER_8812;
-#endif
-#ifdef CONFIG_RTL8192E
-	u16 addr = EEPROM_THERMAL_METER_8192E;
-#endif
-#ifdef CONFIG_RTL8723B
-	u16 addr = EEPROM_THERMAL_METER_8723B;
-#endif
-#ifdef CONFIG_RTL8703B
-	u16 addr = EEPROM_THERMAL_METER_8703B;
-#endif
-#ifdef CONFIG_RTL8723D
-	u16 addr = EEPROM_THERMAL_METER_8723D;
-#endif
-#ifdef CONFIG_RTL8188F
-	u16 addr = EEPROM_THERMAL_METER_8188F;
-#endif
-#ifdef CONFIG_RTL8822B
-	u16 addr = EEPROM_THERMAL_METER_8822B;
-#endif
-#ifdef CONFIG_RTL8821C
-	u16 addr = EEPROM_THERMAL_METER_8821C;
 #endif
 	u16 cnt = 1;
 	u16 max_available_size = 0;
@@ -1178,11 +1149,8 @@ int rtw_mp_thermal(struct net_device *dev,
 	} else
 		sprintf(extra, "%d", val);
 	wrqu->length = strlen(extra);
-
 	return 0;
 }
-
-
 
 int rtw_mp_reset_stats(struct net_device *dev,
 		       struct iw_request_info *info,
@@ -1229,8 +1197,8 @@ int rtw_mp_dump(struct net_device *dev,
 		return -EFAULT;
 
 	if (strncmp(input, "all", 4) == 0) {
-		mac_reg_dump(RTW_DBGDUMP, padapter);
-		bb_reg_dump(RTW_DBGDUMP, padapter);
+		mac_reg_dump2(RTW_DBGDUMP, padapter);
+		bb_reg_dump2(RTW_DBGDUMP, padapter);
 		rf_reg_dump(RTW_DBGDUMP, padapter);
 	}
 	return 0;
@@ -1337,26 +1305,6 @@ int rtw_mp_switch_rf_path(struct net_device *dev,
 	bbt = strncmp(input, "BT", 3); /* strncmp TRUE is 0*/
 
 	_rtw_memset(extra, 0, wrqu->length);
-#ifdef CONFIG_RTL8821C /* only support for 8821c wlg/wla/btg/bt RF switch path */
-	if (bwlg == 0) {
-		pmp_priv->rf_path_cfg = SWITCH_TO_WLG;
-		sprintf(extra, "switch rf path WLG\n");
-	} else if (bwla == 0) {
-		pmp_priv->rf_path_cfg = SWITCH_TO_WLA;
-		sprintf(extra, "switch rf path WLA\n");
-	} else if (btg == 0) {
-		pmp_priv->rf_path_cfg = SWITCH_TO_BTG;
-		sprintf(extra, "switch rf path BTG\n");
-	} else if (bbt == 0) {
-		pmp_priv->rf_path_cfg = SWITCH_TO_BT;
-		sprintf(extra, "switch rf path BG\n");
-	} else {
-		sprintf(extra, "Error set %s\n", __func__);
-		return -EFAULT;
-	}
-
-	mp_phy_switch_rf_path_set(padapter, &pmp_priv->rf_path_cfg);
-#endif
 
 	wrqu->length = strlen(extra);
 
@@ -1495,9 +1443,9 @@ int rtw_mp_mon(struct net_device *dev,
 		pHalFunc->hal_deinit(padapter);
 		padapter->registrypriv.mp_mode = 0;
 		pHalFunc->hal_init(padapter);
-		/*rtw_disassoc_cmd(padapter, 0, 0);*/
+		/*rtw_disassoc_cmd2(padapter, 0, 0);*/
 		if (check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE) {
-			rtw_disassoc_cmd(padapter, 500, 0);
+			rtw_disassoc_cmd2(padapter, 500, 0);
 			rtw_indicate_disconnect(padapter, 0, _FALSE);
 			/*rtw_free_assoc_resources_cmd(padapter, _TRUE);*/
 		}
@@ -1576,16 +1524,6 @@ int rtw_mp_pretx_proc(PADAPTER padapter, u8 bStartTest, char *extra)
 		SetPacketTx(padapter);
 	} else
 		pmp_priv->mode = MP_ON;
-
-#if defined(CONFIG_RTL8812A)
-	if (IS_HARDWARE_TYPE_8812AU(padapter)) {
-		/* <20130425, Kordan> Turn off OFDM Rx to prevent from CCA causing Tx hang.*/
-		if (pmp_priv->mode == MP_PACKET_TX)
-			phy_set_bb_reg(padapter, rCCAonSec_Jaguar, BIT3, 1);
-		else
-			phy_set_bb_reg(padapter, rCCAonSec_Jaguar, BIT3, 0);
-	}
-#endif
 
 	return 0;
 }
@@ -2044,28 +1982,7 @@ int rtw_mp_hwtx(struct net_device *dev,
 	struct mp_priv *pmp_priv = &padapter->mppriv;
 	PMPT_CONTEXT		pMptCtx = &(padapter->mppriv.mpt_ctx);
 
-#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8821B) || defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
-	u8		input[wrqu->data.length];
-
-	if (copy_from_user(input, wrqu->data.pointer, wrqu->data.length))
-		return -EFAULT;
-
-	_rtw_memset(&pMptCtx->PMacTxInfo, 0, sizeof(RT_PMAC_TX_INFO));
-	_rtw_memcpy((void *)&pMptCtx->PMacTxInfo, (void *)input, sizeof(RT_PMAC_TX_INFO));
-	_rtw_memset(wrqu->data.pointer, 0, wrqu->data.length);
-
-	if (pMptCtx->PMacTxInfo.bEnPMacTx == 1 && pmp_priv->mode != MP_ON) {
-		sprintf(extra, "MP Tx Running, Please Set PMac Tx Mode Stop\n");
-		RTW_INFO("Error !!! MP Tx Running, Please Set PMac Tx Mode Stop\n");
-	} else {
-		RTW_INFO("To set MAC Tx mode\n");
-		mpt_ProSetPMacTx(padapter);
-		sprintf(extra, "Set PMac Tx Mode OK\n");
-	}
-	wrqu->data.length = strlen(extra);
-#endif
 	return 0;
-
 }
 
 int rtw_mp_pwrlmt(struct net_device *dev,

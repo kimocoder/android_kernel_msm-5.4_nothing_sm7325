@@ -17,10 +17,6 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-#if defined(PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
-	#error "Shall be Linux or Windows, but not both!\n"
-#endif
-
 
 static u8 P802_1H_OUI[P80211_OUI_LEN] = { 0x00, 0x00, 0xf8 };
 static u8 RFC1042_OUI[P80211_OUI_LEN] = { 0x00, 0x00, 0x00 };
@@ -54,7 +50,7 @@ void	_rtw_init_sta_xmit_priv2(struct sta_xmit_priv *psta_xmitpriv)
 
 }
 
-void rtw_init_xmit_block(_adapter *padapter)
+void rtw_init_xmit_block2(_adapter *padapter)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
 
@@ -346,7 +342,7 @@ s32	_rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, _adapter *padapter)
 #ifdef DBG_TXBD_DESC_DUMP
 	pxmitpriv->dump_txbd_desc = 0;
 #endif
-	rtw_init_xmit_block(padapter);
+	rtw_init_xmit_block2(padapter);
 	rtw_hal_init_xmit_priv(padapter);
 
 exit:
@@ -652,7 +648,7 @@ inline u32 rtw_get_tx_rate_bmp_vht_by_bw(struct dvobj_priv *dvobj, u8 bw)
 	return rf_ctl->rate_bmp_vht_by_bw[bw];
 }
 
-u8 rtw_get_tx_bw_bmp_of_ht_rate(struct dvobj_priv *dvobj, u8 rate, u8 max_bw)
+u8 rtw_get_tx_bw_bmp_of_ht_rate2(struct dvobj_priv *dvobj, u8 rate, u8 max_bw)
 {
 	struct rf_ctl_t *rf_ctl = dvobj_to_rfctl(dvobj);
 	u8 bw;
@@ -679,7 +675,7 @@ exit:
 	return bw_bmp;
 }
 
-u8 rtw_get_tx_bw_bmp_of_vht_rate(struct dvobj_priv *dvobj, u8 rate, u8 max_bw)
+u8 rtw_get_tx_bw_bmp_of_vht_rate2(struct dvobj_priv *dvobj, u8 rate, u8 max_bw)
 {
 	struct rf_ctl_t *rf_ctl = dvobj_to_rfctl(dvobj);
 	u8 bw;
@@ -706,7 +702,7 @@ exit:
 	return bw_bmp;
 }
 
-u8 query_ra_short_GI(struct sta_info *psta, u8 bw)
+u8 query_ra_short_GI2(struct sta_info *psta, u8 bw)
 {
 	u8	sgi = _FALSE, sgi_20m = _FALSE, sgi_40m = _FALSE, sgi_80m = _FALSE;
 
@@ -838,12 +834,6 @@ static void update_attrib_vcs_info(_adapter *padapter, struct xmit_frame *pxmitf
 
 			/* to do list: check MIMO power save condition. */
 
-			/* check AMPDU aggregation for TXOP */
-			if ((pattrib->ampdu_en == _TRUE) && (!IS_HARDWARE_TYPE_8812(padapter))) {
-				pattrib->vcs_mode = RTS_CTS;
-				break;
-			}
-
 			pattrib->vcs_mode = NONE_VCS;
 			break;
 		}
@@ -861,9 +851,9 @@ static void update_attrib_vcs_info(_adapter *padapter, struct xmit_frame *pxmitf
 #ifdef CONFIG_WMMPS_STA
 /*
  * update_attrib_trigger_frame_info
- * For Station mode, if a specific TID of driver setting and an AP support uapsd function, the data 
+ * For Station mode, if a specific TID of driver setting and an AP support uapsd function, the data
  * frame with corresponding TID will be a trigger frame when driver is in wmm power saving mode.
- * 
+ *
  * Arguments:
  * @padapter: _adapter pointer.
  * @pattrib: pkt_attrib pointer.
@@ -873,7 +863,7 @@ static void update_attrib_vcs_info(_adapter *padapter, struct xmit_frame *pxmitf
  */
 static void update_attrib_trigger_frame_info(_adapter *padapter, struct pkt_attrib *pattrib) {
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
-	struct pwrctrl_priv 	*pwrpriv = adapter_to_pwrctl(padapter); 
+	struct pwrctrl_priv 	*pwrpriv = adapter_to_pwrctl(padapter);
 	struct qos_priv 	*pqospriv = &pmlmepriv->qospriv;
 	u8 trigger_frame_en = 0;
 
@@ -910,7 +900,7 @@ static void update_attrib_phy_info(_adapter *padapter, struct pkt_attrib *pattri
 
 	bw = rtw_get_tx_bw_mode(padapter, psta);
 	pattrib->bwmode = rtw_min(bw, mlmeext->cur_bwmode);
-	pattrib->sgi = query_ra_short_GI(psta, pattrib->bwmode);
+	pattrib->sgi = query_ra_short_GI2(psta, pattrib->bwmode);
 
 	pattrib->ldpc = psta->cmn.ldpc_en;
 	pattrib->stbc = psta->cmn.stbc_en;
@@ -951,7 +941,7 @@ static void update_attrib_phy_info(_adapter *padapter, struct pkt_attrib *pattri
 		pattrib->bwmode = rtw_get_tx_bw_mode(padapter, psta);
 		pattrib->ht_en = psta->htpriv.ht_option;
 		pattrib->ch_offset = psta->htpriv.ch_offset;
-		pattrib->sgi = query_ra_short_GI(psta, pattrib->bwmode);
+		pattrib->sgi = query_ra_short_GI2(psta, pattrib->bwmode);
 #endif /* CONFIG_80211N_HT */
 	}
 #endif /* CONFIG_TDLS */
@@ -1422,7 +1412,7 @@ get_sta_info:
 		RTW_PRINT("send eapol packet\n");
 
 	if ((pattrib->ether_type == 0x888e) || (pattrib->dhcp_pkt == 1))
-		rtw_mi_set_scan_deny(padapter, 3000);
+		rtw_mi_set_scan_deny2(padapter, 3000);
 
 #ifdef CONFIG_LPS
 	/* If EAPOL , ARP , OR DHCP packet, driver must be in active mode. */
@@ -1580,7 +1570,7 @@ static s32 xmitframe_addmic(_adapter *padapter, struct xmit_frame *pxmitframe)
 					return _FAIL;
 				}
 				/* start to calculate the mic code */
-				rtw_secmicsetkey(&micdata, psecuritypriv->dot118021XGrptxmickey[psecuritypriv->dot118021XGrpKeyid].skey);
+				rtw_secmicsetkey2(&micdata, psecuritypriv->dot118021XGrptxmickey[psecuritypriv->dot118021XGrpKeyid].skey);
 			} else {
 				if (_rtw_memcmp(&pattrib->dot11tkiptxmickey.skey[0], null_key, 16) == _TRUE) {
 					/* DbgPrint("\nxmitframe_addmic:stainfo->dot11tkiptxmickey==0\n"); */
@@ -1588,21 +1578,21 @@ static s32 xmitframe_addmic(_adapter *padapter, struct xmit_frame *pxmitframe)
 					return _FAIL;
 				}
 				/* start to calculate the mic code */
-				rtw_secmicsetkey(&micdata, &pattrib->dot11tkiptxmickey.skey[0]);
+				rtw_secmicsetkey2(&micdata, &pattrib->dot11tkiptxmickey.skey[0]);
 			}
 
 			if (pframe[1] & 1) { /* ToDS==1 */
-				rtw_secmicappend(&micdata, &pframe[16], 6);  /* DA */
+				rtw_secmicappend2(&micdata, &pframe[16], 6);  /* DA */
 				if (pframe[1] & 2) /* From Ds==1 */
-					rtw_secmicappend(&micdata, &pframe[24], 6);
+					rtw_secmicappend2(&micdata, &pframe[24], 6);
 				else
-					rtw_secmicappend(&micdata, &pframe[10], 6);
+					rtw_secmicappend2(&micdata, &pframe[10], 6);
 			} else {	/* ToDS==0 */
-				rtw_secmicappend(&micdata, &pframe[4], 6);   /* DA */
+				rtw_secmicappend2(&micdata, &pframe[4], 6);   /* DA */
 				if (pframe[1] & 2) /* From Ds==1 */
-					rtw_secmicappend(&micdata, &pframe[16], 6);
+					rtw_secmicappend2(&micdata, &pframe[16], 6);
 				else
-					rtw_secmicappend(&micdata, &pframe[10], 6);
+					rtw_secmicappend2(&micdata, &pframe[10], 6);
 
 			}
 
@@ -1611,7 +1601,7 @@ static s32 xmitframe_addmic(_adapter *padapter, struct xmit_frame *pxmitframe)
 				priority[0] = (u8)pxmitframe->attrib.priority;
 
 
-			rtw_secmicappend(&micdata, &priority[0], 4);
+			rtw_secmicappend2(&micdata, &priority[0], 4);
 
 			payload = pframe;
 
@@ -1621,11 +1611,11 @@ static s32 xmitframe_addmic(_adapter *padapter, struct xmit_frame *pxmitframe)
 				payload = payload + pattrib->hdrlen + pattrib->iv_len;
 				if ((curfragnum + 1) == pattrib->nr_frags) {
 					length = pattrib->last_txcmdsz - pattrib->hdrlen - pattrib->iv_len - ((pattrib->bswenc) ? pattrib->icv_len : 0);
-					rtw_secmicappend(&micdata, payload, length);
+					rtw_secmicappend2(&micdata, payload, length);
 					payload = payload + length;
 				} else {
 					length = pxmitpriv->frag_len - pattrib->hdrlen - pattrib->iv_len - ((pattrib->bswenc) ? pattrib->icv_len : 0);
-					rtw_secmicappend(&micdata, payload, length);
+					rtw_secmicappend2(&micdata, payload, length);
 					payload = payload + length + pattrib->icv_len;
 				}
 			}
@@ -2883,7 +2873,7 @@ s32 rtw_mgmt_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame
 			#endif
 
 			/* calculate mic */
-			if (omac1_aes_128(padapter->securitypriv.dot11wBIPKey[padapter->securitypriv.dot11wBIPKeyid].skey
+			if (omac1_aes_1282(padapter->securitypriv.dot11wBIPKey[padapter->securitypriv.dot11wBIPKeyid].skey
 				  , BIP_AAD, BIP_AAD_SIZE + frame_body_len, mic))
 				goto xmitframe_coalesce_fail;
 

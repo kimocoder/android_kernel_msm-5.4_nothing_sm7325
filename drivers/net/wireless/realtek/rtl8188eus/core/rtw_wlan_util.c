@@ -33,7 +33,6 @@ unsigned char BROADCOM_OUI1[] = {0x00, 0x10, 0x18};
 unsigned char BROADCOM_OUI2[] = {0x00, 0x0a, 0xf7};
 unsigned char BROADCOM_OUI3[] = {0x00, 0x05, 0xb5};
 
-
 unsigned char CISCO_OUI[] = {0x00, 0x40, 0x96};
 unsigned char MARVELL_OUI[] = {0x00, 0x50, 0x43};
 unsigned char RALINK_OUI[] = {0x00, 0x0c, 0x43};
@@ -888,7 +887,7 @@ inline bool _rtw_camctl_chk_flags(_adapter *adapter, u32 flags)
 	return _FALSE;
 }
 
-void dump_sec_cam_map(void *sel, struct sec_cam_bmp *map, u8 max_num)
+void dump_sec_cam_map2(void *sel, struct sec_cam_bmp *map, u8 max_num)
 {
 	RTW_PRINT_SEL(sel, "0x%08x\n", map->m0);
 #if (SEC_CAM_ENT_NUM_SW_LIMIT > 32)
@@ -3202,7 +3201,7 @@ void fire_write_MAC_cmd(_adapter *padapter, unsigned int addr, unsigned int valu
 	pwriteMacPara->value = value;
 
 	init_h2fwcmd_w_parm_no_rsp(ph2c, pwriteMacPara, GEN_CMD_CODE(_Write_MACREG));
-	rtw_enqueue_cmd(pcmdpriv, ph2c);
+	rtw_enqueue_cmd2(pcmdpriv, ph2c);
 #endif
 }
 

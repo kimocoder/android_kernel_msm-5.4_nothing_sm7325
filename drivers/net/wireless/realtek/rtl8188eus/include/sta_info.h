@@ -145,12 +145,12 @@ struct	stainfo_stats	{
 	u16 tx_tp_mbytes;
 
 	/* unicast only */
-	u64 last_rx_data_uc_pkts; /* For Read & Clear requirement in proc_get_rx_stat() */
-	u32 duplicate_cnt;	/* Read & Clear, in proc_get_rx_stat() */
-	u32 rxratecnt[128];	/* Read & Clear, in proc_get_rx_stat() */
-	u32 tx_ok_cnt;		/* Read & Clear, in proc_get_tx_stat() */
-	u32 tx_fail_cnt;	/* Read & Clear, in proc_get_tx_stat() */
-	u32 tx_retry_cnt;	/* Read & Clear, in proc_get_tx_stat() */
+	u64 last_rx_data_uc_pkts; /* For Read & Clear requirement in proc_get_rx_stat2() */
+	u32 duplicate_cnt;	/* Read & Clear, in proc_get_rx_stat2() */
+	u32 rxratecnt[128];	/* Read & Clear, in proc_get_rx_stat2() */
+	u32 tx_ok_cnt;		/* Read & Clear, in proc_get_tx_stat2() */
+	u32 tx_fail_cnt;	/* Read & Clear, in proc_get_tx_stat2() */
+	u32 tx_retry_cnt;	/* Read & Clear, in proc_get_tx_stat2() */
 #ifdef CONFIG_RTW_MESH
 	u32 rx_hwmp_pkts;
 	u32 last_rx_hwmp_pkts;

@@ -54,7 +54,7 @@ u32 rtw_phydm_ability_ops(_adapter *adapter, HAL_PHYDM_OPS ops, u32 ability)
 }
 
 /* set ODM_CMNINFO_IC_TYPE based on chip_type */
-void rtw_odm_init_ic_type(_adapter *adapter)
+void rtw_odm_init_ic_type2(_adapter *adapter)
 {
 	struct dm_struct *odm = adapter_to_phydm(adapter);
 	u4Byte ic_type = chip_type_to_odm_ic_type(rtw_get_chip_type(adapter));

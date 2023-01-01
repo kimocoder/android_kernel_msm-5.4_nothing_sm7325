@@ -511,7 +511,7 @@ int rm_sitesurvey(struct rm_obj *prm)
 	parm.duration = prm->q.meas_dur;
 	/* parm.bw = BW_20M; */
 
-	rtw_sitesurvey_cmd(prm->psta->padapter, &parm);
+	rtw_sitesurvey_cmd2(prm->psta->padapter, &parm);
 
 	return _SUCCESS;
 }

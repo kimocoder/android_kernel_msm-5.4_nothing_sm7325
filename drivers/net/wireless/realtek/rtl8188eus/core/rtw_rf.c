@@ -182,7 +182,7 @@ struct center_chs_ent_t {
 	u8 *chs;
 };
 
-struct center_chs_ent_t center_chs_2g_by_bw[] = {
+struct center_chs_ent_t center_chs_2g_by_bw2[] = {
 	{CENTER_CH_2G_NUM, center_ch_2g},
 	{CENTER_CH_2G_40M_NUM, center_ch_2g_40m},
 };
@@ -202,7 +202,7 @@ struct center_chs_ent_t center_chs_5g_by_bw[] = {
  *
  * return center channel of smaller bandiwdth if valid, or 0
  */
-u8 rtw_get_scch_by_cch_offset(u8 cch, u8 bw, u8 offset)
+u8 rtw_get_scch_by_cch_offset2(u8 cch, u8 bw, u8 offset)
 {
 	int i;
 	u8 t_cch = 0;
@@ -252,24 +252,24 @@ struct op_chs_ent_t {
 	u8 *chs;
 };
 
-struct op_chs_ent_t op_chs_of_cch_2g_by_bw[] = {
+struct op_chs_ent_t op_chs_of_cch_2g_by_bw2[] = {
 	{1, center_ch_2g},
 	{2, (u8 *)op_chs_of_cch_2g_40m},
 };
 
-struct op_chs_ent_t op_chs_of_cch_5g_by_bw[] = {
+struct op_chs_ent_t op_chs_of_cch_5g_by_bw2[] = {
 	{1, center_ch_5g_20m},
 	{2, (u8 *)op_chs_of_cch_5g_40m},
 	{4, (u8 *)op_chs_of_cch_5g_80m},
 	{8, (u8 *)op_chs_of_cch_5g_160m},
 };
 
-inline u8 center_chs_2g_num(u8 bw)
+inline u8 center_chs_2g_num2(u8 bw)
 {
 	if (bw > CHANNEL_WIDTH_40)
 		return 0;
 
-	return center_chs_2g_by_bw[bw].ch_num;
+	return center_chs_2g_by_bw2[bw].ch_num;
 }
 
 inline u8 center_chs_2g(u8 bw, u8 id)
@@ -277,13 +277,13 @@ inline u8 center_chs_2g(u8 bw, u8 id)
 	if (bw > CHANNEL_WIDTH_40)
 		return 0;
 
-	if (id >= center_chs_2g_num(bw))
+	if (id >= center_chs_2g_num2(bw))
 		return 0;
 
-	return center_chs_2g_by_bw[bw].chs[id];
+	return center_chs_2g_by_bw2[bw].chs[id];
 }
 
-inline u8 center_chs_5g_num(u8 bw)
+inline u8 center_chs_5g_num2(u8 bw)
 {
 	if (bw > CHANNEL_WIDTH_80)
 		return 0;
@@ -296,7 +296,7 @@ inline u8 center_chs_5g(u8 bw, u8 id)
 	if (bw > CHANNEL_WIDTH_80)
 		return 0;
 
-	if (id >= center_chs_5g_num(bw))
+	if (id >= center_chs_5g_num2(bw))
 		return 0;
 
 	return center_chs_5g_by_bw[bw].chs[id];
@@ -321,13 +321,13 @@ u8 rtw_get_op_chs_by_cch_bw2(u8 cch, u8 bw, u8 **op_chs, u8 *op_ch_num)
 	if (cch <= 14
 		&& bw >= CHANNEL_WIDTH_20 && bw <= CHANNEL_WIDTH_40
 	) {
-		c_chs_ent = &center_chs_2g_by_bw[bw];
-		op_chs_ent = &op_chs_of_cch_2g_by_bw[bw];
+		c_chs_ent = &center_chs_2g_by_bw2[bw];
+		op_chs_ent = &op_chs_of_cch_2g_by_bw2[bw];
 	} else if (cch >= 36 && cch <= 177
 		&& bw >= CHANNEL_WIDTH_20 && bw <= CHANNEL_WIDTH_160
 	) {
 		c_chs_ent = &center_chs_5g_by_bw[bw];
-		op_chs_ent = &op_chs_of_cch_5g_by_bw[bw];
+		op_chs_ent = &op_chs_of_cch_5g_by_bw2[bw];
 	} else {
 		valid = 0;
 		goto exit;
@@ -1314,7 +1314,7 @@ void dump_txpwr_lmt(void *sel, _adapter *adapter)
 			if (band == BAND_ON_2_4G)
 				ch_num = CENTER_CH_2G_NUM;
 			else
-				ch_num = center_chs_5g_num(bw);
+				ch_num = center_chs_5g_num2(bw);
 
 			if (ch_num == 0) {
 				rtw_warn_on(1);

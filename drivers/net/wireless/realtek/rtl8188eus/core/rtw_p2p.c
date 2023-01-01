@@ -3078,7 +3078,7 @@ void find_phase_handler(_adapter	*padapter)
 	u8					_status = 0;
 
 
-	rtw_init_sitesurvey_parm(padapter, &parm);
+	rtw_init_sitesurvey_parm2(padapter, &parm);
 	_rtw_memcpy(&parm.ssid[0].Ssid, pwdinfo->p2p_wildcard_ssid, P2P_WILDCARD_SSID_LEN);
 	parm.ssid[0].SsidLength = P2P_WILDCARD_SSID_LEN;
 	parm.ssid_num = 1;
@@ -3086,7 +3086,7 @@ void find_phase_handler(_adapter	*padapter)
 	rtw_p2p_set_state(pwdinfo, P2P_STATE_FIND_PHASE_SEARCH);
 
 	_enter_critical_bh(&pmlmepriv->lock, &irqL);
-	_status = rtw_sitesurvey_cmd(padapter, &parm);
+	_status = rtw_sitesurvey_cmd2(padapter, &parm);
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
 
@@ -3444,7 +3444,7 @@ static int cancel_ro_ch_handler(_adapter *padapter, u8 *buf)
 	_cancel_timer_ex(&pwdinfo->ap_p2p_switch_timer);
 #endif
 
-	if (rtw_mi_get_ch_setting_union(padapter, &ch, &bw, &offset) != 0) {
+	if (rtw_mi_get_ch_setting_union2(padapter, &ch, &bw, &offset) != 0) {
 		if (0)
 			RTW_INFO(FUNC_ADPT_FMT" back to linked/linking union - ch:%u, bw:%u, offset:%u\n",
 				 FUNC_ADPT_ARG(padapter), ch, bw, offset);
@@ -4664,15 +4664,12 @@ u8 p2p_ps_wk_cmd(_adapter *padapter, u8 p2p_ps_state, u8 enqueue)
 
 		init_h2fwcmd_w_parm_no_rsp(ph2c, pdrvextra_cmd_parm, GEN_CMD_CODE(_Set_Drv_Extra));
 
-		res = rtw_enqueue_cmd(pcmdpriv, ph2c);
+		res = rtw_enqueue_cmd2(pcmdpriv, ph2c);
 	} else
 		p2p_ps_wk_hdl(padapter, p2p_ps_state);
 
 exit:
-
-
 	return res;
-
 }
 #endif /* CONFIG_P2P_PS */
 

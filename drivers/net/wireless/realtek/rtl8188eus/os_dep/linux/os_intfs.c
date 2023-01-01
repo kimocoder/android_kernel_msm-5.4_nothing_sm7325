@@ -17,11 +17,6 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-#if defined(PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
-
-	#error "Shall be Linux or Windows, but not both!\n"
-
-#endif
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Realtek Wireless Lan Driver");
@@ -147,14 +142,7 @@ int rtw_uapsd_max_sp = NO_LIMIT;
 int rtw_uapsd_ac_enable = 0x0;
 #endif /* CONFIG_WMMPS_STA */
 
-#if defined(CONFIG_RTL8814A)
-	int rtw_pwrtrim_enable = 2; /* disable kfree , rename to power trim disable */
-#elif defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8822B)
-	/*PHYDM API, must enable by default*/
-	int rtw_pwrtrim_enable = 1;
-#else
-	int rtw_pwrtrim_enable = 0; /* Default Enalbe  power trim by efuse config */
-#endif
+int rtw_pwrtrim_enable = 0; /* Default Enalbe  power trim by efuse config */
 
 uint rtw_tx_bw_mode = 0x21;
 module_param(rtw_tx_bw_mode, uint, 0644);
@@ -172,11 +160,7 @@ int rtw_bw_mode = 0x21;
 #endif
 int rtw_ampdu_enable = 1;/* for enable tx_ampdu , */ /* 0: disable, 0x1:enable */
 int rtw_rx_stbc = 1;/* 0: disable, bit(0):enable 2.4g, bit(1):enable 5g, default is set to enable 2.4GHZ for IOT issue with bufflao's AP at 5GHZ */
-#if (defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B)) && defined(CONFIG_PCI_HCI)
-int rtw_rx_ampdu_amsdu = 2;/* 0: disabled, 1:enabled, 2:auto . There is an IOT issu with DLINK DIR-629 when the flag turn on */
-#else
 int rtw_rx_ampdu_amsdu;/* 0: disabled, 1:enabled, 2:auto . There is an IOT issu with DLINK DIR-629 when the flag turn on */
-#endif
 /*
 * 2: Follow the AMSDU filed in ADDBA Resp. (Deault)
 * 0: Force the AMSDU filed in ADDBA Resp. to be disabled.
@@ -1899,7 +1883,7 @@ void rtw_stop_drv_threads(_adapter *padapter)
 {
 
 	if (is_primary_adapter(padapter))
-		rtw_stop_cmd_thread(padapter);
+		rtw_stop_cmd_thread2(padapter);
 
 #ifdef CONFIG_EVENT_THREAD_MODE
 	if (padapter->evtThread) {
@@ -2249,7 +2233,7 @@ u8 rtw_init_drv_sw(_adapter *padapter)
 
 	ret8 = rtw_init_default_value(padapter);
 
-	if ((rtw_init_cmd_priv(&padapter->cmdpriv)) == _FAIL) {
+	if ((rtw_init_cmd_priv2(&padapter->cmdpriv)) == _FAIL) {
 		ret8 = _FAIL;
 		goto exit;
 	}
@@ -2812,7 +2796,7 @@ void rtw_drv_stop_vir_if(_adapter *padapter)
 	pnetdev = padapter->pnetdev;
 
 	if (check_fwstate(pmlmepriv, _FW_LINKED))
-		rtw_disassoc_cmd(padapter, 0, RTW_CMDF_DIRECTLY);
+		rtw_disassoc_cmd2(padapter, 0, RTW_CMDF_DIRECTLY);
 
 #ifdef CONFIG_AP_MODE
 	if (MLME_IS_AP(padapter) || MLME_IS_MESH(padapter)) {
@@ -3540,7 +3524,7 @@ static int netdev_close(struct net_device *pnetdev)
 #ifndef CONFIG_ANDROID
 		/* s2. */
 		LeaveAllPowerSaveMode(padapter);
-		rtw_disassoc_cmd(padapter, 500, RTW_CMDF_WAIT_ACK);
+		rtw_disassoc_cmd2(padapter, 500, RTW_CMDF_WAIT_ACK);
 		/* s2-2.  indicate disconnect to os */
 		rtw_indicate_disconnect(padapter, 0, _FALSE);
 		/* s2-3. */
@@ -4028,7 +4012,7 @@ int rtw_suspend_free_assoc_resource(_adapter *padapter)
 	}
 
 	if (check_fwstate(pmlmepriv, WIFI_STATION_STATE) && check_fwstate(pmlmepriv, _FW_LINKED)) {
-		rtw_disassoc_cmd(padapter, 0, RTW_CMDF_DIRECTLY);
+		rtw_disassoc_cmd2(padapter, 0, RTW_CMDF_DIRECTLY);
 		/* s2-2.  indicate disconnect to os */
 		rtw_indicate_disconnect(padapter, 0, _FALSE);
 	}
@@ -4081,9 +4065,9 @@ int rtw_suspend_wow(_adapter *padapter)
 #endif
 
 	if (pwrpriv->wowlan_mode == _TRUE) {
-		rtw_mi_netif_stop_queue(padapter);
+		rtw_mi_netif_stop_queue2(padapter);
 		#ifdef CONFIG_CONCURRENT_MODE
-		rtw_mi_buddy_netif_carrier_off(padapter);
+		rtw_mi_buddy_netif_carrier_off2(padapter);
 		#endif
 
 		/* 0. Power off LED */
@@ -4099,7 +4083,7 @@ int rtw_suspend_wow(_adapter *padapter)
 
 		/* 1. stop thread */
 		rtw_set_drv_stopped(padapter);	/*for stop thread*/
-		rtw_mi_stop_drv_threads(padapter);
+		rtw_mi_stop_drv_threads2(padapter);
 
 		rtw_clr_drv_stopped(padapter);	/*for 32k command*/
 
@@ -4158,7 +4142,7 @@ int rtw_suspend_wow(_adapter *padapter)
 			RTW_INFO(FUNC_ADPT_FMT" back to linked/linking union - ch:%u, bw:%u, offset:%u\n",
 				 FUNC_ADPT_ARG(padapter), ch, bw, offset);
 			set_channel_bwmode(padapter, ch, offset, bw);
-			rtw_mi_update_union_chan_inf(padapter, ch, offset, bw);
+			rtw_mi_update_union_chan_inf2(padapter, ch, offset, bw);
 		}
 #endif
 #ifdef CONFIG_CONCURRENT_MODE
@@ -4208,7 +4192,7 @@ int rtw_suspend_ap_wow(_adapter *padapter)
 
 	RTW_INFO("wowlan_ap_mode: %d\n", pwrpriv->wowlan_ap_mode);
 
-	rtw_mi_netif_stop_queue(padapter);
+	rtw_mi_netif_stop_queue2(padapter);
 
 	/* 0. Power off LED */
 	rtw_led_control(padapter, LED_CTL_POWER_OFF);
@@ -4222,7 +4206,7 @@ int rtw_suspend_ap_wow(_adapter *padapter)
 
 	/* 1. stop thread */
 	rtw_set_drv_stopped(padapter);	/*for stop thread*/
-	rtw_mi_stop_drv_threads(padapter);
+	rtw_mi_stop_drv_threads2(padapter);
 	rtw_clr_drv_stopped(padapter);	/*for 32k command*/
 
 	#ifdef CONFIG_SDIO_HCI
@@ -4255,7 +4239,7 @@ int rtw_suspend_ap_wow(_adapter *padapter)
 	if (rtw_mi_get_ch_setting_union(padapter, &ch, &bw, &offset) != 0) {
 		RTW_INFO("back to linked/linking union - ch:%u, bw:%u, offset:%u\n", ch, bw, offset);
 		set_channel_bwmode(padapter, ch, offset, bw);
-		rtw_mi_update_union_chan_inf(padapter, ch, offset, bw);
+		rtw_mi_update_union_chan_inf2(padapter, ch, offset, bw);
 	}
 #endif
 
@@ -4291,7 +4275,6 @@ int rtw_suspend_ap_wow(_adapter *padapter)
 }
 #endif /* #ifdef CONFIG_AP_WOWLAN */
 
-
 int rtw_suspend_normal(_adapter *padapter)
 {
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
@@ -4303,7 +4286,7 @@ int rtw_suspend_normal(_adapter *padapter)
 #ifdef CONFIG_BT_COEXIST
 	rtw_btcoex_SuspendNotify(padapter, BTCOEX_SUSPEND_STATE_SUSPEND);
 #endif
-	rtw_mi_netif_caroff_qstop(padapter);
+	rtw_mi_netif_caroff_qstop2(padapter);
 
 	rtw_mi_suspend_free_assoc_resource(padapter);
 
@@ -4313,10 +4296,9 @@ int rtw_suspend_normal(_adapter *padapter)
 	    || (adapter_to_pwrctl(padapter)->rf_pwrstate == rf_off))
 		RTW_PRINT("%s: ### ERROR #### driver in IPS ####ERROR###!!!\n", __FUNCTION__);
 
-
 #ifdef CONFIG_CONCURRENT_MODE
 	rtw_set_drv_stopped(padapter);	/*for stop thread*/
-	rtw_stop_cmd_thread(padapter);
+	rtw_stop_cmd_thread2(padapter);
 	rtw_drv_stop_vir_ifaces(adapter_to_dvobj(padapter));
 #endif
 	rtw_dev_unload(padapter);
@@ -4372,7 +4354,7 @@ int rtw_suspend_common(_adapter *padapter)
 	}
 	rtw_ps_deny(padapter, PS_DENY_SUSPEND);
 
-	rtw_mi_cancel_all_timer(padapter);
+	rtw_mi_cancel_all_timer2(padapter);
 	LeaveAllPowerSaveModeDirect(padapter);
 
 	rtw_ps_deny_cancel(padapter, PS_DENY_SUSPEND);
@@ -4465,7 +4447,7 @@ int rtw_resume_process_wow(_adapter *padapter)
 		pwrpriv->bFwCurrentInPSMode = _FALSE;
 
 #if defined(CONFIG_SDIO_HCI) || defined(CONFIG_PCI_HCI)
-		rtw_mi_intf_stop(padapter);
+		rtw_mi_intf_stop2(padapter);
 		rtw_hal_clear_interrupt(padapter);
 #endif
 
@@ -4483,7 +4465,7 @@ int rtw_resume_process_wow(_adapter *padapter)
 		rtw_hal_set_hwreg(padapter, HW_VAR_WOWLAN, (u8 *)&poidparam);
 
 #ifdef CONFIG_CONCURRENT_MODE
-		rtw_mi_buddy_reset_drv_sw(padapter);
+		rtw_mi_buddy_reset_drv_sw2(padapter);
 #endif
 
 		psta = rtw_get_stainfo(&padapter->stapriv, get_bssid(&padapter->mlmepriv));
@@ -4494,16 +4476,16 @@ int rtw_resume_process_wow(_adapter *padapter)
 		rtw_clr_drv_stopped(padapter);
 		RTW_INFO("%s: wowmode resuming, DriverStopped:%s\n", __func__, rtw_is_drv_stopped(padapter) ? "True" : "False");
 
-		rtw_mi_start_drv_threads(padapter);
+		rtw_mi_start_drv_threads2(padapter);
 
-		rtw_mi_intf_start(padapter);
+		rtw_mi_intf_start2(padapter);
 
 #ifdef CONFIG_CONCURRENT_MODE
-		rtw_mi_buddy_netif_carrier_on(padapter);
+		rtw_mi_buddy_netif_carrier_on2(padapter);
 #endif
 
 		/* start netif queue */
-		rtw_mi_netif_wake_queue(padapter);
+		rtw_mi_netif_wake_queue2(padapter);
 
 	} else
 
@@ -4623,7 +4605,7 @@ int rtw_resume_process_ap_wow(_adapter *padapter)
 	rtw_clr_drv_stopped(padapter);
 	RTW_INFO("%s: wowmode resuming, DriverStopped:%s\n", __func__, rtw_is_drv_stopped(padapter) ? "True" : "False");
 
-	rtw_mi_start_drv_threads(padapter);
+	rtw_mi_start_drv_threads2(padapter);
 
 #if 1
 	if (rtw_mi_check_status2(padapter, MI_LINKED)) {
@@ -4637,7 +4619,7 @@ int rtw_resume_process_ap_wow(_adapter *padapter)
 	if (rtw_mi_get_ch_setting_union(padapter, &ch, &bw, &offset) != 0) {
 		RTW_INFO(FUNC_ADPT_FMT" back to linked/linking union - ch:%u, bw:%u, offset:%u\n", FUNC_ADPT_ARG(padapter), ch, bw, offset);
 		set_channel_bwmode(padapter, ch, offset, bw);
-		rtw_mi_update_union_chan_inf(padapter, ch, offset, bw);
+		rtw_mi_update_union_chan_inf2(padapter, ch, offset, bw);
 	}
 #endif
 
@@ -4656,10 +4638,10 @@ int rtw_resume_process_ap_wow(_adapter *padapter)
 		}
 
 	}
-	rtw_mi_intf_start(padapter);
+	rtw_mi_intf_start2(padapter);
 
 	/* start netif queue */
-	rtw_mi_netif_wake_queue(padapter);
+	rtw_mi_netif_wake_queue2(padapter);
 
 	if (padapter->pid[1] != 0) {
 		RTW_INFO("pid[1]:%d\n", padapter->pid[1]);
@@ -4763,7 +4745,7 @@ int rtw_resume_process_normal(_adapter *padapter)
 	#endif
 	#endif/*CONFIG_SDIO_HCI*/
 
-	rtw_mi_reset_drv_sw(padapter);
+	rtw_mi_reset_drv_sw2(padapter);
 
 	pwrpriv->bkeepfwalive = _FALSE;
 
@@ -4774,7 +4756,7 @@ int rtw_resume_process_normal(_adapter *padapter)
 		goto exit;
 	}
 
-	rtw_mi_netif_caron_qstart(padapter);
+	rtw_mi_netif_caron_qstart2(padapter);
 
 	if (padapter->pid[1] != 0) {
 		RTW_INFO("pid[1]:%d\n", padapter->pid[1]);

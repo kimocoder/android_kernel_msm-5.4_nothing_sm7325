@@ -38,8 +38,8 @@ extern int rtw_ht_enable;
 #define MAX_CUSTOM_LEN 64
 #define RATE_COUNT 4
 
-#ifdef CONFIG_GLOBAL_UI_PID
-extern int ui_pid[3];
+#ifdef CONFIG_GLOBAL_UI_PID2
+extern int ui_pid2[3];
 #endif
 
 /* combo scan */
@@ -249,7 +249,7 @@ uint	rtw_is_cckrates_included(u8 *rate)
 		return _FALSE;
 }
 
-uint	rtw_is_cckratesonly_included(u8 *rate)
+uint	rtw_is_cckratesonly_included2(u8 *rate)
 {
 	u32 i = 0;
 
@@ -433,7 +433,7 @@ static inline char *iwe_stream_protocol_process(_adapter *padapter,
 #endif
 	/* Add the protocol name */
 	iwe->cmd = SIOCGIWNAME;
-	if ((rtw_is_cckratesonly_included((u8 *)&pnetwork->network.SupportedRates)) == _TRUE) {
+	if ((rtw_is_cckratesonly_included2((u8 *)&pnetwork->network.SupportedRates)) == _TRUE) {
 		if (ht_cap == _TRUE)
 			snprintf(iwe->u.name, IFNAMSIZ, "IEEE 802.11bn");
 		else
@@ -969,7 +969,7 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 					psta->dot11txpn.val = RTW_GET_LE64(param->u.crypt.seq);
 					psta->dot11rxpn.val = RTW_GET_LE64(param->u.crypt.seq);
 					psta->bpairwise_key_installed = _TRUE;
-					rtw_setstakey_cmd(padapter, psta, UNICAST_KEY, _TRUE);
+					rtw_setstakey_cmd2(padapter, psta, UNICAST_KEY, _TRUE);
 
 				} else { /* group key */
 					if (strcmp(param->u.crypt.alg, "TKIP") == 0 || strcmp(param->u.crypt.alg, "CCMP") == 0) {
@@ -1225,7 +1225,7 @@ static int rtw_wx_get_name(struct net_device *dev,
 
 		prates = &pcur_bss->SupportedRates;
 
-		if (rtw_is_cckratesonly_included((u8 *)prates) == _TRUE) {
+		if (rtw_is_cckratesonly_included2((u8 *)prates) == _TRUE) {
 			if (ht_cap == _TRUE)
 				snprintf(wrqu->name, IFNAMSIZ, "IEEE 802.11bn");
 			else
@@ -1416,7 +1416,7 @@ static int rtw_wx_set_mode(struct net_device *dev, struct iw_request_info *a,
 		goto exit;
 	}
 
-	if (rtw_set_802_11_infrastructure_mode(padapter, networkType) == _FALSE) {
+	if (rtw_set_802_11_infrastructure_mode2(padapter, networkType) == _FALSE) {
 
 		ret = -EPERM;
 		goto exit;
@@ -1429,8 +1429,6 @@ static int rtw_wx_set_mode(struct net_device *dev, struct iw_request_info *a,
 		rtw_indicate_connect(padapter);
 
 exit:
-
-
 	return ret;
 
 }
@@ -1729,7 +1727,7 @@ static int rtw_wx_get_range(struct net_device *dev,
 }
 
 /* set bssid flow
- * s1. rtw_set_802_11_infrastructure_mode()
+ * s1. rtw_set_802_11_infrastructure_mode2()
  * s2. rtw_set_802_11_authentication_mode2()
  * s3. set_802_11_encryption_mode()
  * s4. rtw_set_802_11_bssid() */
@@ -1819,7 +1817,7 @@ static int rtw_wx_set_wap(struct net_device *dev,
 		src_bssid = temp->sa_data;
 
 		if ((_rtw_memcmp(dst_bssid, src_bssid, ETH_ALEN)) == _TRUE) {
-			if (!rtw_set_802_11_infrastructure_mode(padapter, pnetwork->network.InfrastructureMode)) {
+			if (!rtw_set_802_11_infrastructure_mode2(padapter, pnetwork->network.InfrastructureMode)) {
 				ret = -1;
 				_exit_critical_bh(&queue->lock, &irqL);
 				goto cancel_ps_deny;
@@ -1905,12 +1903,12 @@ static int rtw_wx_set_mlme(struct net_device *dev,
 
 	switch (mlme->cmd) {
 	case IW_MLME_DEAUTH:
-		if (!rtw_set_802_11_disassociate(padapter))
+		if (!rtw_set_802_11_disassociate2(padapter))
 			ret = -1;
 		break;
 
 	case IW_MLME_DISASSOC:
-		if (!rtw_set_802_11_disassociate(padapter))
+		if (!rtw_set_802_11_disassociate2(padapter))
 			ret = -1;
 
 		break;
@@ -2017,14 +2015,14 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 		if (wrqu->data.flags & IW_SCAN_THIS_ESSID) {
 			int len = min((int)req->essid_len, IW_ESSID_MAX_SIZE);
 
-			rtw_init_sitesurvey_parm(padapter, &parm);
+			rtw_init_sitesurvey_parm2(padapter, &parm);
 			_rtw_memcpy(&parm.ssid[0].Ssid, &req->essid, len);
 			parm.ssid[0].SsidLength = len;
 			parm.ssid_num = 1;
 
 			RTW_INFO("IW_SCAN_THIS_ESSID, ssid=%s, len=%d\n", req->essid, req->essid_len);
 
-			_status = rtw_set_802_11_bssid_list_scan(padapter, &parm);
+			_status = rtw_set_802_11_bssid_list_scan2(padapter, &parm);
 
 		} else if (req->scan_type == IW_SCAN_TYPE_PASSIVE)
 			RTW_INFO("rtw_wx_set_scan, req->scan_type == IW_SCAN_TYPE_PASSIVE\n");
@@ -2042,7 +2040,7 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 			int ssid_index = 0;
 
 			/* RTW_INFO("%s COMBO_SCAN header is recognized\n", __FUNCTION__); */
-			rtw_init_sitesurvey_parm(padapter, &parm);
+			rtw_init_sitesurvey_parm2(padapter, &parm);
 
 			while (len >= 1) {
 				section = *(pos++);
@@ -2115,11 +2113,11 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 			parm.ssid_num = ssid_index;
 
 			/* jeff: it has still some scan paramater to parse, we only do this now... */
-			_status = rtw_set_802_11_bssid_list_scan(padapter, &parm);
+			_status = rtw_set_802_11_bssid_list_scan2(padapter, &parm);
 
 		} else
 
-			_status = rtw_set_802_11_bssid_list_scan(padapter, NULL);
+			_status = rtw_set_802_11_bssid_list_scan2(padapter, NULL);
 
 	if (_status == _FALSE)
 		ret = -1;
@@ -2245,7 +2243,7 @@ exit:
 }
 
 /* set ssid flow
- * s1. rtw_set_802_11_infrastructure_mode()
+ * s1. rtw_set_802_11_infrastructure_mode2()
  * s2. set_802_11_authenticaion_mode()
  * s3. set_802_11_encryption_mode()
  * s4. rtw_set_802_11_ssid() */
@@ -2369,7 +2367,7 @@ static int rtw_wx_set_essid(struct net_device *dev,
 						continue;
 				}
 
-				if (rtw_set_802_11_infrastructure_mode(padapter, pnetwork->network.InfrastructureMode) == _FALSE) {
+				if (rtw_set_802_11_infrastructure_mode2(padapter, pnetwork->network.InfrastructureMode) == _FALSE) {
 					ret = -1;
 					_exit_critical_bh(&queue->lock, &irqL);
 					goto cancel_ps_deny;
@@ -2769,7 +2767,7 @@ static int rtw_wx_set_enc(struct net_device *dev,
 
 	_rtw_memcpy(wep.KeyMaterial, keybuf, wep.KeyLength);
 
-	if (rtw_set_802_11_add_wep(padapter, &wep) == _FALSE) {
+	if (rtw_set_802_11_add_wep2(padapter, &wep) == _FALSE) {
 		if (rf_on == pwrpriv->rf_pwrstate)
 			ret = -EOPNOTSUPP;
 		goto exit;
@@ -2993,7 +2991,7 @@ static int rtw_wx_set_auth(struct net_device *dev,
 		*/
 		if (check_fwstate(&padapter->mlmepriv, _FW_LINKED)) {
 			LeaveAllPowerSaveMode(padapter);
-			rtw_disassoc_cmd(padapter, 500, RTW_CMDF_WAIT_ACK);
+			rtw_disassoc_cmd2(padapter, 500, RTW_CMDF_WAIT_ACK);
 			RTW_INFO("%s...call rtw_indicate_disconnect\n ", __FUNCTION__);
 			rtw_indicate_disconnect(padapter, 0, _FALSE);
 			rtw_free_assoc_resources_cmd(padapter, _TRUE);
@@ -3774,8 +3772,8 @@ static int rtw_set_pid(struct net_device *dev,
 	selector = *pdata;
 	if (selector < 3 && selector >= 0) {
 		padapter->pid[selector] = *(pdata + 1);
-#ifdef CONFIG_GLOBAL_UI_PID
-		ui_pid[selector] = *(pdata + 1);
+#ifdef CONFIG_GLOBAL_UI_PID2
+		ui_pid2[selector] = *(pdata + 1);
 #endif
 		RTW_INFO("%s set pid[%d]=%d\n", __FUNCTION__, selector , padapter->pid[selector]);
 	} else
@@ -4815,7 +4813,7 @@ static int rtw_p2p_connect(struct net_device *dev,
 		 * driver will do scanning itself
 		 */
 		_enter_critical_bh(&pmlmepriv->lock, &irqL);
-		rtw_sitesurvey_cmd(padapter, NULL);
+		rtw_sitesurvey_cmd2(padapter, NULL);
 		_exit_critical_bh(&pmlmepriv->lock, &irqL);
 #endif /* CONFIG_INTEL_WIDI */
 		ret = -1;
@@ -5551,7 +5549,7 @@ static int rtw_p2p_prov_disc(struct net_device *dev,
 		rtw_p2p_findphase_ex_set(pwdinfo, P2P_FINDPHASE_EX_NONE);
 		rtw_free_network_queue(padapter, _TRUE);
 		_enter_critical_bh(&pmlmepriv->lock, &irqL);
-		rtw_sitesurvey_cmd(padapter, NULL);
+		rtw_sitesurvey_cmd2(padapter, NULL);
 		_exit_critical_bh(&pmlmepriv->lock, &irqL);
 #endif /* CONFIG_INTEL_WIDI */
 	}
@@ -6213,7 +6211,7 @@ static int rtw_dbg_port(struct net_device *dev,
 				RTW_INFO("agg_enable_bitmap=%x, candidate_tid_bitmap=%x\n", psta->htpriv.agg_enable_bitmap, psta->htpriv.candidate_tid_bitmap);
 #endif /* CONFIG_80211N_HT */
 
-				sta_rx_reorder_ctl_dump(RTW_DBGDUMP, psta);
+				sta_rx_reorder_ctl_dump2(RTW_DBGDUMP, psta);
 			} else
 				RTW_INFO("can't get sta's macaddr, cur_network's macaddr:" MAC_FMT "\n", MAC_ARG(cur_network->network.MacAddress));
 			break;
@@ -6289,7 +6287,7 @@ static int rtw_dbg_port(struct net_device *dev,
 #endif
 						RTW_INFO("dot118021XPrivacy=0x%x\n", psta->dot118021XPrivacy);
 
-						sta_rx_reorder_ctl_dump(RTW_DBGDUMP, psta);
+						sta_rx_reorder_ctl_dump2(RTW_DBGDUMP, psta);
 					}
 
 				}
@@ -6366,7 +6364,7 @@ static int rtw_dbg_port(struct net_device *dev,
 		#endif
 
 		case 0x10: /* driver version display */
-			dump_drv_version(RTW_DBGDUMP);
+			dump_drv_version2(RTW_DBGDUMP);
 			break;
 		case 0x11: { /* dump linked status */
 			int pre_mode;
@@ -6667,9 +6665,9 @@ static int rtw_dbg_port(struct net_device *dev,
 			break;
 		case 0xdd: { /* registers dump , 0 for mac reg,1 for bb reg, 2 for rf reg */
 			if (extra_arg == 0)
-				mac_reg_dump(RTW_DBGDUMP, padapter);
+				mac_reg_dump2(RTW_DBGDUMP, padapter);
 			else if (extra_arg == 1)
-				bb_reg_dump(RTW_DBGDUMP, padapter);
+				bb_reg_dump2(RTW_DBGDUMP, padapter);
 			else if (extra_arg == 2)
 				rf_reg_dump(RTW_DBGDUMP, padapter);
 			else if (extra_arg == 11)
@@ -6852,14 +6850,14 @@ static int wpa_mlme(struct net_device *dev, u32 command, u32 reason)
 	switch (command) {
 	case IEEE_MLME_STA_DEAUTH:
 
-		if (!rtw_set_802_11_disassociate(padapter))
+		if (!rtw_set_802_11_disassociate2(padapter))
 			ret = -1;
 
 		break;
 
 	case IEEE_MLME_STA_DISASSOC:
 
-		if (!rtw_set_802_11_disassociate(padapter))
+		if (!rtw_set_802_11_disassociate2(padapter))
 			ret = -1;
 
 		break;
@@ -7988,7 +7986,7 @@ static int rtw_wx_set_priv(struct net_device *dev,
 	case ANDROID_WIFI_CMD_COUNTRY: {
 		char country_code[10];
 		sscanf(ext, "%*s %s", country_code);
-		rtw_set_country(padapter, country_code);
+		rtw_set_country2(padapter, country_code);
 		sprintf(ext, "OK");
 	}
 		break;
@@ -8766,34 +8764,6 @@ static int rtw_mp_efuse_get(struct net_device *dev,
 #endif
 #endif /* CONFIG_RTL8188E */
 
-#ifdef CONFIG_RTL8192E
-#ifdef CONFIG_USB_HCI
-		addr = EEPROM_VID_8192EU;
-#endif
-#ifdef CONFIG_PCI_HCI
-		addr = EEPROM_VID_8192EE;
-#endif
-#endif /* CONFIG_RTL8192E */
-#ifdef CONFIG_RTL8723B
-		addr = EEPROM_VID_8723BU;
-#endif /* CONFIG_RTL8192E */
-
-#ifdef CONFIG_RTL8188F
-		addr = EEPROM_VID_8188FU;
-#endif /* CONFIG_RTL8188F */
-
-#ifdef CONFIG_RTL8703B
-#ifdef CONFIG_USB_HCI
-		addr = EEPROM_VID_8703BU;
-#endif
-#endif /* CONFIG_RTL8703B */
-
-#ifdef CONFIG_RTL8723D
-#ifdef CONFIG_USB_HCI
-		addr = EEPROM_VID_8723DU;
-#endif /* CONFIG_USB_HCI */
-#endif /* CONFIG_RTL8723D */
-
 		cnts = 4;
 
 		EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&max_available_len, _FALSE);
@@ -9405,35 +9375,6 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 		addr = EEPROM_VID_88EE;
 #endif
 #endif /* CONFIG_RTL8188E */
-
-#ifdef CONFIG_RTL8192E
-#ifdef CONFIG_USB_HCI
-		addr = EEPROM_VID_8192EU;
-#endif
-#ifdef CONFIG_PCI_HCI
-		addr = EEPROM_VID_8192EE;
-#endif
-#endif /* CONFIG_RTL8188E */
-
-#ifdef CONFIG_RTL8723B
-		addr = EEPROM_VID_8723BU;
-#endif
-
-#ifdef CONFIG_RTL8188F
-		addr = EEPROM_VID_8188FU;
-#endif
-
-#ifdef CONFIG_RTL8703B
-#ifdef CONFIG_USB_HCI
-		addr = EEPROM_VID_8703BU;
-#endif /* CONFIG_USB_HCI */
-#endif /* CONFIG_RTL8703B */
-
-#ifdef CONFIG_RTL8723D
-#ifdef CONFIG_USB_HCI
-		addr = EEPROM_VID_8723DU;
-#endif /* CONFIG_USB_HCI */
-#endif /* CONFIG_RTL8723D */
 
 		cnts = strlen(tmp[1]);
 		if (cnts % 2) {
@@ -11389,7 +11330,7 @@ static s32 initpseudoadhoc(PADAPTER padapter)
 	s32 err;
 
 	networkType = Ndis802_11IBSS;
-	err = rtw_set_802_11_infrastructure_mode(padapter, networkType);
+	err = rtw_set_802_11_infrastructure_mode2(padapter, networkType);
 	if (err == _FALSE)
 		return _FAIL;
 
@@ -11438,7 +11379,7 @@ static s32 createpseudoadhoc(PADAPTER padapter)
 	_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
 #if 0
-	err = rtw_create_ibss_cmd(padapter, 0);
+	err = rtw_create_ibss_cmd2(padapter, 0);
 	if (err == _FAIL)
 		return _FAIL;
 #else

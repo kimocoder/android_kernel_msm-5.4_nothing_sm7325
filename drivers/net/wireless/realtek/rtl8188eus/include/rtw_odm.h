@@ -71,7 +71,7 @@ static inline u32 rtw_phydm_ability_get(_adapter *adapter)
 }
 
 
-void rtw_odm_init_ic_type(_adapter *adapter);
+void rtw_odm_init_ic_type2(_adapter *adapter);
 
 void rtw_odm_adaptivity_config_msg(void *sel, _adapter *adapter);
 

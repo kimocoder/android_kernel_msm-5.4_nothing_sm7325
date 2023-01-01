@@ -21,16 +21,6 @@
 const u32 _chip_type_to_odm_ic_type[] = {
 	0,
 	ODM_RTL8188E,
-	ODM_RTL8192E,
-	ODM_RTL8812,
-	ODM_RTL8821,
-	ODM_RTL8723B,
-	ODM_RTL8814A,
-	ODM_RTL8703B,
-	ODM_RTL8188F,
-	ODM_RTL8822B,
-	ODM_RTL8723D,
-	ODM_RTL8821C,
 	0,
 };
 
@@ -72,7 +62,7 @@ u8 rtw_hal_read_chip_info(_adapter *padapter)
 void rtw_hal_read_chip_version(_adapter *padapter)
 {
 	padapter->hal_func.read_chip_version(padapter);
-	rtw_odm_init_ic_type(padapter);
+	rtw_odm_init_ic_type2(padapter);
 }
 
 void rtw_hal_def_value_init(_adapter *padapter)
@@ -664,12 +654,12 @@ void	rtw_hal_set_chnl_bw(_adapter *padapter, u8 channel, enum channel_width Band
 	{
 		#if 0
 		if (cch_160 != 0)
-			cch_80 = rtw_get_scch_by_cch_offset(cch_160, CHANNEL_WIDTH_160, Offset80);
+			cch_80 = rtw_get_scch_by_cch_offset2(cch_160, CHANNEL_WIDTH_160, Offset80);
 		#endif
 		if (cch_80 != 0)
-			cch_40 = rtw_get_scch_by_cch_offset(cch_80, CHANNEL_WIDTH_80, Offset80);
+			cch_40 = rtw_get_scch_by_cch_offset2(cch_80, CHANNEL_WIDTH_80, Offset80);
 		if (cch_40 != 0)
-			cch_20 = rtw_get_scch_by_cch_offset(cch_40, CHANNEL_WIDTH_40, Offset40);
+			cch_20 = rtw_get_scch_by_cch_offset2(cch_40, CHANNEL_WIDTH_40, Offset40);
 	}
 
 	pHalData->cch_80 = cch_80;
@@ -1498,13 +1488,6 @@ u8 rtw_hal_ops_check(_adapter *padapter)
 		ret = _FAIL;
 	}
 #endif
-
-	if ((IS_HARDWARE_TYPE_8814A(padapter)
-	     || IS_HARDWARE_TYPE_8822BU(padapter) || IS_HARDWARE_TYPE_8822BS(padapter))
-	    && NULL == padapter->hal_func.fw_correct_bcn) {
-		rtw_hal_error_msg("fw_correct_bcn");
-		ret = _FAIL;
-	}
 
 	if (!padapter->hal_func.set_tx_power_index_handler) {
 		rtw_hal_error_msg("set_tx_power_index_handler");

@@ -374,7 +374,7 @@ static void secmicclear(struct mic_data *pmicdata)
 	pmicdata->M = 0;
 }
 
-void rtw_secmicsetkey(struct mic_data *pmicdata, u8 *key)
+void rtw_secmicsetkey2(struct mic_data *pmicdata, u8 *key)
 {
 	/* Set the key */
 	pmicdata->K0 = secmicgetuint32(key);
@@ -405,7 +405,7 @@ void rtw_secmicappendbyte2(struct mic_data *pmicdata, u8 b)
 	}
 }
 
-void rtw_secmicappend(struct mic_data *pmicdata, u8 *src, u32 nbytes)
+void rtw_secmicappend2(struct mic_data *pmicdata, u8 *src, u32 nbytes)
 {
 	/* This is simple */
 	while (nbytes > 0) {
@@ -438,28 +438,27 @@ void rtw_seccalctkipmic2(u8 *key, u8 *header, u8 *data, u32 data_len, u8 *mic_co
 
 	struct mic_data	micdata;
 	u8 priority[4] = {0x0, 0x0, 0x0, 0x0};
-	rtw_secmicsetkey(&micdata, key);
+	rtw_secmicsetkey2(&micdata, key);
 	priority[0] = pri;
 
 	/* Michael MIC pseudo header: DA, SA, 3 x 0, Priority */
 	if (header[1] & 1) { /* ToDS==1 */
-		rtw_secmicappend(&micdata, &header[16], 6);  /* DA */
+		rtw_secmicappend2(&micdata, &header[16], 6);  /* DA */
 		if (header[1] & 2) /* From Ds==1 */
-			rtw_secmicappend(&micdata, &header[24], 6);
+			rtw_secmicappend2(&micdata, &header[24], 6);
 		else
-			rtw_secmicappend(&micdata, &header[10], 6);
+			rtw_secmicappend2(&micdata, &header[10], 6);
 	} else {	/* ToDS==0 */
-		rtw_secmicappend(&micdata, &header[4], 6);   /* DA */
+		rtw_secmicappend2(&micdata, &header[4], 6);   /* DA */
 		if (header[1] & 2) /* From Ds==1 */
-			rtw_secmicappend(&micdata, &header[16], 6);
+			rtw_secmicappend2(&micdata, &header[16], 6);
 		else
-			rtw_secmicappend(&micdata, &header[10], 6);
+			rtw_secmicappend2(&micdata, &header[10], 6);
 
 	}
-	rtw_secmicappend(&micdata, &priority[0], 4);
+	rtw_secmicappend2(&micdata, &priority[0], 4);
 
-
-	rtw_secmicappend(&micdata, data, data_len);
+	rtw_secmicappend2(&micdata, data, data_len);
 
 	rtw_secgetmic(&micdata, mic_code);
 }
@@ -2092,7 +2091,7 @@ u32	rtw_BIP_verify(_adapter *padapter, u8 *whdr_pos, sint flen
 	/* conscruct AAD, copy address 1 to address 3 */
 	_rtw_memcpy(BIP_AAD + 2, pwlanhdr->addr1, 18);
 
-	if (omac1_aes_128(key, BIP_AAD, ori_len, mic))
+	if (omac1_aes_1282(key, BIP_AAD, ori_len, mic))
 		goto BIP_exit;
 
 #if 0
@@ -2462,7 +2461,7 @@ static void rtw_sha256_prf(u8 *key, size_t key_len, char *label,
 #endif /* PLATFORM_FREEBSD Baron */
 
 /* AES tables*/
-const u32 Te0[256] = {
+const u32 Te02[256] = {
 	0xc66363a5U, 0xf87c7c84U, 0xee777799U, 0xf67b7b8dU,
 	0xfff2f20dU, 0xd66b6bbdU, 0xde6f6fb1U, 0x91c5c554U,
 	0x60303050U, 0x02010103U, 0xce6767a9U, 0x562b2b7dU,
@@ -2528,7 +2527,7 @@ const u32 Te0[256] = {
 	0x824141c3U, 0x299999b0U, 0x5a2d2d77U, 0x1e0f0f11U,
 	0x7bb0b0cbU, 0xa85454fcU, 0x6dbbbbd6U, 0x2c16163aU,
 };
-const u32 Td0[256] = {
+const u32 Td02[256] = {
 	0x51f4a750U, 0x7e416553U, 0x1a17a4c3U, 0x3a275e96U,
 	0x3bab6bcbU, 0x1f9d45f1U, 0xacfa58abU, 0x4be30393U,
 	0x2030fa55U, 0xad766df6U, 0x88cc7691U, 0xf5024c25U,
@@ -2594,7 +2593,7 @@ const u32 Td0[256] = {
 	0x39a80171U, 0x080cb3deU, 0xd8b4e49cU, 0x6456c190U,
 	0x7bcb8461U, 0xd532b670U, 0x486c5c74U, 0xd0b85742U,
 };
-const u8 Td4s[256] = {
+const u8 Td4s2[256] = {
 	0x52U, 0x09U, 0x6aU, 0xd5U, 0x30U, 0x36U, 0xa5U, 0x38U,
 	0xbfU, 0x40U, 0xa3U, 0x9eU, 0x81U, 0xf3U, 0xd7U, 0xfbU,
 	0x7cU, 0xe3U, 0x39U, 0x82U, 0x9bU, 0x2fU, 0xffU, 0x87U,
@@ -2628,7 +2627,7 @@ const u8 Td4s[256] = {
 	0x17U, 0x2bU, 0x04U, 0x7eU, 0xbaU, 0x77U, 0xd6U, 0x26U,
 	0xe1U, 0x69U, 0x14U, 0x63U, 0x55U, 0x21U, 0x0cU, 0x7dU,
 };
-const u8 rcons[] = {
+const u8 rcons2[] = {
 	0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36
 	/* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
 };
@@ -2678,10 +2677,10 @@ static void rijndaelEncrypt(u32 rk[/*44*/], u8 pt[16], u8 ct[16])
 	s3 = GETU32(pt + 12) ^ rk[3];
 
 #define ROUND(i, d, s) do {\
-	d##0 = TE0(s##0) ^ TE1(s##1) ^ TE2(s##2) ^ TE3(s##3) ^ rk[4 * i]; \
-	d##1 = TE0(s##1) ^ TE1(s##2) ^ TE2(s##3) ^ TE3(s##0) ^ rk[4 * i + 1]; \
-	d##2 = TE0(s##2) ^ TE1(s##3) ^ TE2(s##0) ^ TE3(s##1) ^ rk[4 * i + 2]; \
-	d##3 = TE0(s##3) ^ TE1(s##0) ^ TE2(s##1) ^ TE3(s##2) ^ rk[4 * i + 3]; \
+	d##0 = TE02(s##0) ^ TE1(s##1) ^ TE2(s##2) ^ TE3(s##3) ^ rk[4 * i]; \
+	d##1 = TE02(s##1) ^ TE1(s##2) ^ TE2(s##3) ^ TE3(s##0) ^ rk[4 * i + 1]; \
+	d##2 = TE02(s##2) ^ TE1(s##3) ^ TE2(s##0) ^ TE3(s##1) ^ rk[4 * i + 2]; \
+	d##3 = TE02(s##3) ^ TE1(s##0) ^ TE2(s##1) ^ TE3(s##2) ^ rk[4 * i + 3]; \
 	} while (0)
 
 #ifdef FULL_UNROLL
@@ -2766,7 +2765,7 @@ static void aes_encrypt_deinit(void *ctx)
 
 
 /**
- * omac1_aes_128_vector - One-Key CBC MAC (OMAC1) hash with AES-128
+ * omac1_aes_1282_vector - One-Key CBC MAC (OMAC1) hash with AES-128
  * @key: 128-bit key for the hash operation
  * @num_elem: Number of elements in the data vector
  * @addr: Pointers to the data areas
@@ -2778,7 +2777,7 @@ static void aes_encrypt_deinit(void *ctx)
  * OMAC1 was standardized with the name CMAC by NIST in a Special Publication
  * (SP) 800-38B.
  */
-static int omac1_aes_128_vector(const u8 *key, size_t num_elem,
+static int omac1_aes_1282_vector(const u8 *key, size_t num_elem,
 			 const u8 *addr[], const size_t *len, u8 *mac)
 {
 	void *ctx;
@@ -2840,7 +2839,7 @@ static int omac1_aes_128_vector(const u8 *key, size_t num_elem,
 
 
 /**
- * omac1_aes_128 - One-Key CBC MAC (OMAC1) hash with AES-128 (aka AES-CMAC)
+ * omac1_aes_1282 - One-Key CBC MAC (OMAC1) hash with AES-128 (aka AES-CMAC)
  * @key: 128-bit key for the hash operation
  * @data: Data buffer for which a MAC is determined
  * @data_len: Length of data buffer in bytes
@@ -2851,9 +2850,9 @@ static int omac1_aes_128_vector(const u8 *key, size_t num_elem,
  * OMAC1 was standardized with the name CMAC by NIST in a Special Publication
  * (SP) 800-38B.
  */ /* modify for CONFIG_IEEE80211W */
-int omac1_aes_128(const u8 *key, const u8 *data, size_t data_len, u8 *mac)
+int omac1_aes_1282(const u8 *key, const u8 *data, size_t data_len, u8 *mac)
 {
-	return omac1_aes_128_vector(key, 1, &data, &data_len, mac);
+	return omac1_aes_1282_vector(key, 1, &data, &data_len, mac);
 }
 #endif /* PLATFORM_FREEBSD Baron */
 
@@ -2923,15 +2922,15 @@ static int aes_s2v(const u8 *key, size_t num_elem, const u8 *addr[],
 	if (!num_elem) {
 		os_memcpy(tmp, zero, sizeof(zero));
 		tmp[AES_BLOCK_SIZE - 1] = 1;
-		return omac1_aes_128(key, tmp, sizeof(tmp), mac);
+		return omac1_aes_1282(key, tmp, sizeof(tmp), mac);
 	}
 
-	ret = omac1_aes_128(key, zero, sizeof(zero), tmp);
+	ret = omac1_aes_1282(key, zero, sizeof(zero), tmp);
 	if (ret)
 		return ret;
 
 	for (i = 0; i < num_elem - 1; i++) {
-		ret = omac1_aes_128(key, addr[i], len[i], tmp2);
+		ret = omac1_aes_1282(key, addr[i], len[i], tmp2);
 		if (ret)
 			return ret;
 
@@ -2945,7 +2944,7 @@ static int aes_s2v(const u8 *key, size_t num_elem, const u8 *addr[],
 
 		os_memcpy(buf, addr[i], len[i]);
 		xorend(buf, len[i], tmp, AES_BLOCK_SIZE);
-		ret = omac1_aes_128(key, buf, len[i], mac);
+		ret = omac1_aes_1282(key, buf, len[i], mac);
 		bin_clear_free(buf, len[i]);
 		return ret;
 	}
@@ -2954,7 +2953,7 @@ static int aes_s2v(const u8 *key, size_t num_elem, const u8 *addr[],
 	pad_block(tmp2, addr[i], len[i]);
 	xor(tmp, tmp2);
 
-	return omac1_aes_128(key, tmp, sizeof(tmp), mac);
+	return omac1_aes_1282(key, tmp, sizeof(tmp), mac);
 }
 
 /**
@@ -3184,7 +3183,7 @@ int wpa_tdls_ftie_mic(u8 *kck, u8 trans_seq,
 	_rtw_memset(_ftie->mic, 0, TDLS_MIC_LEN);
 	pos += 2 + ftie[1];
 
-	ret = omac1_aes_128(kck, buf, pos - buf, mic);
+	ret = omac1_aes_1282(kck, buf, pos - buf, mic);
 	rtw_mfree(buf, len);
 	return ret;
 
@@ -3233,7 +3232,7 @@ int wpa_tdls_teardown_ftie_mic(u8 *kck, u8 *lnkid, u16 reason,
 	_rtw_memset(_ftie->mic, 0, TDLS_MIC_LEN);
 	pos += 2 + ftie[1];
 
-	ret = omac1_aes_128(kck, buf, pos - buf, mic);
+	ret = omac1_aes_1282(kck, buf, pos - buf, mic);
 	rtw_mfree(buf, len);
 	return ret;
 
@@ -3283,7 +3282,7 @@ int tdls_verify_mic(u8 *kck, u8 trans_seq,
 	_rtw_memset(tmp_ftie, 0, 16);
 	pos += *(ftie + 1);
 
-	ret = omac1_aes_128(kck, buf, pos - buf, mic);
+	ret = omac1_aes_1282(kck, buf, pos - buf, mic);
 	rtw_mfree(buf, len);
 	if (ret)
 		return _FAIL;

@@ -346,7 +346,7 @@ static void rtw_reg_notifier(struct wiphy *wiphy, struct regulatory_request *req
 	case NL80211_REGDOM_SET_BY_USER:
 		RTW_INFO("%s: %s alpha2:%c%c\n", __func__, "NL80211_REGDOM_SET_BY_USER"
 			, request->alpha2[0], request->alpha2[1]);
-		rtw_set_country(wiphy_to_adapter(wiphy), request->alpha2);
+		rtw_set_country2(wiphy_to_adapter(wiphy), request->alpha2);
 		break;
 	case NL80211_REGDOM_SET_BY_COUNTRY_IE:
 		RTW_INFO("%s: %s\n", __func__, "NL80211_REGDOM_SET_BY_COUNTRY_IE");

@@ -391,7 +391,7 @@ int rtw_android_get_link_speed(struct net_device *net, char *command, int total_
 	return bytes_written;
 }
 
-int rtw_android_get_macaddr(struct net_device *net, char *command, int total_len)
+int rtw_android_get_macaddr2(struct net_device *net, char *command, int total_len)
 {
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(net);
 	int bytes_written = 0;
@@ -406,7 +406,7 @@ int rtw_android_set_country(struct net_device *net, char *command, int total_len
 	char *country_code = command + strlen(android_wifi_cmd_str[ANDROID_WIFI_CMD_COUNTRY]) + 1;
 	int ret = _FAIL;
 
-	ret = rtw_set_country(adapter, country_code);
+	ret = rtw_set_country2(adapter, country_code);
 
 	return (ret == _SUCCESS) ? 0 : -1;
 }
@@ -454,7 +454,7 @@ int rtw_android_setband(struct net_device *net, char *command, int total_len)
 	int ret = _FAIL;
 
 	if (sscanf(arg, "%u", &band) >= 1)
-		ret = rtw_set_band(adapter, band);
+		ret = rtw_set_band2(adapter, band);
 
 	return (ret == _SUCCESS) ? 0 : -1;
 }
@@ -728,7 +728,7 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		break;
 
 	case ANDROID_WIFI_CMD_MACADDR:
-		bytes_written = rtw_android_get_macaddr(net, command, priv_cmd.total_len);
+		bytes_written = rtw_android_get_macaddr2(net, command, priv_cmd.total_len);
 		break;
 
 	case ANDROID_WIFI_CMD_BLOCK_SCAN:

@@ -1388,7 +1388,7 @@ int nat25_db_handle(_adapter *priv, struct sk_buff *skb, int method)
 }
 
 
-int nat25_handle_frame(_adapter *priv, struct sk_buff *skb)
+int nat25_handle_frame2(_adapter *priv, struct sk_buff *skb)
 {
 #ifdef BR_EXT_DEBUG
 	if ((!priv->ethBrExtInfo.nat25_disable) && (!(skb->data[0] & 1))) {

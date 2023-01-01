@@ -499,11 +499,10 @@ u8 rtw_rson_scan_wk_cmd(_adapter *padapter, int op)
 
 	init_h2fwcmd_w_parm_no_rsp(ph2c, pdrvextra_cmd_parm, GEN_CMD_CODE(_Set_Drv_Extra));
 
-	res = rtw_enqueue_cmd(pcmdpriv, ph2c);
+	res = rtw_enqueue_cmd2(pcmdpriv, ph2c);
 
 exit:
 	return res;
-
 }
 
 void rtw_rson_scan_cmd_hdl(_adapter *padapter, int op)

@@ -661,7 +661,7 @@ u8 rtw_mesh_offch_candidate_accepted(_adapter *adapter)
 	if (ret) {
 		struct mi_state mstate_no_self;
 
-		rtw_mi_status_no_self(adapter, &mstate_no_self);
+		rtw_mi_status_no_self2(adapter, &mstate_no_self);
 		if (MSTATE_STA_LD_NUM(&mstate_no_self) || MSTATE_AP_LD_NUM(&mstate_no_self)
 			|| MSTATE_ADHOC_LD_NUM(&mstate_no_self) || MSTATE_MESH_LD_NUM(&mstate_no_self))
 			ret = 0;
@@ -672,7 +672,7 @@ u8 rtw_mesh_offch_candidate_accepted(_adapter *adapter)
 }
 
 /*
- * this function is called under off channel candidate is required 
+ * this function is called under off channel candidate is required
  * the channel with maximum candidate count is selected
 */
 u8 rtw_mesh_select_operating_ch(_adapter *adapter)

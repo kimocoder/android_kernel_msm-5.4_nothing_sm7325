@@ -676,7 +676,7 @@ static int rtw_cfg80211_sync_iftype(_adapter *adapter)
 				return _FAIL;
 			}
 
-			rtw_set_802_11_infrastructure_mode(adapter, network_type);
+			rtw_set_802_11_infrastructure_mode2(adapter, network_type);
 			rtw_setopmode_cmd(adapter, network_type, RTW_CMDF_WAIT_ACK);
 		} else {
 			rtw_warn_on(1);
@@ -1591,7 +1591,7 @@ static int rtw_cfg80211_set_encryption(struct net_device *dev, struct ieee_param
 					#ifdef CONFIG_RTW_80211R
 					psta->ft_pairwise_key_installed = _TRUE;
 					#endif
-					rtw_setstakey_cmd(padapter, psta, UNICAST_KEY, _TRUE);
+					rtw_setstakey_cmd2(padapter, psta, UNICAST_KEY, _TRUE);
 
 				} else { /* group key */
 					if (strcmp(param->u.crypt.alg, "TKIP") == 0 || strcmp(param->u.crypt.alg, "CCMP") == 0) {
@@ -2437,7 +2437,7 @@ static int cfg80211_rtw_change_iface(struct wiphy *wiphy,
 
 	rtw_wdev->iftype = type;
 
-	if (rtw_set_802_11_infrastructure_mode(padapter, networkType) == _FALSE) {
+	if (rtw_set_802_11_infrastructure_mode2(padapter, networkType) == _FALSE) {
 		rtw_wdev->iftype = old_type;
 		ret = -EPERM;
 		goto exit;
@@ -3018,7 +3018,7 @@ static int cfg80211_rtw_scan(struct wiphy *wiphy
 	}
 #endif /* CONFIG_P2P */
 
-	rtw_init_sitesurvey_parm(padapter, &parm);
+	rtw_init_sitesurvey_parm2(padapter, &parm);
 
 	/* parsing request ssids, n_ssids */
 	for (i = 0; i < request->n_ssids && i < RTW_SSID_SCAN_AMOUNT; i++) {
@@ -3053,7 +3053,7 @@ static int cfg80211_rtw_scan(struct wiphy *wiphy
 
 	_enter_critical_bh(&pwdev_priv->scan_req_lock, &irqL);
 	_enter_critical_bh(&pmlmepriv->lock, &irqL);
-	_status = rtw_sitesurvey_cmd(padapter, &parm);
+	_status = rtw_sitesurvey_cmd2(padapter, &parm);
 	if (_status == _SUCCESS)
 		pwdev_priv->scan_request = request;
 	else
@@ -3535,7 +3535,7 @@ static int cfg80211_rtw_join_ibss(struct wiphy *wiphy, struct net_device *ndev,
 		ret = -EINVAL;
 		goto cancel_ps_deny;
 	}
-	rtw_mi_buddy_scan_abort(padapter, _TRUE); /* OR rtw_mi_scan_abort(padapter, _TRUE);*/
+	rtw_mi_buddy_scan_abort2(padapter, _TRUE); /* OR rtw_mi_scan_abort2(padapter, _TRUE);*/
 #endif /*CONFIG_CONCURRENT_MODE*/
 
 
@@ -3591,7 +3591,7 @@ static int cfg80211_rtw_leave_ibss(struct wiphy *wiphy, struct net_device *ndev)
 
 		rtw_wdev->iftype = NL80211_IFTYPE_STATION;
 
-		if (rtw_set_802_11_infrastructure_mode(padapter, Ndis802_11Infrastructure) == _FALSE) {
+		if (rtw_set_802_11_infrastructure_mode2(padapter, Ndis802_11Infrastructure) == _FALSE) {
 			rtw_wdev->iftype = old_type;
 			ret = -EPERM;
 			goto leave_ibss;
@@ -3692,7 +3692,7 @@ static int cfg80211_rtw_connect(struct wiphy *wiphy, struct net_device *ndev,
 		goto cancel_ps_deny;
 	}
 
-	rtw_mi_scan_abort(padapter, _TRUE);
+	rtw_mi_scan_abort2(padapter, _TRUE);
 
 	rtw_join_abort_timeout(padapter, 300);
 #ifdef CONFIG_CONCURRENT_MODE
@@ -3801,7 +3801,7 @@ static int cfg80211_rtw_connect(struct wiphy *wiphy, struct net_device *ndev,
 
 		_rtw_memcpy(pwep->KeyMaterial, (void *)sme->key, pwep->KeyLength);
 
-		if (rtw_set_802_11_add_wep(padapter, pwep) == (u8)_FAIL)
+		if (rtw_set_802_11_add_wep2(padapter, pwep) == (u8)_FAIL)
 			ret = -EOPNOTSUPP ;
 
 		if (pwep)
@@ -3897,7 +3897,7 @@ static int cfg80211_rtw_disconnect(struct wiphy *wiphy, struct net_device *ndev,
 		rtw_scan_abort(padapter);
 		rtw_join_abort_timeout(padapter, 300);
 		LeaveAllPowerSaveMode(padapter);
-		rtw_disassoc_cmd(padapter, 500, RTW_CMDF_WAIT_ACK);
+		rtw_disassoc_cmd2(padapter, 500, RTW_CMDF_WAIT_ACK);
 #ifdef CONFIG_RTW_REPEATER_SON
 		rtw_rson_do_disconnect(padapter);
 #endif
@@ -4822,7 +4822,7 @@ static int	cfg80211_rtw_del_beacon(struct wiphy *wiphy, struct net_device *ndev)
 
 	RTW_INFO(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 
-	rtw_set_802_11_infrastructure_mode(adapter, Ndis802_11Infrastructure);
+	rtw_set_802_11_infrastructure_mode2(adapter, Ndis802_11Infrastructure);
 	rtw_setopmode_cmd(adapter, Ndis802_11Infrastructure, RTW_CMDF_WAIT_ACK);
 
 	return 0;
@@ -4894,7 +4894,7 @@ static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev)
 
 	RTW_INFO(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 
-	rtw_set_802_11_infrastructure_mode(adapter, Ndis802_11Infrastructure);
+	rtw_set_802_11_infrastructure_mode2(adapter, Ndis802_11Infrastructure);
 	rtw_setopmode_cmd(adapter, Ndis802_11Infrastructure, RTW_CMDF_WAIT_ACK);
 
 	return 0;
@@ -5834,7 +5834,7 @@ void rtw_cfg80211_rx_p2p_action_public(_adapter *adapter, union recv_frame *rfra
 					RTW_INFO(FUNC_ADPT_FMT" Nego confirm. Allow only "ADPT_FMT" to scan for 2000 ms\n"
 						, FUNC_ADPT_ARG(adapter), ADPT_ARG(intended_iface));
 					/* allow only intended_iface to do scan for 2000 ms */
-					rtw_mi_set_scan_deny(adapter, 2000);
+					rtw_mi_set_scan_deny2(adapter, 2000);
 					rtw_clear_scan_deny(intended_iface);
 				}
 			}
@@ -5893,8 +5893,8 @@ void rtw_cfg80211_rx_action(_adapter *adapter, union recv_frame *rframe, const c
 	rtw_action_frame_parse(frame, frame_len, &category, &action);
 	if (category == RTW_WLAN_CATEGORY_PUBLIC) {
 		if (action == ACT_PUBLIC_GAS_INITIAL_REQ) {
-			rtw_mi_set_scan_deny(adapter, 200);
-			rtw_mi_scan_abort(adapter, _FALSE); /*rtw_scan_abort_no_wait*/
+			rtw_mi_set_scan_deny2(adapter, 200);
+			rtw_mi_scan_abort2(adapter, _FALSE); /*rtw_scan_abort_no_wait*/
 		}
 	}
 
@@ -6233,7 +6233,7 @@ static s32 cfg80211_rtw_update_ft_ies(struct wiphy *wiphy,
 inline void rtw_cfg80211_set_is_roch(_adapter *adapter, bool val)
 {
 	adapter->cfg80211_wdinfo.is_ro_ch = val;
-	rtw_mi_update_iface_status(&(adapter->mlmepriv), 0);
+	rtw_mi_update_iface_status2(&(adapter->mlmepriv), 0);
 }
 
 inline bool rtw_cfg80211_get_is_roch(_adapter *adapter)
@@ -6340,7 +6340,7 @@ static s32 cfg80211_rtw_remain_on_channel(struct wiphy *wiphy,
 #ifdef CONFIG_CONCURRENT_MODE
 	/*don't scan_abort during p2p_listen.*/
 	if (is_p2p_find)
-		rtw_mi_buddy_scan_abort(padapter, _TRUE);
+		rtw_mi_buddy_scan_abort2(padapter, _TRUE);
 #endif /*CONFIG_CONCURRENT_MODE*/
 
 	if (rtw_cfg80211_get_is_roch(padapter) == _TRUE) {
@@ -6641,7 +6641,7 @@ inline void rtw_cfg80211_set_is_mgmt_tx(_adapter *adapter, u8 val)
 	struct rtw_wdev_priv *wdev_priv = adapter_wdev_data(adapter);
 
 	wdev_priv->is_mgmt_tx = val;
-	rtw_mi_update_iface_status(&(adapter->mlmepriv), 0);
+	rtw_mi_update_iface_status2(&(adapter->mlmepriv), 0);
 }
 
 inline u8 rtw_cfg80211_get_is_mgmt_tx(_adapter *adapter)
@@ -7041,8 +7041,8 @@ dump:
 	while (1) {
 		dump_cnt++;
 
-		rtw_mi_set_scan_deny(padapter, 1000);
-		rtw_mi_scan_abort(padapter, _TRUE);
+		rtw_mi_set_scan_deny2(padapter, 1000);
+		rtw_mi_scan_abort2(padapter, _TRUE);
 		tx_ret = rtw_mgnt_tx_cmd(padapter, tx_ch, no_cck, dump_buf, dump_len, wait_ack, RTW_CMDF_WAIT_ACK);
 		if (tx_ret == _SUCCESS
 			|| (dump_cnt >= dump_limit && rtw_get_passing_time_ms(start) >= retry_guarantee_ms))
@@ -7076,7 +7076,7 @@ dump:
 					RTW_INFO(FUNC_ADPT_FMT" Nego confirm. Allow only "ADPT_FMT" to scan for 2000 ms\n"
 						, FUNC_ADPT_ARG(padapter), ADPT_ARG(intended_iface));
 					/* allow only intended_iface to do scan for 2000 ms */
-					rtw_mi_set_scan_deny(padapter, 2000);
+					rtw_mi_set_scan_deny2(padapter, 2000);
 					rtw_clear_scan_deny(intended_iface);
 				}
 			}
@@ -8055,7 +8055,7 @@ static int cfg80211_rtw_leave_mesh(struct wiphy *wiphy, struct net_device *dev)
 
 	rtw_mesh_deinit_mesh_info(adapter);
 
-	rtw_set_802_11_infrastructure_mode(adapter, Ndis802_11Infrastructure);
+	rtw_set_802_11_infrastructure_mode2(adapter, Ndis802_11Infrastructure);
 	rtw_setopmode_cmd(adapter, Ndis802_11Infrastructure, RTW_CMDF_WAIT_ACK);
 
 	return ret;
@@ -8399,7 +8399,7 @@ int	cfg80211_rtw_resume(struct wiphy *wiphy) {
 
 		rtw_cfg80211_disconnected(padapter->rtw_wdev, 0, NULL, 0, 1, GFP_ATOMIC);
 
-		rtw_init_sitesurvey_parm(padapter, &parm);
+		rtw_init_sitesurvey_parm2(padapter, &parm);
 		for (i = 0; i < pwrpriv -> pnlo_info -> ssid_num && i < RTW_SSID_SCAN_AMOUNT; i++) {
 			len = pwrpriv->pno_ssid_list->node[i].SSID_len;
 			_rtw_memcpy(&parm.ssid[i].Ssid, pwrpriv->pno_ssid_list->node[i].SSID, len);
@@ -8409,8 +8409,8 @@ int	cfg80211_rtw_resume(struct wiphy *wiphy) {
 
 		_enter_critical_bh(&pmlmepriv->lock, &irqL);
 		//This modification fix PNO wakeup reconnect issue with hidden SSID AP.
-		//rtw_sitesurvey_cmd(padapter, NULL);
-		rtw_sitesurvey_cmd(padapter, &parm);
+		//rtw_sitesurvey_cmd2(padapter, NULL);
+		rtw_sitesurvey_cmd2(padapter, &parm);
 		_exit_critical_bh(&pmlmepriv->lock, &irqL);
 
 		for (PNOWakeupScanWaitCnt = 0; PNOWakeupScanWaitCnt < 10; PNOWakeupScanWaitCnt++) {

@@ -15,11 +15,11 @@
 #ifndef __RTW_MI_H_
 #define __RTW_MI_H_
 
-void rtw_mi_update_union_chan_inf(_adapter *adapter, u8 ch, u8 offset , u8 bw);
-u8 rtw_mi_stayin_union_ch_chk(_adapter *adapter);
-u8 rtw_mi_stayin_union_band_chk(_adapter *adapter);
-int rtw_mi_get_ch_setting_union(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset);
-int rtw_mi_get_ch_setting_union_no_self(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset);
+void rtw_mi_update_union_chan_inf2(_adapter *adapter, u8 ch, u8 offset , u8 bw);
+u8 rtw_mi_stayin_union_ch_chk2(_adapter *adapter);
+u8 rtw_mi_stayin_union_band_chk2(_adapter *adapter);
+int rtw_mi_get_ch_setting_union2(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset);
+int rtw_mi_get_ch_setting_union_no_self2(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset);
 
 struct mi_state {
 	u8 sta_num;			/* WIFI_STATION_STATE */
@@ -114,64 +114,64 @@ struct mi_state {
 #define rtw_mi_get_mesh_num(adapter)		DEV_MESH_NUM(adapter_to_dvobj(adapter))
 
 /* For now, not return union_ch/bw/offset */
-void rtw_mi_status(_adapter *adapter, struct mi_state *mstate);
-void rtw_mi_status_no_self(_adapter *adapter, struct mi_state *mstate);
-void rtw_mi_status_no_others(_adapter *adapter, struct mi_state *mstate);
+void rtw_mi_status2(_adapter *adapter, struct mi_state *mstate);
+void rtw_mi_status_no_self2(_adapter *adapter, struct mi_state *mstate);
+void rtw_mi_status_no_others2(_adapter *adapter, struct mi_state *mstate);
 
 /* For now, not handle union_ch/bw/offset */
-void rtw_mi_status_merge(struct mi_state *d, struct mi_state *a);
+void rtw_mi_status_merge2(struct mi_state *d, struct mi_state *a);
 
-void rtw_mi_update_iface_status(struct mlme_priv *pmlmepriv, sint state);
+void rtw_mi_update_iface_status2(struct mlme_priv *pmlmepriv, sint state);
 
-u8 rtw_mi_netif_stop_queue(_adapter *padapter);
-u8 rtw_mi_buddy_netif_stop_queue(_adapter *padapter);
+u8 rtw_mi_netif_stop_queue2(_adapter *padapter);
+u8 rtw_mi_buddy_netif_stop_queue2(_adapter *padapter);
 
-u8 rtw_mi_netif_wake_queue(_adapter *padapter);
-u8 rtw_mi_buddy_netif_wake_queue(_adapter *padapter);
+u8 rtw_mi_netif_wake_queue2(_adapter *padapter);
+u8 rtw_mi_buddy_netif_wake_queue2(_adapter *padapter);
 
-u8 rtw_mi_netif_carrier_on(_adapter *padapter);
-u8 rtw_mi_buddy_netif_carrier_on(_adapter *padapter);
-u8 rtw_mi_netif_carrier_off(_adapter *padapter);
-u8 rtw_mi_buddy_netif_carrier_off(_adapter *padapter);
+u8 rtw_mi_netif_carrier_on2(_adapter *padapter);
+u8 rtw_mi_buddy_netif_carrier_on2(_adapter *padapter);
+u8 rtw_mi_netif_carrier_off2(_adapter *padapter);
+u8 rtw_mi_buddy_netif_carrier_off2(_adapter *padapter);
 
-u8 rtw_mi_netif_caroff_qstop(_adapter *padapter);
-u8 rtw_mi_buddy_netif_caroff_qstop(_adapter *padapter);
-u8 rtw_mi_netif_caron_qstart(_adapter *padapter);
-u8 rtw_mi_buddy_netif_caron_qstart(_adapter *padapter);
+u8 rtw_mi_netif_caroff_qstop2(_adapter *padapter);
+u8 rtw_mi_buddy_netif_caroff_qstop2(_adapter *padapter);
+u8 rtw_mi_netif_caron_qstart2(_adapter *padapter);
+u8 rtw_mi_buddy_netif_caron_qstart2(_adapter *padapter);
 
-void rtw_mi_scan_abort(_adapter *adapter, bool bwait);
-void rtw_mi_buddy_scan_abort(_adapter *adapter, bool bwait);
-u32 rtw_mi_start_drv_threads(_adapter *adapter);
-u32 rtw_mi_buddy_start_drv_threads(_adapter *adapter);
-void rtw_mi_stop_drv_threads(_adapter *adapter);
-void rtw_mi_buddy_stop_drv_threads(_adapter *adapter);
-void rtw_mi_cancel_all_timer(_adapter *adapter);
-void rtw_mi_buddy_cancel_all_timer(_adapter *adapter);
-void rtw_mi_reset_drv_sw(_adapter *adapter);
-void rtw_mi_buddy_reset_drv_sw(_adapter *adapter);
+void rtw_mi_scan_abort2(_adapter *adapter, bool bwait);
+void rtw_mi_buddy_scan_abort2(_adapter *adapter, bool bwait);
+u32 rtw_mi_start_drv_threads2(_adapter *adapter);
+u32 rtw_mi_buddy_start_drv_threads2(_adapter *adapter);
+void rtw_mi_stop_drv_threads2(_adapter *adapter);
+void rtw_mi_buddy_stop_drv_threads2(_adapter *adapter);
+void rtw_mi_cancel_all_timer2(_adapter *adapter);
+void rtw_mi_buddy_cancel_all_timer2(_adapter *adapter);
+void rtw_mi_reset_drv_sw2(_adapter *adapter);
+void rtw_mi_buddy_reset_drv_sw2(_adapter *adapter);
 
 extern void rtw_intf_start(_adapter *adapter);
 extern void rtw_intf_stop(_adapter *adapter);
-void rtw_mi_intf_start(_adapter *adapter);
-void rtw_mi_buddy_intf_start(_adapter *adapter);
-void rtw_mi_intf_stop(_adapter *adapter);
+void rtw_mi_intf_start2(_adapter *adapter);
+void rtw_mi_buddy_intf_start2(_adapter *adapter);
+void rtw_mi_intf_stop2(_adapter *adapter);
 void rtw_mi_buddy_intf_stop(_adapter *adapter);
 
 void rtw_mi_suspend_free_assoc_resource(_adapter *adapter);
 void rtw_mi_buddy_suspend_free_assoc_resource(_adapter *adapter);
 
 #ifdef CONFIG_SET_SCAN_DENY_TIMER
-void rtw_mi_set_scan_deny(_adapter *adapter, u32 ms);
+void rtw_mi_set_scan_deny2(_adapter *adapter, u32 ms);
 void rtw_mi_buddy_set_scan_deny(_adapter *adapter, u32 ms);
 #else
-#define rtw_mi_set_scan_deny(adapter, ms) do {} while (0)
+#define rtw_mi_set_scan_deny2(adapter, ms) do {} while (0)
 #define rtw_mi_buddy_set_scan_deny(adapter, ms) do {} while (0)
 #endif
 
-u8 rtw_mi_is_scan_deny(_adapter *adapter);
+u8 rtw_mi_is_scan_deny2(_adapter *adapter);
 u8 rtw_mi_buddy_is_scan_deny(_adapter *adapter);
 
-void rtw_mi_beacon_update(_adapter *padapter);
+void rtw_mi_beacon_update2(_adapter *padapter);
 void rtw_mi_buddy_beacon_update(_adapter *padapter);
 
 void rtw_mi_hal_dump_macaddr(_adapter *padapter);
@@ -206,11 +206,11 @@ enum {
 };
 u8 rtw_mi_check_status2(_adapter *adapter, u8 type);
 
-void dump_dvobj_mi_status(void *sel, const char *fun_name, _adapter *adapter);
+void dump_dvobj_mi_status2(void *sel, const char *fun_name, _adapter *adapter);
 #ifdef DBG_IFACE_STATUS
-#define DBG_IFACE_STATUS_DUMP(adapter)	dump_dvobj_mi_status(RTW_DBGDUMP, __func__, adapter)
+#define DBG_IFACE_STATUS_DUMP(adapter)	dump_dvobj_mi_status2(RTW_DBGDUMP, __func__, adapter)
 #endif
-void dump_mi_status(void *sel, struct dvobj_priv *dvobj);
+void dump_mi_status2(void *sel, struct dvobj_priv *dvobj);
 
 u8 rtw_mi_traffic_statistics(_adapter *padapter);
 u8 rtw_mi_check_miracast_enabled(_adapter *padapter);
@@ -221,11 +221,8 @@ u8 rtw_mi_buddy_check_pending_xmitbuf(_adapter *padapter);
 #endif
 
 #if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-#ifdef CONFIG_RTL8822B
-	#include <rtl8822b_hal.h>
-#else
-	extern s32 _dequeue_writeport(PADAPTER padapter);
-#endif
+extern s32 _dequeue_writeport(PADAPTER padapter);
+
 u8 rtw_mi_dequeue_writeport(_adapter *padapter);
 u8 rtw_mi_buddy_dequeue_writeport(_adapter *padapter);
 #endif

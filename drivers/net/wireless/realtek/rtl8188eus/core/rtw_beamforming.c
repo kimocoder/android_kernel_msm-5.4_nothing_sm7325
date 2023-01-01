@@ -1892,7 +1892,7 @@ u8 rtw_bf_cmd(PADAPTER adapter, s32 type, u8 *pbuf, s32 size, u8 enqueue)
 
 	init_h2fwcmd_w_parm_no_rsp(ph2c, pdrvextra_cmd_parm, GEN_CMD_CODE(_Set_Drv_Extra));
 
-	res = rtw_enqueue_cmd(pcmdpriv, ph2c);
+	res = rtw_enqueue_cmd2(pcmdpriv, ph2c);
 
 exit:
 	return res;
@@ -3033,9 +3033,6 @@ void	rtw_beamforming_get_ndpa_frame(PADAPTER	 Adapter, union recv_frame *precv_f
 
 }
 
-
-
-
 void	beamforming_wk_hdl(_adapter *padapter, u8 type, u8 *pbuf)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(padapter);
@@ -3133,13 +3130,11 @@ u8	beamforming_wk_cmd(_adapter *padapter, s32 type, u8 *pbuf, s32 size, u8 enque
 
 		init_h2fwcmd_w_parm_no_rsp(ph2c, pdrvextra_cmd_parm, GEN_CMD_CODE(_Set_Drv_Extra));
 
-		res = rtw_enqueue_cmd(pcmdpriv, ph2c);
+		res = rtw_enqueue_cmd2(pcmdpriv, ph2c);
 	} else
 		beamforming_wk_hdl(padapter, type, pbuf);
 
 exit:
-
-
 	return res;
 }
 
@@ -3151,5 +3146,4 @@ void update_attrib_txbf_info(_adapter *padapter, struct pkt_attrib *pattrib, str
 	}
 }
 #endif /* !RTW_BEAMFORMING_VERSION_2 */
-
 #endif /* CONFIG_BEAMFORMING */

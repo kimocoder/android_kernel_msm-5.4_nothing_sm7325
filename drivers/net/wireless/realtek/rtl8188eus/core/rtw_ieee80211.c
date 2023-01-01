@@ -115,7 +115,7 @@ struct rate_section_ent rates_by_sections[RATE_SECTION_NUM] = {
 	{RF_4TX, 10, mgn_rates_vht4ss},
 };
 
-int rtw_get_bit_value_from_ieee_value(u8 val)
+int rtw_get_bit_value_from_ieee_value2(u8 val)
 {
 	unsigned char dot11_rate_table[] = {2, 4, 11, 22, 12, 18, 24, 36, 48, 72, 96, 108, 0}; /* last element must be zero!! */
 
@@ -142,7 +142,7 @@ uint	rtw_is_cckrates_included(u8 *rate)
 	return _FALSE;
 }
 
-uint	rtw_is_cckratesonly_included(u8 *rate)
+uint	rtw_is_cckratesonly_included2(u8 *rate)
 {
 	u32 i = 0;
 
@@ -159,7 +159,7 @@ uint	rtw_is_cckratesonly_included(u8 *rate)
 
 }
 
-int rtw_check_network_type(unsigned char *rate, int ratelen, int channel)
+int rtw_check_network_type2(unsigned char *rate, int ratelen, int channel)
 {
 	if (channel > 14) {
 		if ((rtw_is_cckrates_included(rate)) == _TRUE)
@@ -167,7 +167,7 @@ int rtw_check_network_type(unsigned char *rate, int ratelen, int channel)
 		else
 			return WIRELESS_11A;
 	} else { /* could be pure B, pure G, or B/G */
-		if ((rtw_is_cckratesonly_included(rate)) == _TRUE)
+		if ((rtw_is_cckratesonly_included2(rate)) == _TRUE)
 			return WIRELESS_11B;
 		else if ((rtw_is_cckrates_included(rate)) == _TRUE)
 			return	WIRELESS_11BG;
@@ -208,7 +208,7 @@ u8 *rtw_set_ie
 	return pbuf + len + 2;
 }
 
-inline u8 *rtw_set_ie_ch_switch(u8 *buf, u32 *buf_len, u8 ch_switch_mode,
+inline u8 *rtw_set_ie_ch_switch2(u8 *buf, u32 *buf_len, u8 ch_switch_mode,
 				u8 new_ch, u8 ch_switch_cnt)
 {
 	u8 ie_data[3];
@@ -231,7 +231,7 @@ inline u8 secondary_ch_offset_to_hal_ch_offset(u8 ch_offset)
 	return HAL_PRIME_CHNL_OFFSET_DONT_CARE;
 }
 
-inline u8 hal_ch_offset_to_secondary_ch_offset(u8 ch_offset)
+inline u8 hal_ch_offset_to_secondary_ch_offset2(u8 ch_offset)
 {
 	if (ch_offset == HAL_PRIME_CHNL_OFFSET_DONT_CARE)
 		return SCN;

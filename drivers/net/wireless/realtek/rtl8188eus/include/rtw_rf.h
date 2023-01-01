@@ -36,7 +36,7 @@
 extern u8 center_ch_2g[CENTER_CH_2G_NUM];
 extern u8 center_ch_2g_40m[CENTER_CH_2G_40M_NUM];
 
-u8 center_chs_2g_num(u8 bw);
+u8 center_chs_2g_num2(u8 bw);
 u8 center_chs_2g(u8 bw, u8 id);
 
 extern u8 center_ch_5g_20m[CENTER_CH_5G_20M_NUM];
@@ -45,10 +45,10 @@ extern u8 center_ch_5g_20m_40m[CENTER_CH_5G_20M_NUM + CENTER_CH_5G_40M_NUM];
 extern u8 center_ch_5g_80m[CENTER_CH_5G_80M_NUM];
 extern u8 center_ch_5g_all[CENTER_CH_5G_ALL_NUM];
 
-u8 center_chs_5g_num(u8 bw);
+u8 center_chs_5g_num2(u8 bw);
 u8 center_chs_5g(u8 bw, u8 id);
 
-u8 rtw_get_scch_by_cch_offset(u8 cch, u8 bw, u8 offset);
+u8 rtw_get_scch_by_cch_offset2(u8 cch, u8 bw, u8 offset);
 
 u8 rtw_get_op_chs_by_cch_bw2(u8 cch, u8 bw, u8 **op_chs, u8 *op_ch_num);
 
@@ -149,17 +149,7 @@ int rtw_ch2freq(int chan);
 int rtw_freq2ch2(int freq);
 bool rtw_chbw_to_freq_range(u8 ch, u8 bw, u8 offset, u32 *hi, u32 *lo);
 
-#define RTW_MODULE_RTL8821AE_HMC_M2		BIT0	/* RTL8821AE(HMC + M.2) */
-#define RTW_MODULE_RTL8821AU			BIT1	/* RTL8821AU */
-#define RTW_MODULE_RTL8812AENF_NGFF		BIT2	/* RTL8812AENF(8812AE+8761)_NGFF */
-#define RTW_MODULE_RTL8812AEBT_HMC		BIT3	/* RTL8812AEBT(8812AE+8761)_HMC */
 #define RTW_MODULE_RTL8188EE_HMC_M2		BIT4	/* RTL8188EE(HMC + M.2) */
-#define RTW_MODULE_RTL8723BE_HMC_M2		BIT5	/* RTL8723BE(HMC + M.2) */
-#define RTW_MODULE_RTL8723BS_NGFF1216	BIT6	/* RTL8723BS(NGFF1216) */
-#define RTW_MODULE_RTL8192EEBT_HMC_M2	BIT7	/* RTL8192EEBT(8192EE+8761AU)_(HMC + M.2) */
-#define RTW_MODULE_RTL8723DE_NGFF1630	BIT8	/* RTL8723DE(NGFF1630) */
-#define RTW_MODULE_RTL8822BE			BIT9	/* RTL8822BE */
-#define RTW_MODULE_RTL8821CE			BIT10	/* RTL8821CE */
 
 #define IS_ALPHA2_NO_SPECIFIED(_alpha2) ((*((u16 *)(_alpha2))) == 0xFFFF)
 

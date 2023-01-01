@@ -95,7 +95,7 @@ static int proc_get_dummy(struct seq_file *m, void *v)
 
 static int proc_get_drv_version(struct seq_file *m, void *v)
 {
-	dump_drv_version(m);
+	dump_drv_version2(m);
 	return 0;
 }
 
@@ -107,7 +107,7 @@ static int proc_get_log_level(struct seq_file *m, void *v)
 
 static int proc_get_drv_cfg(struct seq_file *m, void *v)
 {
-	dump_drv_cfg(m);
+	dump_drv_cfg2(m);
 	return 0;
 }
 
@@ -431,22 +431,22 @@ static int proc_get_fw_info(struct seq_file *m, void *v)
 	rtw_dump_fw_info(m, adapter);
 	return 0;
 }
-static int proc_get_mac_reg_dump(struct seq_file *m, void *v)
+static int proc_get_mac_reg_dump2(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
 
-	mac_reg_dump(m, adapter);
+	mac_reg_dump2(m, adapter);
 
 	return 0;
 }
 
-static int proc_get_bb_reg_dump(struct seq_file *m, void *v)
+static int proc_get_bb_reg_dump2(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
 
-	bb_reg_dump(m, adapter);
+	bb_reg_dump2(m, adapter);
 
 	return 0;
 }
@@ -558,22 +558,22 @@ ssize_t proc_set_aid_status(struct file *file, const char __user *buffer, size_t
 }
 #endif /* CONFIG_AP_MODE */
 
-static int proc_get_dump_tx_rate_bmp(struct seq_file *m, void *v)
+static int proc_get_dump_tx_rate_bmp2(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
 
-	dump_tx_rate_bmp(m, adapter_to_dvobj(adapter));
+	dump_tx_rate_bmp2(m, adapter_to_dvobj(adapter));
 
 	return 0;
 }
 
-static int proc_get_dump_adapters_status(struct seq_file *m, void *v)
+static int proc_get_dump_adapters_status2(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
 
-	dump_adapters_status(m, adapter_to_dvobj(adapter));
+	dump_adapters_status2(m, adapter_to_dvobj(adapter));
 
 	return 0;
 }
@@ -1225,7 +1225,7 @@ static ssize_t proc_set_country_code(struct file *file, const char __user *buffe
 	if (num !=	2)
 		return count;
 
-	rtw_set_country(padapter, alpha2);
+	rtw_set_country2(padapter, alpha2);
 
 exit:
 	return count;
@@ -1833,13 +1833,13 @@ static int proc_get_sec_cam(struct seq_file *m, void *v)
 
 	RTW_PRINT_SEL(m, "max_num:%u\n", cam_ctl->num);
 	RTW_PRINT_SEL(m, "used:\n");
-	dump_sec_cam_map(m, &cam_ctl->used, cam_ctl->num);
+	dump_sec_cam_map2(m, &cam_ctl->used, cam_ctl->num);
 	RTW_PRINT_SEL(m, "\n");
 
 	RTW_PRINT_SEL(m, "reg_scr:0x%04x\n", rtw_read16(adapter, 0x680));
 	RTW_PRINT_SEL(m, "\n");
 
-	dump_sec_cam(m, adapter);
+	dump_sec_cam2(m, adapter);
 
 	return 0;
 }
@@ -1900,7 +1900,7 @@ static int proc_get_sec_cam_cache(struct seq_file *m, void *v)
 	struct net_device *dev = m->private;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
 
-	dump_sec_cam_cache(m, adapter);
+	dump_sec_cam_cache2(m, adapter);
 	return 0;
 }
 
@@ -1931,7 +1931,7 @@ static ssize_t proc_set_change_bss_chbw(struct file *file, const char __user *bu
 
 		if ((MLME_IS_AP(adapter) || MLME_IS_MESH(adapter))
 			&& check_fwstate(mlme, WIFI_ASOC_STATE))
-			rtw_change_bss_chbw_cmd(adapter, RTW_CMDF_WAIT_ACK, ch, bw, offset);
+			rtw_change_bss_chbw_cmd2(adapter, RTW_CMDF_WAIT_ACK, ch, bw, offset);
 	}
 
 exit:
@@ -3372,15 +3372,15 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 #if RTW_SEQ_FILE_TEST
 	RTW_PROC_HDL_SEQ("seq_file_test", &seq_file_test, NULL),
 #endif
-	RTW_PROC_HDL_SSEQ("write_reg", NULL, proc_set_write_reg),
+	RTW_PROC_HDL_SSEQ("write_reg", NULL, proc_set_write_reg2),
 	RTW_PROC_HDL_SSEQ("read_reg", proc_get_read_reg, proc_set_read_reg),
-	RTW_PROC_HDL_SSEQ("tx_rate_bmp", proc_get_dump_tx_rate_bmp, NULL),
-	RTW_PROC_HDL_SSEQ("adapters_status", proc_get_dump_adapters_status, NULL),
+	RTW_PROC_HDL_SSEQ("tx_rate_bmp", proc_get_dump_tx_rate_bmp2, NULL),
+	RTW_PROC_HDL_SSEQ("adapters_status", proc_get_dump_adapters_status2, NULL),
 #ifdef CONFIG_RTW_CUSTOMER_STR
 	RTW_PROC_HDL_SSEQ("customer_str", proc_get_customer_str, NULL),
 #endif
 	RTW_PROC_HDL_SSEQ("fwstate", proc_get_fwstate, NULL),
-	RTW_PROC_HDL_SSEQ("sec_info", proc_get_sec_info, NULL),
+	RTW_PROC_HDL_SSEQ("sec_info", proc_get_sec_info2, NULL),
 	RTW_PROC_HDL_SSEQ("mlmext_state", proc_get_mlmext_state, NULL),
 	RTW_PROC_HDL_SSEQ("qos_option", proc_get_qos_option, NULL),
 	RTW_PROC_HDL_SSEQ("ht_option", proc_get_ht_option, NULL),
@@ -3414,8 +3414,8 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SSEQ("wifi_spec", proc_get_wifi_spec, NULL),
 #ifdef CONFIG_LAYER2_ROAMING
 	RTW_PROC_HDL_SSEQ("roam_flags", proc_get_roam_flags, proc_set_roam_flags),
-	RTW_PROC_HDL_SSEQ("roam_param", proc_get_roam_param, proc_set_roam_param),
-	RTW_PROC_HDL_SSEQ("roam_tgt_addr", NULL, proc_set_roam_tgt_addr),
+	RTW_PROC_HDL_SSEQ("roam_param", proc_get_roam_param2, proc_set_roam_param2),
+	RTW_PROC_HDL_SSEQ("roam_tgt_addr", NULL, proc_set_roam_tgt_addr2),
 #endif /* CONFIG_LAYER2_ROAMING */
 
 #ifdef CONFIG_RTW_80211R
@@ -3433,8 +3433,8 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SSEQ("wait_hiq_empty", NULL, proc_set_wait_hiq_empty),
 	RTW_PROC_HDL_SSEQ("sta_linking_test", NULL, proc_set_sta_linking_test),
 
-	RTW_PROC_HDL_SSEQ("mac_reg_dump", proc_get_mac_reg_dump, NULL),
-	RTW_PROC_HDL_SSEQ("bb_reg_dump", proc_get_bb_reg_dump, NULL),
+	RTW_PROC_HDL_SSEQ("mac_reg_dump2", proc_get_mac_reg_dump2, NULL),
+	RTW_PROC_HDL_SSEQ("bb_reg_dump2", proc_get_bb_reg_dump2, NULL),
 	RTW_PROC_HDL_SSEQ("bb_reg_dump_ex2", proc_get_bb_reg_dump_ex2, NULL),
 	RTW_PROC_HDL_SSEQ("rf_reg_dump", proc_get_rf_reg_dump, NULL),
 
@@ -3620,9 +3620,9 @@ const struct rtw_proc_hdl adapter_proc_hdls[] = {
 	RTW_PROC_HDL_SSEQ("skip_band", proc_get_skip_band, proc_set_skip_band),
 	RTW_PROC_HDL_SSEQ("hal_spec", proc_get_hal_spec, NULL),
 
-	RTW_PROC_HDL_SSEQ("rx_stat", proc_get_rx_stat, NULL),
+	RTW_PROC_HDL_SSEQ("rx_stat", proc_get_rx_stat2, NULL),
 
-	RTW_PROC_HDL_SSEQ("tx_stat", proc_get_tx_stat, NULL),
+	RTW_PROC_HDL_SSEQ("tx_stat", proc_get_tx_stat2, NULL),
 	/**** PHY Capability ****/
 	RTW_PROC_HDL_SSEQ("phy_cap", proc_get_phy_cap, NULL),
 

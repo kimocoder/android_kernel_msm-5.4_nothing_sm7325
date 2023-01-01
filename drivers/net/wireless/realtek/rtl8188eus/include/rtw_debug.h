@@ -215,49 +215,49 @@ extern uint rtw_drv_log_level;
 	#define DBG_COUNTER(counter)
 #endif
 
-void dump_drv_version(void *sel);
+void dump_drv_version2(void *sel);
 void dump_log_level2(void *sel);
-void dump_drv_cfg(void *sel);
+void dump_drv_cfg2(void *sel);
 
 #ifdef CONFIG_SDIO_HCI
 void sd_f0_reg_dump(void *sel, _adapter *adapter);
 void sdio_local_reg_dump(void *sel, _adapter *adapter);
 #endif /* CONFIG_SDIO_HCI */
 
-void mac_reg_dump(void *sel, _adapter *adapter);
-void bb_reg_dump(void *sel, _adapter *adapter);
+void mac_reg_dump2(void *sel, _adapter *adapter);
+void bb_reg_dump2(void *sel, _adapter *adapter);
 void bb_reg_dump_ex2(void *sel, _adapter *adapter);
 void rf_reg_dump(void *sel, _adapter *adapter);
 
 void rtw_sink_rtp_seq_dbg(_adapter *adapter, u8 *ehdr_pos);
 
 struct sta_info;
-void sta_rx_reorder_ctl_dump(void *sel, struct sta_info *sta);
+void sta_rx_reorder_ctl_dump2(void *sel, struct sta_info *sta);
 
 struct dvobj_priv;
-void dump_tx_rate_bmp(void *sel, struct dvobj_priv *dvobj);
-void dump_adapters_status(void *sel, struct dvobj_priv *dvobj);
+void dump_tx_rate_bmp2(void *sel, struct dvobj_priv *dvobj);
+void dump_adapters_status2(void *sel, struct dvobj_priv *dvobj);
 
 struct sec_cam_ent;
-void dump_sec_cam_ent(void *sel, struct sec_cam_ent *ent, int id);
-void dump_sec_cam_ent_title(void *sel, u8 has_id);
-void dump_sec_cam(void *sel, _adapter *adapter);
-void dump_sec_cam_cache(void *sel, _adapter *adapter);
+void dump_sec_cam_ent2(void *sel, struct sec_cam_ent *ent, int id);
+void dump_sec_cam_ent_title2(void *sel, u8 has_id);
+void dump_sec_cam2(void *sel, _adapter *adapter);
+void dump_sec_cam_cache2(void *sel, _adapter *adapter);
 
 #ifdef CONFIG_PROC_DEBUG
-ssize_t proc_set_write_reg(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
+ssize_t proc_set_write_reg2(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 int proc_get_read_reg(struct seq_file *m, void *v);
 ssize_t proc_set_read_reg(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 
 int proc_get_fwstate(struct seq_file *m, void *v);
-int proc_get_sec_info(struct seq_file *m, void *v);
+int proc_get_sec_info2(struct seq_file *m, void *v);
 int proc_get_mlmext_state(struct seq_file *m, void *v);
 #ifdef CONFIG_LAYER2_ROAMING
 int proc_get_roam_flags(struct seq_file *m, void *v);
 ssize_t proc_set_roam_flags(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
-int proc_get_roam_param(struct seq_file *m, void *v);
-ssize_t proc_set_roam_param(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
-ssize_t proc_set_roam_tgt_addr(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
+int proc_get_roam_param2(struct seq_file *m, void *v);
+ssize_t proc_set_roam_param2(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
+ssize_t proc_set_roam_tgt_addr2(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 #endif /* CONFIG_LAYER2_ROAMING */
 #ifdef CONFIG_RTW_80211R
 int proc_get_ft_flags(struct seq_file *m, void *v);
@@ -310,8 +310,8 @@ bool rtw_sta_linking_test_wait_done(void);
 bool rtw_sta_linking_test_force_fail(void);
 ssize_t proc_set_sta_linking_test(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 
-int proc_get_rx_stat(struct seq_file *m, void *v);
-int proc_get_tx_stat(struct seq_file *m, void *v);
+int proc_get_rx_stat2(struct seq_file *m, void *v);
+int proc_get_tx_stat2(struct seq_file *m, void *v);
 #ifdef CONFIG_AP_MODE
 int proc_get_all_sta_info(struct seq_file *m, void *v);
 #endif /* CONFIG_AP_MODE */

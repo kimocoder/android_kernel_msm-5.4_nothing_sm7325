@@ -112,26 +112,6 @@ void dump_chip_info(HAL_VERSION	ChipVersion)
 
 	if (IS_8188E(ChipVersion))
 		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8188E_");
-	else if (IS_8188F(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8188F_");
-	else if (IS_8812_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8812_");
-	else if (IS_8192E(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8192E_");
-	else if (IS_8821_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8821_");
-	else if (IS_8723B_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8723B_");
-	else if (IS_8703B_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8703B_");
-	else if (IS_8723D_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8723D_");
-	else if (IS_8814A_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8814A_");
-	else if (IS_8822B_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8822B_");
-	else if (IS_8821C_SERIES(ChipVersion))
-		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_8821C_");
 	else
 		cnt += sprintf((buf + cnt), "Chip Version Info: CHIP_UNKNOWN_");
 
@@ -1502,19 +1482,6 @@ int c2h_mac_hidden_rpt_2_hdl(_adapter *adapter, u8 *data, u8 len)
 			RTW_PRINT("%s: 0x%02X\n", __func__, *(data + i));
 	}
 
-	#ifdef CONFIG_RTL8188F
-	if (IS_8188F(hal_data->version_id)) {
-		#define GET_C2H_MAC_HIDDEN_RPT_IRV(_data)	LE_BITS_TO_1BYTE(((u8 *)(_data)) + 0, 0, 4)
-		u8 irv = GET_C2H_MAC_HIDDEN_RPT_IRV(data);
-
-		if (DBG_C2H_MAC_HIDDEN_RPT_HANDLE)
-			RTW_PRINT("irv:0x%x\n", irv);
-
-		if(irv != 0xf)
-			hal_data->version_id.CUTVersion = irv;
-	}
-	#endif
-
 	ret = _SUCCESS;
 
 exit:
@@ -2050,7 +2017,7 @@ void rtw_hal_update_sta_rate_mask(PADAPTER padapter, struct sta_info *psta)
 	/* b/g mode ra_bitmap  */
 	for (i = 0; i < sizeof(psta->bssrateset); i++) {
 		if (psta->bssrateset[i])
-			tx_ra_bitmap |= rtw_get_bit_value_from_ieee_value(psta->bssrateset[i] & 0x7f);
+			tx_ra_bitmap |= rtw_get_bit_value_from_ieee_value2(psta->bssrateset[i] & 0x7f);
 	}
 
 #ifdef CONFIG_80211N_HT
@@ -2771,17 +2738,6 @@ static void rtw_hal_set_macaddr_port(_adapter *adapter, u8 *val)
 	case HW_PORT1:
 		reg_macid = REG_MACID1;
 		break;
-#if defined(CONFIG_RTL8814A)
-	case HW_PORT2:
-		reg_macid = REG_MACID2;
-		break;
-	case HW_PORT3:
-		reg_macid = REG_MACID3;
-		break;
-	case HW_PORT4:
-		reg_macid = REG_MACID4;
-		break;
-#endif/*defined(CONFIG_RTL8814A)*/
 	}
 
 	for (idx = 0; idx < 6; idx++)
@@ -2809,17 +2765,6 @@ static void rtw_hal_get_macaddr_port(_adapter *adapter, u8 *mac_addr)
 	case HW_PORT1:
 		reg_macid = REG_MACID1;
 		break;
-#if defined(CONFIG_RTL8814A)
-	case HW_PORT2:
-		reg_macid = REG_MACID2;
-		break;
-	case HW_PORT3:
-		reg_macid = REG_MACID3;
-		break;
-	case HW_PORT4:
-		reg_macid = REG_MACID4;
-		break;
-#endif /*defined(CONFIG_RTL8814A)*/
 	}
 
 	for (idx = 0; idx < 6; idx++)
@@ -2846,17 +2791,6 @@ static void rtw_hal_set_bssid(_adapter *adapter, u8 *val)
 	case HW_PORT1:
 		reg_bssid = REG_BSSID1;
 		break;
-#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B)
-	case HW_PORT2:
-		reg_bssid = REG_BSSID2;
-		break;
-	case HW_PORT3:
-		reg_bssid = REG_BSSID3;
-		break;
-	case HW_PORT4:
-		reg_bssid = REG_BSSID4;
-		break;
-#endif/*defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B)*/
 	}
 
 	for (idx = 0 ; idx < 6; idx++)
@@ -2946,8 +2880,8 @@ void rtw_hal_rcr_set_chk_bssid(_adapter *adapter, u8 self_action)
 #ifdef CONFIG_MI_WITH_MBSSID_CAM
 	rcr_new &= ~(RCR_CBSSID_BCN | RCR_CBSSID_DATA);
 #else
-	rtw_mi_status_no_self(adapter, &mstate);
-	rtw_mi_status_no_others(adapter, &mstate_s);
+	rtw_mi_status_no_self2(adapter, &mstate);
+	rtw_mi_status_no_others2(adapter, &mstate_s);
 
 	/* only adjust parameters interested */
 	switch (self_action) {
@@ -2993,7 +2927,7 @@ void rtw_hal_rcr_set_chk_bssid(_adapter *adapter, u8 self_action)
 		rtw_warn_on(1);
 	};
 
-	rtw_mi_status_merge(&mstate, &mstate_s);
+	rtw_mi_status_merge2(&mstate, &mstate_s);
 
 	if (MSTATE_AP_NUM(&mstate) || MSTATE_MESH_NUM(&mstate) || MSTATE_TDLS_LD_NUM(&mstate)
 		#ifdef CONFIG_FIND_BEST_CHANNEL
@@ -3010,7 +2944,7 @@ void rtw_hal_rcr_set_chk_bssid(_adapter *adapter, u8 self_action)
 		|| MSTATE_SCAN_ENTER_NUM(&mstate)
 		|| hal_data->in_cta_test
 	)
-		rcr_new &= ~RCR_CBSSID_BCN;	
+		rcr_new &= ~RCR_CBSSID_BCN;
 	else
 		rcr_new |= RCR_CBSSID_BCN;
 #endif /* CONFIG_MI_WITH_MBSSID_CAM */
@@ -3044,20 +2978,6 @@ static void rtw_hal_get_msr(_adapter *adapter, u8 *net_type)
 		/*REG_CR - BIT[19:18]-Network Type for port 1*/
 		*net_type = (rtw_read8(adapter, MSR) & 0x0C) >> 2;
 		break;
-#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B)
-	case HW_PORT2:
-		/*REG_CR_EXT- BIT[1:0]-Network Type for port 2*/
-		*net_type = rtw_read8(adapter, MSR1) & 0x03;
-		break;
-	case HW_PORT3:
-		/*REG_CR_EXT- BIT[3:2]-Network Type for port 3*/
-		*net_type = (rtw_read8(adapter, MSR1) & 0x0C) >> 2;
-		break;
-	case HW_PORT4:
-		/*REG_CR_EXT- BIT[5:4]-Network Type for port 4*/
-		*net_type = (rtw_read8(adapter, MSR1) & 0x30) >> 4;
-		break;
-#endif /*#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B)*/
 	default:
 		RTW_INFO("[WARN] "ADPT_FMT"- invalid hw port -%d\n",
 			 ADPT_ARG(adapter), adapter->hw_port);
@@ -3104,26 +3024,6 @@ static void rtw_hal_set_msr(_adapter *adapter, u8 net_type)
 		val8 |= net_type << 2;
 		rtw_write8(adapter, MSR, val8);
 		break;
-#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
-	case HW_PORT2:
-		/*REG_CR_EXT- BIT[1:0]-Network Type for port 2*/
-		val8 = rtw_read8(adapter, MSR1) & 0xFC;
-		val8 |= net_type;
-		rtw_write8(adapter, MSR1, val8);
-		break;
-	case HW_PORT3:
-		/*REG_CR_EXT- BIT[3:2]-Network Type for port 3*/
-		val8 = rtw_read8(adapter, MSR1) & 0xF3;
-		val8 |= net_type << 2;
-		rtw_write8(adapter, MSR1, val8);
-		break;
-	case HW_PORT4:
-		/*REG_CR_EXT- BIT[5:4]-Network Type for port 4*/
-		val8 = rtw_read8(adapter, MSR1) & 0xCF;
-		val8 |= net_type << 4;
-		rtw_write8(adapter, MSR1, val8);
-		break;
-#endif /* CONFIG_RTL8814A | CONFIG_RTL8822B */
 	default:
 		RTW_INFO("[WARN] "ADPT_FMT"- invalid hw port -%d\n",
 			 ADPT_ARG(adapter), adapter->hw_port);
@@ -3601,16 +3501,6 @@ s32 rtw_hal_set_FwMediaStatusRpt_cmd(_adapter *adapter, bool opmode, bool miraca
 	}
 #endif
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-	/* TODO: this should move to IOT issue area */
-	if (rtw_get_chip_type(adapter) == RTL8812
-		|| rtw_get_chip_type(adapter) == RTL8821
-	) {
-		if (MLME_IS_STA(adapter))
-			Hal_PatchwithJaguar_8812(adapter, opmode);
-	}
-#endif
-
 	SET_H2CCMD_MSRRPT_PARM_MACID_IND(parm, 0);
 	if (macid_ind == 0)
 		macid_end = macid;
@@ -3679,13 +3569,7 @@ void rtw_hal_switch_gpio_wl_ctrl(_adapter *padapter, u8 index, u8 enable)
 	* TODO: GPIO_8 multi function?
 	*/
 
-	if ((index == 13 || index == 14)
-		#if defined(CONFIG_RTL8821A) && defined(CONFIG_SDIO_HCI)
-		/* 8821A's LED2 circuit(used by HW_LED strategy) needs enable WL GPIO control of GPIO[14:13], can't disable */
-		&& (!IS_HW_LED_STRATEGY(rtw_led_get_strategy(padapter)) || enable)
-		#endif
-	)
-		rtw_hal_set_hwreg(padapter, HW_SET_GPIO_WL_CTRL, (u8 *)(&enable));
+	rtw_hal_set_hwreg(padapter, HW_SET_GPIO_WL_CTRL, (u8 *)(&enable));
 }
 
 void rtw_hal_set_output_gpio(_adapter *padapter, u8 index, u8 outputval)
@@ -4358,8 +4242,8 @@ static void rtw_hal_update_gtk_offload_info(_adapter *adapter)
 
 	#ifdef CONFIG_GTK_OL_DBG
 	/* if (gtk_keyindex != 5) */
-	dump_sec_cam(RTW_DBGDUMP, adapter);
-	dump_sec_cam_cache(RTW_DBGDUMP, adapter);
+	dump_sec_cam2(RTW_DBGDUMP, adapter);
+	dump_sec_cam_cache2(RTW_DBGDUMP, adapter);
 	#endif
 }
 #endif /*CONFIG_GTK_OL*/
@@ -5054,7 +4938,7 @@ static void rtw_hal_ap_wow_enable(_adapter *padapter)
 
 	rtw_write8(padapter, REG_MCUTST_WOWLAN, 0);
 #ifdef CONFIG_USB_HCI
-	rtw_mi_intf_stop(padapter);
+	rtw_mi_intf_stop2(padapter);
 #endif
 #if defined(CONFIG_USB_HCI) || defined(CONFIG_PCI_HCI)
 	/* Invoid SE0 reset signal during suspending*/
@@ -6901,18 +6785,18 @@ static void rtw_hal_append_tkip_mic(PADAPTER padapter,
 				  null_key, 16);
 		if (res == _TRUE)
 			RTW_INFO("%s(): STA dot11tkiptxmickey==0\n", __func__);
-		rtw_secmicsetkey(&micdata, &psta->dot11tkiptxmickey.skey[0]);
+		rtw_secmicsetkey2(&micdata, &psta->dot11tkiptxmickey.skey[0]);
 	}
 
-	rtw_secmicappend(&micdata, pwlanhdr->addr3, 6);  /* DA */
+	rtw_secmicappend2(&micdata, pwlanhdr->addr3, 6);  /* DA */
 
-	rtw_secmicappend(&micdata, pwlanhdr->addr2, 6); /* SA */
+	rtw_secmicappend2(&micdata, pwlanhdr->addr2, 6); /* SA */
 
 	priority[0] = 0;
 
-	rtw_secmicappend(&micdata, &priority[0], 4);
+	rtw_secmicappend2(&micdata, &priority[0], 4);
 
-	rtw_secmicappend(&micdata, payload, 36); /* payload length = 8 + 28 */
+	rtw_secmicappend2(&micdata, payload, 36); /* payload length = 8 + 28 */
 
 	rtw_secgetmic(&micdata, &(mic[0]));
 
@@ -7190,8 +7074,7 @@ static void rtw_hal_construct_na_message(_adapter *padapter,
 	p_na_msg += 6;
 
 	if (psecuritypriv->dot11PrivacyAlgrthm == _TKIP_) {
-		if (IS_HARDWARE_TYPE_8188E(padapter) ||
-		    IS_HARDWARE_TYPE_8812(padapter)) {
+		if (IS_HARDWARE_TYPE_8188E(padapter)) {
 			rtw_hal_append_tkip_mic(padapter, pframe,
 						na_msg_offset);
 		}
@@ -7715,7 +7598,7 @@ void rtw_hal_set_wow_fw_rsvd_page(_adapter *adapter, u8 *pframe, u16 index,
 		rsvd_page_loc->LocGTKInfo = *page_num;
 		RTW_INFO("LocGTKInfo: %d\n", rsvd_page_loc->LocGTKInfo);
 
-		if (IS_HARDWARE_TYPE_8188E(adapter) || IS_HARDWARE_TYPE_8812(adapter)) {
+		if (IS_HARDWARE_TYPE_8188E(adapter)) {
 			struct security_priv *psecpriv = NULL;
 
 			psecpriv = &adapter->securitypriv;
@@ -8811,19 +8694,17 @@ static void rtw_hal_wow_enable(_adapter *adapter)
 	RTW_PRINT("wowlan_wake_reason: 0x%02x\n",
 		  pwrctl->wowlan_wake_reason);
 #ifdef CONFIG_GTK_OL_DBG
-	dump_sec_cam(RTW_DBGDUMP, adapter);
-	dump_sec_cam_cache(RTW_DBGDUMP, adapter);
+	dump_sec_cam2(RTW_DBGDUMP, adapter);
+	dump_sec_cam_cache2(RTW_DBGDUMP, adapter);
 #endif
 #ifdef CONFIG_USB_HCI
 	/* free adapter's resource */
-	rtw_mi_intf_stop(adapter);
+	rtw_mi_intf_stop2(adapter);
 
 #endif
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_PCI_HCI)
+#if defined(CONFIG_USB_HCI)
 	/* Invoid SE0 reset signal during suspending*/
 	rtw_write8(adapter, REG_RSV_CTRL, 0x20);
-	if (IS_8188F(pHalData->version_id) == FALSE)
-		rtw_write8(adapter, REG_RSV_CTRL, 0x60);
 #endif
 
 	rtw_hal_gate_bb(adapter, _FALSE);
@@ -9809,14 +9690,6 @@ static void hw_var_set_mlme_sitesurvey(_adapter *adapter, u8 variable, u8 *val)
 		/* Save orignal RRSR setting. needed? */
 		hal_data->RegRRSR = rtw_read16(adapter, REG_RRSR);
 
-		#if defined(CONFIG_BEAMFORMING) && (defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A))
-		if (IS_8812_SERIES(hal_data->version_id) || IS_8821_SERIES(hal_data->version_id)) {
-			/* set 718[1:0]=2'b00 to avoid BF scan hang */
-			hal_data->backup_snd_ptcl_ctrl = rtw_read8(adapter, REG_SND_PTCL_CTRL_8812A);
-			rtw_write8(adapter, REG_SND_PTCL_CTRL_8812A, (hal_data->backup_snd_ptcl_ctrl & 0xfc));
-		}
-		#endif
-
 		if (rtw_mi_get_ap_num(adapter) || rtw_mi_get_mesh_num(adapter))
 			StopTxBeacon(adapter);
 	} else { /* sitesurvey done */
@@ -9900,7 +9773,7 @@ int rtw_hal_reset_tsf(_adapter *adapter, u8 reset_port)
 	int ret;
 
 	/* site survey will cause reset tsf fail */
-	rtw_mi_buddy_scan_abort(adapter, _FALSE);
+	rtw_mi_buddy_scan_abort2(adapter, _FALSE);
 	reset_cnt_after = reset_cnt_before = rtw_read8(adapter, reg_reset_tsf_cnt);
 	ret = rtw_hal_h2c_reset_tsf(adapter, reset_port);
 	if (ret != _SUCCESS)

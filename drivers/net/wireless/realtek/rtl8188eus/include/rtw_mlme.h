@@ -1119,23 +1119,23 @@ __inline static sint get_fwstate(struct mlme_priv *pmlmepriv)
  * ### NOTE:#### (!!!!)
  * MUST TAKE CARE THAT BEFORE CALLING THIS FUNC, YOU SHOULD HAVE LOCKED pmlmepriv->lock
  */
-extern void rtw_mi_update_iface_status(struct mlme_priv *pmlmepriv, sint state);
+extern void rtw_mi_update_iface_status2(struct mlme_priv *pmlmepriv, sint state);
 
 static inline void set_fwstate(struct mlme_priv *pmlmepriv, sint state)
 {
 	pmlmepriv->fw_state |= state;
-	rtw_mi_update_iface_status(pmlmepriv, state);
+	rtw_mi_update_iface_status2(pmlmepriv, state);
 }
 static inline void init_fwstate(struct mlme_priv *pmlmepriv, sint state)
 {
 	pmlmepriv->fw_state = state;
-	rtw_mi_update_iface_status(pmlmepriv, state);
+	rtw_mi_update_iface_status2(pmlmepriv, state);
 }
 
 static inline void _clr_fwstate_(struct mlme_priv *pmlmepriv, sint state)
 {
 	pmlmepriv->fw_state &= ~state;
-	rtw_mi_update_iface_status(pmlmepriv, state);
+	rtw_mi_update_iface_status2(pmlmepriv, state);
 }
 
 /*

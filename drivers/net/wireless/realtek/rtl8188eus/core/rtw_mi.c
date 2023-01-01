@@ -17,7 +17,7 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-void rtw_mi_update_union_chan_inf(_adapter *adapter, u8 ch, u8 offset , u8 bw)
+void rtw_mi_update_union_chan_inf2(_adapter *adapter, u8 ch, u8 offset , u8 bw)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	struct mi_state *iface_state = &dvobj->iface_state;
@@ -46,7 +46,7 @@ static u8 _rtw_mi_p2p_listen_scan_chk(_adapter *adapter)
 	return p2p_listen_scan_state;
 }
 #endif
-u8 rtw_mi_stayin_union_ch_chk(_adapter *adapter)
+u8 rtw_mi_stayin_union_ch_chk2(_adapter *adapter)
 {
 	u8 rst = _TRUE;
 	u8 u_ch, u_bw, u_offset;
@@ -80,7 +80,7 @@ u8 rtw_mi_stayin_union_ch_chk(_adapter *adapter)
 	return rst;
 }
 
-u8 rtw_mi_stayin_union_band_chk(_adapter *adapter)
+u8 rtw_mi_stayin_union_band_chk2(_adapter *adapter)
 {
 	u8 rst = _TRUE;
 	u8 u_ch, o_ch;
@@ -104,7 +104,7 @@ u8 rtw_mi_stayin_union_band_chk(_adapter *adapter)
 }
 
 /* Find union about ch, bw, ch_offset of all linked/linking interfaces */
-int _rtw_mi_get_ch_setting_union(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset, bool include_self)
+int _rtw_mi_get_ch_setting_union2(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset, bool include_self)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	_adapter *iface;
@@ -171,14 +171,14 @@ int _rtw_mi_get_ch_setting_union(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset, 
 	return num;
 }
 
-inline int rtw_mi_get_ch_setting_union(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset)
+inline int rtw_mi_get_ch_setting_union2(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset)
 {
-	return _rtw_mi_get_ch_setting_union(adapter, ch, bw, offset, 1);
+	return _rtw_mi_get_ch_setting_union2(adapter, ch, bw, offset, 1);
 }
 
-inline int rtw_mi_get_ch_setting_union_no_self(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset)
+inline int rtw_mi_get_ch_setting_union_no_self2(_adapter *adapter, u8 *ch, u8 *bw, u8 *offset)
 {
-	return _rtw_mi_get_ch_setting_union(adapter, ch, bw, offset, 0);
+	return _rtw_mi_get_ch_setting_union2(adapter, ch, bw, offset, 0);
 }
 
 #define MI_STATUS_SELF_ONLY		0
@@ -186,7 +186,7 @@ inline int rtw_mi_get_ch_setting_union_no_self(_adapter *adapter, u8 *ch, u8 *bw
 #define MI_STATUS_ALL			2
 
 /* For now, not return union_ch/bw/offset */
-void _rtw_mi_status(_adapter *adapter, struct mi_state *mstate, u8 target_sel)
+void _rtw_mi_status2(_adapter *adapter, struct mi_state *mstate, u8 target_sel)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	_adapter *iface;
@@ -266,23 +266,23 @@ void _rtw_mi_status(_adapter *adapter, struct mi_state *mstate, u8 target_sel)
 	}
 }
 
-inline void rtw_mi_status(_adapter *adapter, struct mi_state *mstate)
+inline void rtw_mi_status2(_adapter *adapter, struct mi_state *mstate)
 {
-	return _rtw_mi_status(adapter, mstate, MI_STATUS_ALL);
+	return _rtw_mi_status2(adapter, mstate, MI_STATUS_ALL);
 }
 
-inline void rtw_mi_status_no_self(_adapter *adapter, struct mi_state *mstate)
+inline void rtw_mi_status_no_self2(_adapter *adapter, struct mi_state *mstate)
 {
-	return _rtw_mi_status(adapter, mstate, MI_STATUS_OTHERS_ONLY);
+	return _rtw_mi_status2(adapter, mstate, MI_STATUS_OTHERS_ONLY);
 }
 
-inline void rtw_mi_status_no_others(_adapter *adapter, struct mi_state *mstate)
+inline void rtw_mi_status_no_others2(_adapter *adapter, struct mi_state *mstate)
 {
-	return _rtw_mi_status(adapter, mstate, MI_STATUS_SELF_ONLY);
+	return _rtw_mi_status2(adapter, mstate, MI_STATUS_SELF_ONLY);
 }
 
 /* For now, not handle union_ch/bw/offset */
-inline void rtw_mi_status_merge(struct mi_state *d, struct mi_state *a)
+inline void rtw_mi_status_merge2(struct mi_state *d, struct mi_state *a)
 {
 	d->sta_num += a->sta_num;
 	d->ld_sta_num += a->ld_sta_num;
@@ -311,7 +311,7 @@ inline void rtw_mi_status_merge(struct mi_state *d, struct mi_state *a)
 #endif
 }
 
-void dump_mi_status(void *sel, struct dvobj_priv *dvobj)
+void dump_mi_status2(void *sel, struct dvobj_priv *dvobj)
 {
 	RTW_PRINT_SEL(sel, "== dvobj-iface_state ==\n");
 	RTW_PRINT_SEL(sel, "sta_num:%d\n", DEV_STA_NUM(dvobj));
@@ -348,13 +348,13 @@ void dump_mi_status(void *sel, struct dvobj_priv *dvobj)
 	RTW_PRINT_SEL(sel, "================\n\n");
 }
 
-void dump_dvobj_mi_status(void *sel, const char *fun_name, _adapter *adapter)
+void dump_dvobj_mi_status2(void *sel, const char *fun_name, _adapter *adapter)
 {
 	RTW_INFO("\n[ %s ] call %s\n", fun_name, __func__);
-	dump_mi_status(sel, adapter_to_dvobj(adapter));
+	dump_mi_status2(sel, adapter_to_dvobj(adapter));
 }
 
-inline void rtw_mi_update_iface_status(struct mlme_priv *pmlmepriv, sint state)
+inline void rtw_mi_update_iface_status2(struct mlme_priv *pmlmepriv, sint state)
 {
 	_adapter *adapter = container_of(pmlmepriv, _adapter, mlmepriv);
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
@@ -372,14 +372,14 @@ inline void rtw_mi_update_iface_status(struct mlme_priv *pmlmepriv, sint state)
 	if (0)
 		RTW_INFO("%s => will change or clean state to 0x%08x\n", __func__, state);
 
-	rtw_mi_status(adapter, &tmp_mstate);
+	rtw_mi_status2(adapter, &tmp_mstate);
 	_rtw_memcpy(iface_state, &tmp_mstate, sizeof(struct mi_state));
 
-	if (rtw_mi_get_ch_setting_union(adapter, &u_ch, &u_bw, &u_offset))
-		rtw_mi_update_union_chan_inf(adapter , u_ch, u_offset , u_bw);
+	if (rtw_mi_get_ch_setting_union2(adapter, &u_ch, &u_bw, &u_offset))
+		rtw_mi_update_union_chan_inf2(adapter , u_ch, u_offset , u_bw);
 	else {
 		if (0) {
-			dump_adapters_status(RTW_DBGDUMP , dvobj);
+			dump_adapters_status2(RTW_DBGDUMP , dvobj);
 			RTW_INFO("%s-[ERROR] cannot get union channel\n", __func__);
 			rtw_warn_on(1);
 		}
@@ -513,7 +513,7 @@ static u8 _rtw_mi_process_without_schk(_adapter *padapter, bool exclude_self,
 	return ret;
 }
 
-static u8 _rtw_mi_netif_caroff_qstop(_adapter *padapter, void *data)
+static u8 _rtw_mi_netif_caroff_qstop2(_adapter *padapter, void *data)
 {
 	struct net_device *pnetdev = padapter->pnetdev;
 
@@ -521,16 +521,16 @@ static u8 _rtw_mi_netif_caroff_qstop(_adapter *padapter, void *data)
 	rtw_netif_stop_queue(pnetdev);
 	return _TRUE;
 }
-u8 rtw_mi_netif_caroff_qstop(_adapter *padapter)
+u8 rtw_mi_netif_caroff_qstop2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_caroff_qstop);
+	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_caroff_qstop2);
 }
-u8 rtw_mi_buddy_netif_caroff_qstop(_adapter *padapter)
+u8 rtw_mi_buddy_netif_caroff_qstop2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_caroff_qstop);
+	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_caroff_qstop2);
 }
 
-static u8 _rtw_mi_netif_caron_qstart(_adapter *padapter, void *data)
+static u8 _rtw_mi_netif_caron_qstart2(_adapter *padapter, void *data)
 {
 	struct net_device *pnetdev = padapter->pnetdev;
 
@@ -538,32 +538,32 @@ static u8 _rtw_mi_netif_caron_qstart(_adapter *padapter, void *data)
 	rtw_netif_start_queue(pnetdev);
 	return _TRUE;
 }
-u8 rtw_mi_netif_caron_qstart(_adapter *padapter)
+u8 rtw_mi_netif_caron_qstart2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_caron_qstart);
+	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_caron_qstart2);
 }
-u8 rtw_mi_buddy_netif_caron_qstart(_adapter *padapter)
+u8 rtw_mi_buddy_netif_caron_qstart2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_caron_qstart);
+	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_caron_qstart2);
 }
 
-static u8 _rtw_mi_netif_stop_queue(_adapter *padapter, void *data)
+static u8 _rtw_mi_netif_stop_queue2(_adapter *padapter, void *data)
 {
 	struct net_device *pnetdev = padapter->pnetdev;
 
 	rtw_netif_stop_queue(pnetdev);
 	return _TRUE;
 }
-u8 rtw_mi_netif_stop_queue(_adapter *padapter)
+u8 rtw_mi_netif_stop_queue2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_stop_queue);
+	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_stop_queue2);
 }
-u8 rtw_mi_buddy_netif_stop_queue(_adapter *padapter)
+u8 rtw_mi_buddy_netif_stop_queue2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_stop_queue);
+	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_stop_queue2);
 }
 
-static u8 _rtw_mi_netif_wake_queue(_adapter *padapter, void *data)
+static u8 _rtw_mi_netif_wake_queue2(_adapter *padapter, void *data)
 {
 	struct net_device *pnetdev = padapter->pnetdev;
 
@@ -571,16 +571,16 @@ static u8 _rtw_mi_netif_wake_queue(_adapter *padapter, void *data)
 		rtw_netif_wake_queue(pnetdev);
 	return _TRUE;
 }
-u8 rtw_mi_netif_wake_queue(_adapter *padapter)
+u8 rtw_mi_netif_wake_queue2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_wake_queue);
+	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_wake_queue2);
 }
-u8 rtw_mi_buddy_netif_wake_queue(_adapter *padapter)
+u8 rtw_mi_buddy_netif_wake_queue2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_wake_queue);
+	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_wake_queue2);
 }
 
-static u8 _rtw_mi_netif_carrier_on(_adapter *padapter, void *data)
+static u8 _rtw_mi_netif_carrier_on2(_adapter *padapter, void *data)
 {
 	struct net_device *pnetdev = padapter->pnetdev;
 
@@ -588,16 +588,16 @@ static u8 _rtw_mi_netif_carrier_on(_adapter *padapter, void *data)
 		rtw_netif_carrier_on(pnetdev);
 	return _TRUE;
 }
-u8 rtw_mi_netif_carrier_on(_adapter *padapter)
+u8 rtw_mi_netif_carrier_on2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_carrier_on);
+	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_carrier_on2);
 }
-u8 rtw_mi_buddy_netif_carrier_on(_adapter *padapter)
+u8 rtw_mi_buddy_netif_carrier_on2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_carrier_on);
+	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_carrier_on2);
 }
 
-static u8 _rtw_mi_netif_carrier_off(_adapter *padapter, void *data)
+static u8 _rtw_mi_netif_carrier_off2(_adapter *padapter, void *data)
 {
 	struct net_device *pnetdev = padapter->pnetdev;
 
@@ -605,16 +605,16 @@ static u8 _rtw_mi_netif_carrier_off(_adapter *padapter, void *data)
 		rtw_netif_carrier_off(pnetdev);
 	return _TRUE;
 }
-u8 rtw_mi_netif_carrier_off(_adapter *padapter)
+u8 rtw_mi_netif_carrier_off2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_carrier_off);
+	return _rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_netif_carrier_off2);
 }
-u8 rtw_mi_buddy_netif_carrier_off(_adapter *padapter)
+u8 rtw_mi_buddy_netif_carrier_off2(_adapter *padapter)
 {
-	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_carrier_off);
+	return _rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_netif_carrier_off2);
 }
 
-static u8 _rtw_mi_scan_abort(_adapter *adapter, void *data)
+static u8 _rtw_mi_scan_abort2(_adapter *adapter, void *data)
 {
 	bool bwait = *(bool *)data;
 
@@ -625,21 +625,21 @@ static u8 _rtw_mi_scan_abort(_adapter *adapter, void *data)
 
 	return _TRUE;
 }
-void rtw_mi_scan_abort(_adapter *adapter, bool bwait)
+void rtw_mi_scan_abort2(_adapter *adapter, bool bwait)
 {
 	bool in_data = bwait;
 
-	_rtw_mi_process(adapter, _FALSE, &in_data, _rtw_mi_scan_abort);
+	_rtw_mi_process(adapter, _FALSE, &in_data, _rtw_mi_scan_abort2);
 
 }
-void rtw_mi_buddy_scan_abort(_adapter *adapter, bool bwait)
+void rtw_mi_buddy_scan_abort2(_adapter *adapter, bool bwait)
 {
 	bool in_data = bwait;
 
-	_rtw_mi_process(adapter, _TRUE, &in_data, _rtw_mi_scan_abort);
+	_rtw_mi_process(adapter, _TRUE, &in_data, _rtw_mi_scan_abort2);
 }
 
-static u32 _rtw_mi_start_drv_threads(_adapter *adapter, bool exclude_self)
+static u32 _rtw_mi_start_drv_threads2(_adapter *adapter, bool exclude_self)
 {
 	int i;
 	_adapter *iface = NULL;
@@ -659,16 +659,16 @@ static u32 _rtw_mi_start_drv_threads(_adapter *adapter, bool exclude_self)
 	}
 	return _status;
 }
-u32 rtw_mi_start_drv_threads(_adapter *adapter)
+u32 rtw_mi_start_drv_threads2(_adapter *adapter)
 {
-	return _rtw_mi_start_drv_threads(adapter, _FALSE);
+	return _rtw_mi_start_drv_threads2(adapter, _FALSE);
 }
-u32 rtw_mi_buddy_start_drv_threads(_adapter *adapter)
+u32 rtw_mi_buddy_start_drv_threads2(_adapter *adapter)
 {
-	return _rtw_mi_start_drv_threads(adapter, _TRUE);
+	return _rtw_mi_start_drv_threads2(adapter, _TRUE);
 }
 
-static void _rtw_mi_stop_drv_threads(_adapter *adapter, bool exclude_self)
+static void _rtw_mi_stop_drv_threads2(_adapter *adapter, bool exclude_self)
 {
 	int i;
 	_adapter *iface = NULL;
@@ -683,69 +683,69 @@ static void _rtw_mi_stop_drv_threads(_adapter *adapter, bool exclude_self)
 		}
 	}
 }
-void rtw_mi_stop_drv_threads(_adapter *adapter)
+void rtw_mi_stop_drv_threads2(_adapter *adapter)
 {
-	_rtw_mi_stop_drv_threads(adapter, _FALSE);
+	_rtw_mi_stop_drv_threads2(adapter, _FALSE);
 }
-void rtw_mi_buddy_stop_drv_threads(_adapter *adapter)
+void rtw_mi_buddy_stop_drv_threads2(_adapter *adapter)
 {
-	_rtw_mi_stop_drv_threads(adapter, _TRUE);
+	_rtw_mi_stop_drv_threads2(adapter, _TRUE);
 }
 
-static u8 _rtw_mi_cancel_all_timer(_adapter *adapter, void *data)
+static u8 _rtw_mi_cancel_all_timer2(_adapter *adapter, void *data)
 {
 	rtw_cancel_all_timer(adapter);
 	return _TRUE;
 }
-void rtw_mi_cancel_all_timer(_adapter *adapter)
+void rtw_mi_cancel_all_timer2(_adapter *adapter)
 {
-	_rtw_mi_process(adapter, _FALSE, NULL, _rtw_mi_cancel_all_timer);
+	_rtw_mi_process(adapter, _FALSE, NULL, _rtw_mi_cancel_all_timer2);
 }
-void rtw_mi_buddy_cancel_all_timer(_adapter *adapter)
+void rtw_mi_buddy_cancel_all_timer2(_adapter *adapter)
 {
-	_rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_cancel_all_timer);
+	_rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_cancel_all_timer2);
 }
 
-static u8 _rtw_mi_reset_drv_sw(_adapter *adapter, void *data)
+static u8 _rtw_mi_reset_drv_sw2(_adapter *adapter, void *data)
 {
 	rtw_reset_drv_sw(adapter);
 	return _TRUE;
 }
-void rtw_mi_reset_drv_sw(_adapter *adapter)
+void rtw_mi_reset_drv_sw2(_adapter *adapter)
 {
-	_rtw_mi_process_without_schk(adapter, _FALSE, NULL, _rtw_mi_reset_drv_sw);
+	_rtw_mi_process_without_schk(adapter, _FALSE, NULL, _rtw_mi_reset_drv_sw2);
 }
-void rtw_mi_buddy_reset_drv_sw(_adapter *adapter)
+void rtw_mi_buddy_reset_drv_sw2(_adapter *adapter)
 {
-	_rtw_mi_process_without_schk(adapter, _TRUE, NULL, _rtw_mi_reset_drv_sw);
+	_rtw_mi_process_without_schk(adapter, _TRUE, NULL, _rtw_mi_reset_drv_sw2);
 }
 
-static u8 _rtw_mi_intf_start(_adapter *adapter, void *data)
+static u8 _rtw_mi_intf_start2(_adapter *adapter, void *data)
 {
 	rtw_intf_start(adapter);
 	return _TRUE;
 }
-void rtw_mi_intf_start(_adapter *adapter)
+void rtw_mi_intf_start2(_adapter *adapter)
 {
-	_rtw_mi_process(adapter, _FALSE, NULL, _rtw_mi_intf_start);
+	_rtw_mi_process(adapter, _FALSE, NULL, _rtw_mi_intf_start2);
 }
-void rtw_mi_buddy_intf_start(_adapter *adapter)
+void rtw_mi_buddy_intf_start2(_adapter *adapter)
 {
-	_rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_intf_start);
+	_rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_intf_start2);
 }
 
-static u8 _rtw_mi_intf_stop(_adapter *adapter, void *data)
+static u8 _rtw_mi_intf_stop2(_adapter *adapter, void *data)
 {
 	rtw_intf_stop(adapter);
 	return _TRUE;
 }
-void rtw_mi_intf_stop(_adapter *adapter)
+void rtw_mi_intf_stop2(_adapter *adapter)
 {
-	_rtw_mi_process(adapter, _FALSE, NULL, _rtw_mi_intf_stop);
+	_rtw_mi_process(adapter, _FALSE, NULL, _rtw_mi_intf_stop2);
 }
 void rtw_mi_buddy_intf_stop(_adapter *adapter)
 {
-	_rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_intf_stop);
+	_rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_intf_stop2);
 }
 
 static u8 _rtw_mi_suspend_free_assoc_resource(_adapter *padapter, void *data)
@@ -761,44 +761,44 @@ void rtw_mi_buddy_suspend_free_assoc_resource(_adapter *adapter)
 	_rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_suspend_free_assoc_resource);
 }
 
-static u8 _rtw_mi_is_scan_deny(_adapter *adapter, void *data)
+static u8 _rtw_mi_is_scan_deny2(_adapter *adapter, void *data)
 {
 	return rtw_is_scan_deny(adapter);
 }
 
-u8 rtw_mi_is_scan_deny(_adapter *adapter)
+u8 rtw_mi_is_scan_deny2(_adapter *adapter)
 {
-	return _rtw_mi_process(adapter, _FALSE, NULL, _rtw_mi_is_scan_deny);
+	return _rtw_mi_process(adapter, _FALSE, NULL, _rtw_mi_is_scan_deny2);
 
 }
 u8 rtw_mi_buddy_is_scan_deny(_adapter *adapter)
 {
-	return _rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_is_scan_deny);
+	return _rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_is_scan_deny2);
 }
 
 #ifdef CONFIG_SET_SCAN_DENY_TIMER
-static u8 _rtw_mi_set_scan_deny(_adapter *adapter, void *data)
+static u8 _rtw_mi_set_scan_deny2(_adapter *adapter, void *data)
 {
 	u32 ms = *(u32 *)data;
 
 	rtw_set_scan_deny(adapter, ms);
 	return _TRUE;
 }
-void rtw_mi_set_scan_deny(_adapter *adapter, u32 ms)
+void rtw_mi_set_scan_deny2(_adapter *adapter, u32 ms)
 {
 	u32 in_data = ms;
 
-	_rtw_mi_process(adapter, _FALSE, &in_data, _rtw_mi_set_scan_deny);
+	_rtw_mi_process(adapter, _FALSE, &in_data, _rtw_mi_set_scan_deny2);
 }
 void rtw_mi_buddy_set_scan_deny(_adapter *adapter, u32 ms)
 {
 	u32 in_data = ms;
 
-	_rtw_mi_process(adapter, _TRUE, &in_data, _rtw_mi_set_scan_deny);
+	_rtw_mi_process(adapter, _TRUE, &in_data, _rtw_mi_set_scan_deny2);
 }
 #endif /*CONFIG_SET_SCAN_DENY_TIMER*/
 
-static u8 _rtw_mi_beacon_update(_adapter *padapter, void *data)
+static u8 _rtw_mi_beacon_update2(_adapter *padapter, void *data)
 {
 	if (!MLME_IS_STA(padapter)
 	    && check_fwstate(&padapter->mlmepriv, _FW_LINKED) == _TRUE) {
@@ -808,14 +808,14 @@ static u8 _rtw_mi_beacon_update(_adapter *padapter, void *data)
 	return _TRUE;
 }
 
-void rtw_mi_beacon_update(_adapter *padapter)
+void rtw_mi_beacon_update2(_adapter *padapter)
 {
-	_rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_beacon_update);
+	_rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_beacon_update2);
 }
 
 void rtw_mi_buddy_beacon_update(_adapter *padapter)
 {
-	_rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_beacon_update);
+	_rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_beacon_update2);
 }
 
 static u8 _rtw_mi_hal_dump_macaddr(_adapter *padapter, void *data)

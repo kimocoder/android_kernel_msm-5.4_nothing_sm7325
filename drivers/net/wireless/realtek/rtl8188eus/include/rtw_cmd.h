@@ -26,11 +26,8 @@
 #define MAX_RSPSZ	512
 #define MAX_EVTSZ	1024
 
-#ifdef PLATFORM_OS_CE
-	#define CMDBUFF_ALIGN_SZ 4
-#else
-	#define CMDBUFF_ALIGN_SZ 512
-#endif
+#define CMDBUFF_ALIGN_SZ 512
+
 
 struct cmd_obj {
 	_adapter *padapter;
@@ -166,9 +163,9 @@ struct P2P_WoWlan_Offload_t {
 
 #endif /* CONFIG_P2P_WOWLAN */
 
-extern u32 rtw_enqueue_cmd(struct cmd_priv *pcmdpriv, struct cmd_obj *obj);
+extern u32 rtw_enqueue_cmd2(struct cmd_priv *pcmdpriv, struct cmd_obj *obj);
 extern struct cmd_obj *rtw_dequeue_cmd2(struct cmd_priv *pcmdpriv);
-extern void rtw_free_cmd_obj(struct cmd_obj *pcmd);
+extern void rtw_free_cmd_obj2(struct cmd_obj *pcmd);
 
 #ifdef CONFIG_EVENT_THREAD_MODE
 extern u32 rtw_enqueue_evt(struct evt_priv *pevtpriv, struct evt_obj *obj);
@@ -176,10 +173,10 @@ extern struct evt_obj *rtw_dequeue_evt(_queue *queue);
 extern void rtw_free_evt_obj(struct evt_obj *pcmd);
 #endif
 
-void rtw_stop_cmd_thread(_adapter *adapter);
+void rtw_stop_cmd_thread2(_adapter *adapter);
 thread_return rtw_cmd_thread2(thread_context context);
 
-extern u32 rtw_init_cmd_priv(struct cmd_priv *pcmdpriv);
+extern u32 rtw_init_cmd_priv2(struct cmd_priv *pcmdpriv);
 extern void rtw_free_cmd_priv(struct cmd_priv *pcmdpriv);
 
 extern u32 rtw_init_evt_priv(struct evt_priv *pevtpriv);
@@ -1008,31 +1005,31 @@ Result:
 #define H2C_CMD_FAIL			0x0A
 
 extern u8 rtw_setassocsta_cmd(_adapter  *padapter, u8 *mac_addr);
-extern u8 rtw_setstandby_cmd(_adapter *padapter, uint action);
-void rtw_init_sitesurvey_parm(_adapter *padapter, struct sitesurvey_parm *pparm);
-u8 rtw_sitesurvey_cmd(_adapter *padapter, struct sitesurvey_parm *pparm);
-u8 rtw_create_ibss_cmd(_adapter *adapter, int flags);
+extern u8 rtw_setstandby_cmd2(_adapter *padapter, uint action);
+void rtw_init_sitesurvey_parm2(_adapter *padapter, struct sitesurvey_parm *pparm);
+u8 rtw_sitesurvey_cmd2(_adapter *padapter, struct sitesurvey_parm *pparm);
+u8 rtw_create_ibss_cmd2(_adapter *adapter, int flags);
 u8 rtw_startbss_cmd(_adapter *adapter, int flags);
 
 #define REQ_CH_NONE		-1
 #define REQ_BW_NONE		-1
 #define REQ_OFFSET_NONE	-1
 
-u8 rtw_change_bss_chbw_cmd(_adapter *adapter, int flags, s16 req_ch, s8 req_bw, s8 req_offset);
+u8 rtw_change_bss_chbw_cmd2(_adapter *adapter, int flags, s16 req_ch, s8 req_bw, s8 req_offset);
 
-extern u8 rtw_setphy_cmd(_adapter  *padapter, u8 modem, u8 ch);
+extern u8 rtw_setphy_cmd2(_adapter  *padapter, u8 modem, u8 ch);
 
 struct sta_info;
-extern u8 rtw_setstakey_cmd(_adapter  *padapter, struct sta_info *sta, u8 key_type, bool enqueue);
+extern u8 rtw_setstakey_cmd2(_adapter  *padapter, struct sta_info *sta, u8 key_type, bool enqueue);
 extern u8 rtw_clearstakey_cmd(_adapter *padapter, struct sta_info *sta, u8 enqueue);
 
 extern u8 rtw_joinbss_cmd(_adapter  *padapter, struct wlan_network *pnetwork);
-u8 rtw_disassoc_cmd(_adapter *padapter, u32 deauth_timeout_ms, int flags);
+u8 rtw_disassoc_cmd2(_adapter *padapter, u32 deauth_timeout_ms, int flags);
 extern u8 rtw_setopmode_cmd(_adapter  *padapter, NDIS_802_11_NETWORK_INFRASTRUCTURE networktype, u8 flags);
 extern u8 rtw_setdatarate_cmd(_adapter  *padapter, u8 *rateset);
 extern u8 rtw_setbasicrate_cmd(_adapter  *padapter, u8 *rateset);
-extern u8 rtw_getmacreg_cmd(_adapter *padapter, u8 len, u32 addr);
-extern void rtw_usb_catc_trigger_cmd(_adapter *padapter, const char *caller);
+extern u8 rtw_getmacreg_cmd2(_adapter *padapter, u8 len, u32 addr);
+extern void rtw_usb_catc_trigger_cmd2(_adapter *padapter, const char *caller);
 extern u8 rtw_setbbreg_cmd(_adapter *padapter, u8 offset, u8 val);
 extern u8 rtw_setrfreg_cmd(_adapter *padapter, u8 offset, u32 val);
 extern u8 rtw_getbbreg_cmd(_adapter *padapter, u8 offset, u8 *pval);
@@ -1090,7 +1087,7 @@ u8 rtw_enable_hw_update_tsf_cmd(_adapter *padapter);
 u8 rtw_set_chbw_cmd(_adapter *padapter, u8 ch, u8 bw, u8 ch_offset, u8 flags);
 
 u8 rtw_set_chplan_cmd(_adapter *adapter, int flags, u8 chplan, u8 swconfig);
-u8 rtw_set_country_cmd(_adapter *adapter, int flags, const char *country_code, u8 swconfig);
+u8 rtw_set_country_cmd2(_adapter *adapter, int flags, const char *country_code, u8 swconfig);
 
 extern u8 rtw_led_blink_cmd(_adapter *padapter, PVOID pLed);
 extern u8 rtw_set_csa_cmd(_adapter *padapter, u8 new_ch_no);
@@ -1129,14 +1126,14 @@ u8 rtw_req_per_cmd(_adapter * adapter);
 u8 rtw_drvextra_cmd_hdl(_adapter *padapter, unsigned char *pbuf);
 
 extern void rtw_survey_cmd_callback2(_adapter  *padapter, struct cmd_obj *pcmd);
-extern void rtw_disassoc_cmd_callback(_adapter  *padapter, struct cmd_obj *pcmd);
+extern void rtw_disassoc_cmd_callback2(_adapter  *padapter, struct cmd_obj *pcmd);
 extern void rtw_joinbss_cmd_callback2(_adapter  *padapter, struct cmd_obj *pcmd);
 void rtw_create_ibss_post_hdl(_adapter *padapter, int status);
-extern void rtw_getbbrfreg_cmdrsp_callback(_adapter  *padapter, struct cmd_obj *pcmd);
+extern void rtw_getbbrfreg_cmdrsp_callback2(_adapter  *padapter, struct cmd_obj *pcmd);
 extern void rtw_readtssi_cmdrsp_callback(_adapter	*padapter,  struct cmd_obj *pcmd);
 
 extern void rtw_setstaKey_cmdrsp_callback2(_adapter  *padapter,  struct cmd_obj *pcmd);
-extern void rtw_setassocsta_cmdrsp_callback(_adapter  *padapter,  struct cmd_obj *pcmd);
+extern void rtw_setassocsta_cmdrsp_callback2(_adapter  *padapter,  struct cmd_obj *pcmd);
 extern void rtw_getrttbl_cmdrsp_callback(_adapter  *padapter,  struct cmd_obj *pcmd);
 extern void rtw_getmacreg_cmdrsp_callback2(_adapter *padapter,  struct cmd_obj *pcmd);
 
@@ -1238,9 +1235,9 @@ enum rtw_h2c_cmd {
 struct _cmd_callback	rtw_cmd_callback[] = {
 	{GEN_CMD_CODE(_Read_MACREG), &rtw_getmacreg_cmdrsp_callback2}, /*0*/
 	{GEN_CMD_CODE(_Write_MACREG), NULL},
-	{GEN_CMD_CODE(_Read_BBREG), &rtw_getbbrfreg_cmdrsp_callback},
+	{GEN_CMD_CODE(_Read_BBREG), &rtw_getbbrfreg_cmdrsp_callback2},
 	{GEN_CMD_CODE(_Write_BBREG), NULL},
-	{GEN_CMD_CODE(_Read_RFREG), &rtw_getbbrfreg_cmdrsp_callback},
+	{GEN_CMD_CODE(_Read_RFREG), &rtw_getbbrfreg_cmdrsp_callback2},
 	{GEN_CMD_CODE(_Write_RFREG), NULL}, /*5*/
 	{GEN_CMD_CODE(_Read_EEPROM), NULL},
 	{GEN_CMD_CODE(_Write_EEPROM), NULL},
@@ -1252,7 +1249,7 @@ struct _cmd_callback	rtw_cmd_callback[] = {
 	{GEN_CMD_CODE(_setBCNITV), NULL},
 	{GEN_CMD_CODE(_setMBIDCFG), NULL},
 	{GEN_CMD_CODE(_JoinBss), &rtw_joinbss_cmd_callback2},  /*14*/
-	{GEN_CMD_CODE(_DisConnect), &rtw_disassoc_cmd_callback}, /*15*/
+	{GEN_CMD_CODE(_DisConnect), &rtw_disassoc_cmd_callback2}, /*15*/
 	{GEN_CMD_CODE(_CreateBss), NULL},
 	{GEN_CMD_CODE(_SetOpMode), NULL},
 	{GEN_CMD_CODE(_SiteSurvey), &rtw_survey_cmd_callback2}, /*18*/
@@ -1260,7 +1257,7 @@ struct _cmd_callback	rtw_cmd_callback[] = {
 
 	{GEN_CMD_CODE(_SetKey), NULL},	/*20*/
 	{GEN_CMD_CODE(_SetStaKey), &rtw_setstaKey_cmdrsp_callback2},
-	{GEN_CMD_CODE(_SetAssocSta), &rtw_setassocsta_cmdrsp_callback},
+	{GEN_CMD_CODE(_SetAssocSta), &rtw_setassocsta_cmdrsp_callback2},
 	{GEN_CMD_CODE(_DelAssocSta), NULL},
 	{GEN_CMD_CODE(_SetStaPwrState), NULL},
 	{GEN_CMD_CODE(_SetBasicRate), NULL}, /*25*/

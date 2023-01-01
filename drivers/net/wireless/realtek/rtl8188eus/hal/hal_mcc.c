@@ -994,9 +994,9 @@ void rtw_hal_mcc_upadate_chnl_bw(_adapter *padapter, u8 ch, u8 ch_offset, u8 bw,
 	cch_20 = bw == CHANNEL_WIDTH_20 ? center_ch : 0;
 
 	if (cch_80 != 0)
-		cch_40 = rtw_get_scch_by_cch_offset(cch_80, CHANNEL_WIDTH_80, chnl_offset80);
+		cch_40 = rtw_get_scch_by_cch_offset2(cch_80, CHANNEL_WIDTH_80, chnl_offset80);
 	if (cch_40 != 0)
-		cch_20 = rtw_get_scch_by_cch_offset(cch_40, CHANNEL_WIDTH_40, ch_offset);
+		cch_20 = rtw_get_scch_by_cch_offset2(cch_40, CHANNEL_WIDTH_40, ch_offset);
 
 
 	hal->cch_80 = cch_80;
@@ -1926,7 +1926,7 @@ static u8 rtw_hal_set_mcc_start_setting(PADAPTER padapter, u8 status)
 	}
 
 	/* update mi_state to decide STA+STA or AP+STA */
-	rtw_mi_status(padapter, &mcc_mstate);
+	rtw_mi_status2(padapter, &mcc_mstate);
 
 	/* configure mcc switch channel setting */
 	rtw_hal_config_mcc_switch_channel_setting(padapter);
@@ -2418,13 +2418,13 @@ void rtw_hal_mcc_c2h_handler(PADAPTER padapter, u8 buflen, u8 *tmpBuf)
 }
 
 void rtw_hal_mcc_update_parameter(PADAPTER padapter, u8 force_update)
-{	
+{
 	struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
 	struct mcc_obj_priv *pmccobjpriv = &(dvobj->mcc_objpriv);
 	u8 cmd[H2C_MCC_TIME_SETTING_LEN] = {0};
 	u8 swchannel_early_time = MCC_SWCH_FW_EARLY_TIME;
 
-	rtw_mi_status(padapter, &mcc_mstate);
+	rtw_mi_status2(padapter, &mcc_mstate);
 
 	if (MSTATE_AP_NUM(&mcc_mstate) == 0) {
 		u8 need_update = _FALSE;
@@ -2434,7 +2434,7 @@ void rtw_hal_mcc_update_parameter(PADAPTER padapter, u8 force_update)
 
 		if (need_update == _FALSE)
 			return;
-		
+
 		start_time_offset = pmccobjpriv->start_time;
 		interval = pmccobjpriv->interval;
 		duration = pmccobjpriv->iface[0]->mcc_adapterpriv.mcc_duration;
@@ -2520,7 +2520,7 @@ void rtw_hal_mcc_sw_status_check(PADAPTER padapter)
 	if (!MCC_EN(padapter))
 		return;
 
-	rtw_mi_status(padapter, &mcc_mstate);
+	rtw_mi_status2(padapter, &mcc_mstate);
 
 	_enter_critical_mutex(&pmccobjpriv->mcc_mutex, NULL);
 
@@ -2533,7 +2533,7 @@ void rtw_hal_mcc_sw_status_check(PADAPTER padapter)
 				noa_enable = _TRUE;
 				break;
 			}
-		}		
+		}
 
 		if (!noa_enable && MSTATE_AP_NUM(&mcc_mstate) == 0)
 			rtw_hal_mcc_update_parameter(padapter, _FALSE);
@@ -2860,7 +2860,7 @@ u8 rtw_hal_set_mcc_setting_join_done_chk_ch(PADAPTER padapter)
 	if (MCC_EN(padapter)) {
 		struct mi_state mstate;
 
-		rtw_mi_status_no_self(padapter, &mstate);
+		rtw_mi_status_no_self2(padapter, &mstate);
 
 		if (MSTATE_STA_LD_NUM(&mstate) || MSTATE_STA_LG_NUM(&mstate) || MSTATE_AP_NUM(&mstate)) {
 			bool chbw_allow = _TRUE;
@@ -2868,8 +2868,8 @@ u8 rtw_hal_set_mcc_setting_join_done_chk_ch(PADAPTER padapter)
 			struct mlme_ext_priv *cur_mlmeext = &padapter->mlmeextpriv;
 			struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
 
-			if (rtw_mi_get_ch_setting_union_no_self(padapter, &u_ch, &u_bw, &u_offset) <= 0) {
-				dump_adapters_status(RTW_DBGDUMP , dvobj);
+			if (rtw_mi_get_ch_setting_union_no_self2(padapter, &u_ch, &u_bw, &u_offset) <= 0) {
+				dump_adapters_status2(RTW_DBGDUMP , dvobj);
 				rtw_warn_on(1);
 			}
 
@@ -3300,7 +3300,7 @@ u8 rtw_set_mcc_duration_cmd(_adapter *adapter, u8 type, u8 val)
 	_rtw_memcpy(mcc_duration, &val, 1);
 
 	init_h2fwcmd_w_parm_no_rsp(cmdobj, pdrvextra_cmd_parm, GEN_CMD_CODE(_Set_Drv_Extra));
-	res = rtw_enqueue_cmd(pcmdpriv, cmdobj);
+	res = rtw_enqueue_cmd2(pcmdpriv, cmdobj);
 
 exit:
 	return res;

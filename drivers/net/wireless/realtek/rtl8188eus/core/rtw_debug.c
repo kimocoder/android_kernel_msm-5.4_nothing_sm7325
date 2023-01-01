@@ -39,12 +39,12 @@ const char *rtw_log_level_str[] = {
 	#define TDLS_DBG_INFO_SPACE_BTWN_ITEM_AND_VALUE	41
 #endif
 
-void dump_drv_version(void *sel)
+void dump_drv_version2(void *sel)
 {
 	RTW_PRINT_SEL(sel, "%s %s\n", DRV_NAME, DRIVERVERSION);
 }
 
-void dump_drv_cfg(void *sel)
+void dump_drv_cfg2(void *sel)
 {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24))
 	char *kernel_version = utsname()->release;
@@ -238,7 +238,7 @@ void sdio_local_reg_dump(void *sel, _adapter *adapter)
 }
 #endif /* CONFIG_SDIO_HCI */
 
-void mac_reg_dump(void *sel, _adapter *adapter)
+void mac_reg_dump2(void *sel, _adapter *adapter)
 {
 	int i, j = 1;
 
@@ -251,32 +251,9 @@ void mac_reg_dump(void *sel, _adapter *adapter)
 		if ((j++) % 4 == 0)
 			_RTW_PRINT_SEL(sel, "\n");
 	}
-
-#ifdef CONFIG_RTL8814A
-	{
-		for (i = 0x1000; i < 0x1650; i += 4) {
-			if (j % 4 == 1)
-				RTW_PRINT_SEL(sel, "0x%04x", i);
-			_RTW_PRINT_SEL(sel, " 0x%08x ", rtw_read32(adapter, i));
-			if ((j++) % 4 == 0)
-				_RTW_PRINT_SEL(sel, "\n");
-		}
-	}
-#endif /* CONFIG_RTL8814A */
-
-
-#if defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
-	for (i = 0x1000; i < 0x1800; i += 4) {
-		if (j % 4 == 1)
-			RTW_PRINT_SEL(sel, "0x%04x", i);
-		_RTW_PRINT_SEL(sel, " 0x%08x ", rtw_read32(adapter, i));
-		if ((j++) % 4 == 0)
-			_RTW_PRINT_SEL(sel, "\n");
-	}
-#endif /* CONFIG_RTL8822B */
 }
 
-void bb_reg_dump(void *sel, _adapter *adapter)
+void bb_reg_dump2(void *sel, _adapter *adapter)
 {
 	int i, j = 1;
 
@@ -288,16 +265,6 @@ void bb_reg_dump(void *sel, _adapter *adapter)
 		if ((j++) % 4 == 0)
 			_RTW_PRINT_SEL(sel, "\n");
 	}
-
-#if defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
-	for (i = 0x1800; i < 0x2000; i += 4) {
-		if (j % 4 == 1)
-			RTW_PRINT_SEL(sel, "0x%04x", i);
-		_RTW_PRINT_SEL(sel, " 0x%08x ", rtw_read32(adapter, i));
-		if ((j++) % 4 == 0)
-			_RTW_PRINT_SEL(sel, "\n");
-	}
-#endif /* CONFIG_RTL8822B */
 }
 
 void bb_reg_dump_ex2(void *sel, _adapter *adapter)
@@ -310,14 +277,6 @@ void bb_reg_dump_ex2(void *sel, _adapter *adapter)
 		_RTW_PRINT_SEL(sel, " 0x%08x ", rtw_read32(adapter, i));
 		_RTW_PRINT_SEL(sel, "\n");
 	}
-
-#if defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
-	for (i = 0x1800; i < 0x2000; i += 4) {
-		RTW_PRINT_SEL(sel, "0x%04x", i);
-		_RTW_PRINT_SEL(sel, " 0x%08x ", rtw_read32(adapter, i));
-		_RTW_PRINT_SEL(sel, "\n");
-	}
-#endif /* CONFIG_RTL8822B */
 }
 
 void rf_reg_dump(void *sel, _adapter *adapter)
@@ -361,7 +320,7 @@ void rtw_sink_rtp_seq_dbg(_adapter *adapter, u8 *ehdr_pos)
 	}
 }
 
-void sta_rx_reorder_ctl_dump(void *sel, struct sta_info *sta)
+void sta_rx_reorder_ctl_dump2(void *sel, struct sta_info *sta)
 {
 	struct recv_reorder_ctrl *reorder_ctl;
 	int i;
@@ -376,7 +335,7 @@ void sta_rx_reorder_ctl_dump(void *sel, struct sta_info *sta)
 	}
 }
 
-void dump_tx_rate_bmp(void *sel, struct dvobj_priv *dvobj)
+void dump_tx_rate_bmp2(void *sel, struct dvobj_priv *dvobj)
 {
 	_adapter *adapter = dvobj_get_primary_adapter(dvobj);
 	struct rf_ctl_t *rfctl = dvobj_to_rfctl(dvobj);
@@ -415,14 +374,14 @@ void dump_tx_rate_bmp(void *sel, struct dvobj_priv *dvobj)
 	}
 }
 
-void dump_adapters_status(void *sel, struct dvobj_priv *dvobj)
+void dump_adapters_status2(void *sel, struct dvobj_priv *dvobj)
 {
 	struct rf_ctl_t *rfctl = dvobj_to_rfctl(dvobj);
 	int i;
 	_adapter *iface;
 	u8 u_ch, u_bw, u_offset;
 
-	dump_mi_status(sel, dvobj);
+	dump_mi_status2(sel, dvobj);
 
 #ifdef CONFIG_FW_MULTI_PORT_SUPPORT
 	RTW_PRINT_SEL(sel, "default port id:%d\n\n", dvobj->default_port_id);
@@ -489,7 +448,7 @@ void dump_adapters_status(void *sel, struct dvobj_priv *dvobj)
 		P2P_INFO_DASH
 		"-------\n");
 
-	rtw_mi_get_ch_setting_union(dvobj_get_primary_adapter(dvobj), &u_ch, &u_bw, &u_offset);
+	rtw_mi_get_ch_setting_union2(dvobj_get_primary_adapter(dvobj), &u_ch, &u_bw, &u_offset);
 	RTW_PRINT_SEL(sel, "%55s %3u,%u,%u\n"
 		, "union:"
 		, u_ch, u_bw, u_offset
@@ -572,7 +531,7 @@ end_dfs_master:
 	, (((ent)->ctrl) >> 6) & 0x01 \
 	, (((ent)->ctrl) >> 15) & 0x01
 
-void dump_sec_cam_ent(void *sel, struct sec_cam_ent *ent, int id)
+void dump_sec_cam_ent2(void *sel, struct sec_cam_ent *ent, int id)
 {
 	if (id >= 0) {
 		RTW_PRINT_SEL(sel, SEC_CAM_ENT_ID_VALUE_FMT " " SEC_CAM_ENT_VALUE_FMT"\n"
@@ -581,7 +540,7 @@ void dump_sec_cam_ent(void *sel, struct sec_cam_ent *ent, int id)
 		RTW_PRINT_SEL(sel, SEC_CAM_ENT_VALUE_FMT"\n", SEC_CAM_ENT_VALUE_ARG(ent));
 }
 
-void dump_sec_cam_ent_title(void *sel, u8 has_id)
+void dump_sec_cam_ent_title2(void *sel, u8 has_id)
 {
 	if (has_id) {
 		RTW_PRINT_SEL(sel, SEC_CAM_ENT_ID_TITLE_FMT " " SEC_CAM_ENT_TITLE_FMT"\n"
@@ -590,7 +549,7 @@ void dump_sec_cam_ent_title(void *sel, u8 has_id)
 		RTW_PRINT_SEL(sel, SEC_CAM_ENT_TITLE_FMT"\n", SEC_CAM_ENT_TITLE_ARG);
 }
 
-void dump_sec_cam(void *sel, _adapter *adapter)
+void dump_sec_cam2(void *sel, _adapter *adapter)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	struct cam_ctl_t *cam_ctl = &dvobj->cam_ctl;
@@ -598,30 +557,30 @@ void dump_sec_cam(void *sel, _adapter *adapter)
 	int i;
 
 	RTW_PRINT_SEL(sel, "HW sec cam:\n");
-	dump_sec_cam_ent_title(sel, 1);
+	dump_sec_cam_ent_title2(sel, 1);
 	for (i = 0; i < cam_ctl->num; i++) {
 		rtw_sec_read_cam_ent(adapter, i, (u8 *)(&ent.ctrl), ent.mac, ent.key);
-		dump_sec_cam_ent(sel , &ent, i);
+		dump_sec_cam_ent2(sel , &ent, i);
 	}
 }
 
-void dump_sec_cam_cache(void *sel, _adapter *adapter)
+void dump_sec_cam_cache2(void *sel, _adapter *adapter)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	struct cam_ctl_t *cam_ctl = &dvobj->cam_ctl;
 	int i;
 
 	RTW_PRINT_SEL(sel, "SW sec cam cache:\n");
-	dump_sec_cam_ent_title(sel, 1);
+	dump_sec_cam_ent_title2(sel, 1);
 	for (i = 0; i < cam_ctl->num; i++) {
 		if (dvobj->cam_cache[i].ctrl != 0)
-			dump_sec_cam_ent(sel, &dvobj->cam_cache[i], i);
+			dump_sec_cam_ent2(sel, &dvobj->cam_cache[i], i);
 	}
 
 }
 
 #ifdef CONFIG_PROC_DEBUG
-ssize_t proc_set_write_reg(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
+ssize_t proc_set_write_reg2(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
 {
 	struct net_device *dev = data;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
@@ -733,7 +692,7 @@ ssize_t proc_set_read_reg(struct file *file, const char __user *buffer, size_t c
 
 }
 
-int proc_get_rx_stat(struct seq_file *m, void *v)
+int proc_get_rx_stat2(struct seq_file *m, void *v)
 {
 	_irqL	 irqL;
 	_list	*plist, *phead;
@@ -781,7 +740,7 @@ int proc_get_rx_stat(struct seq_file *m, void *v)
 	return 0;
 }
 
-int proc_get_tx_stat(struct seq_file *m, void *v)
+int proc_get_tx_stat2(struct seq_file *m, void *v)
 {
 	_irqL	irqL;
 	_list	*plist, *phead;
@@ -863,7 +822,7 @@ int proc_get_fwstate(struct seq_file *m, void *v)
 	return 0;
 }
 
-int proc_get_sec_info(struct seq_file *m, void *v)
+int proc_get_sec_info2(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
@@ -946,7 +905,7 @@ ssize_t proc_set_roam_flags(struct file *file, const char __user *buffer, size_t
 
 }
 
-int proc_get_roam_param(struct seq_file *m, void *v)
+int proc_get_roam_param2(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
@@ -963,7 +922,7 @@ int proc_get_roam_param(struct seq_file *m, void *v)
 	return 0;
 }
 
-ssize_t proc_set_roam_param(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
+ssize_t proc_set_roam_param2(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
 {
 	struct net_device *dev = data;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
@@ -1001,7 +960,7 @@ ssize_t proc_set_roam_param(struct file *file, const char __user *buffer, size_t
 
 }
 
-ssize_t proc_set_roam_tgt_addr(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
+ssize_t proc_set_roam_tgt_addr2(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
 {
 	struct net_device *dev = data;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
@@ -1438,7 +1397,7 @@ ssize_t proc_set_survey_info(struct file *file, const char __user *buffer, size_
 		goto cancel_ps_deny;
 	}
 #endif
-	_status = rtw_set_802_11_bssid_list_scan(padapter, NULL);
+	_status = rtw_set_802_11_bssid_list_scan2(padapter, NULL);
 
 cancel_ps_deny:
 	rtw_ps_deny_cancel(padapter, PS_DENY_SCAN);
@@ -1477,7 +1436,7 @@ int proc_get_ap_info(struct seq_file *m, void *v)
 		RTW_PRINT_SEL(m, "vht_ldpc_cap=0x%x, vht_stbc_cap=0x%x, vht_beamform_cap=0x%x\n", psta->vhtpriv.ldpc_cap, psta->vhtpriv.stbc_cap, psta->vhtpriv.beamform_cap);
 		RTW_PRINT_SEL(m, "vht_mcs_map=0x%x, vht_highest_rate=0x%x, vht_ampdu_len=%d\n", *(u16 *)psta->vhtpriv.vht_mcs_map, psta->vhtpriv.vht_highest_rate, psta->vhtpriv.ampdu_len);
 #endif
-		sta_rx_reorder_ctl_dump(m, psta);
+		sta_rx_reorder_ctl_dump2(m, psta);
 	} else
 		RTW_PRINT_SEL(m, "can't get sta's macaddr, cur_network's macaddr:" MAC_FMT "\n", MAC_ARG(cur_network->network.MacAddress));
 
@@ -2639,24 +2598,6 @@ int proc_get_mac_rptbuf(struct seq_file *m, void *v)
 	u16 mac_id;
 	u32 shcut_addr = 0;
 	u32 read_addr = 0;
-#ifdef CONFIG_RTL8814A
-	RTW_PRINT_SEL(m, "TX ShortCut:\n");
-	for (mac_id = 0; mac_id < 64; mac_id++) {
-		rtw_write16(padapter, 0x140, 0x662 | ((mac_id & BIT5) >> 5));
-		shcut_addr = 0x8000;
-		shcut_addr = shcut_addr | ((mac_id & 0x1f) << 7);
-		RTW_PRINT_SEL(m, "mac_id=%d, 0x140=%x =>\n", mac_id, 0x662 | ((mac_id & BIT5) >> 5));
-		for (i = 0; i < 30; i++) {
-			read_addr = 0;
-			read_addr = shcut_addr | (i << 2);
-			RTW_PRINT_SEL(m, "i=%02d: MAC_%04x= %08x ", i, read_addr, rtw_read32(padapter, read_addr));
-			if (!((i + 1) % 4))
-				RTW_PRINT_SEL(m, "\n");
-			if (i == 29)
-				RTW_PRINT_SEL(m, "\n");
-		}
-	}
-#endif /* CONFIG_RTL8814A */
 	return 0;
 }
 
@@ -3448,7 +3389,7 @@ int proc_get_all_sta_info(struct seq_file *m, void *v)
 				RTW_PRINT_SEL(m, "qos_info=0x%x\n", psta->qos_info);
 				RTW_PRINT_SEL(m, "dot118021XPrivacy=0x%x\n", psta->dot118021XPrivacy);
 
-				sta_rx_reorder_ctl_dump(m, psta);
+				sta_rx_reorder_ctl_dump2(m, psta);
 
 #ifdef CONFIG_TDLS
 				RTW_PRINT_SEL(m, "tdls_sta_state=0x%08x\n", psta->tdls_sta_state);
@@ -5450,7 +5391,7 @@ int proc_get_mcc_info(struct seq_file *m, void *v)
 	struct net_device *dev = m->private;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
 
-	dump_adapters_status(m, adapter_to_dvobj(adapter));
+	dump_adapters_status2(m, adapter_to_dvobj(adapter));
 	rtw_hal_dump_mcc_info(m, adapter_to_dvobj(adapter));
 	return 0;
 }
@@ -5866,13 +5807,7 @@ int proc_get_ack_timeout(struct seq_file *m, void *v)
 
 	ack_timeout_val = rtw_read8(padapter, REG_ACKTO);
 
-#ifdef CONFIG_RTL8821C
-	ack_timeout_val_cck = rtw_read8(padapter, REG_ACKTO_CCK_8821C);
-	RTW_PRINT_SEL(m, "Current CCK packet ACK Timeout = %d us (0x%x).\n", ack_timeout_val_cck, ack_timeout_val_cck);
-	RTW_PRINT_SEL(m, "Current non-CCK packet ACK Timeout = %d us (0x%x).\n", ack_timeout_val, ack_timeout_val);
-#else
 	RTW_PRINT_SEL(m, "Current ACK Timeout = %d us (0x%x).\n", ack_timeout_val, ack_timeout_val);
-#endif
 
 	return 0;
 }
@@ -5892,30 +5827,16 @@ ssize_t proc_set_ack_timeout(struct file *file, const char __user *buffer, size_
 	if (buffer && !copy_from_user(tmp, buffer, count)) {
 		int num = sscanf(tmp, "%u %u", &ack_timeout_ms, &ack_timeout_ms_cck);
 
-#ifdef CONFIG_RTL8821C
-		if (num < 2) {
-			RTW_INFO(FUNC_ADPT_FMT ": input parameters < 2\n", FUNC_ADPT_ARG(padapter));
-			return -EINVAL;
-		}
-#else
 		if (num < 1) {
 			RTW_INFO(FUNC_ADPT_FMT ": input parameters < 1\n", FUNC_ADPT_ARG(padapter));
 			return -EINVAL;
 		}
-#endif
+
 		/* This register sets the Ack time out value after Tx unicast packet. It is in units of us. */
 		rtw_write8(padapter, REG_ACKTO, (u8)ack_timeout_ms);
 
-#ifdef CONFIG_RTL8821C
-		/* This register sets the Ack time out value after Tx unicast CCK packet. It is in units of us. */
-		rtw_write8(padapter, REG_ACKTO_CCK_8821C, (u8)ack_timeout_ms_cck);
-		RTW_INFO("Set CCK packet ACK Timeout to %d us.\n", ack_timeout_ms_cck);
-		RTW_INFO("Set non-CCK packet ACK Timeout to %d us.\n", ack_timeout_ms);
-#else
 		RTW_INFO("Set ACK Timeout to %d us.\n", ack_timeout_ms);
-#endif
 	}
-
 	return count;
 }
 

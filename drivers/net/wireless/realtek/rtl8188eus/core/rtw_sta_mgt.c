@@ -13,14 +13,7 @@
  *
  *****************************************************************************/
 #define _RTW_STA_MGT_C_
-
 #include <drv_types.h>
-
-#if defined(PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
-
-	#error "Shall be Linux or Windows, but not both!\n"
-
-#endif
 
 
 bool test_st_match_rule(_adapter *adapter, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port)
@@ -564,20 +557,16 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, const u8 *hwaddr)
 		psta->RxMgmtFrameSeqNum = 0xffff;
 
 		rtw_alloc_macid(pstapriv->padapter, psta);
-
 	}
 
 exit:
-
 	_exit_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
 
-
 	if (psta)
-		rtw_mi_update_iface_status(&(pstapriv->padapter->mlmepriv), 0);
+		rtw_mi_update_iface_status2(&(pstapriv->padapter->mlmepriv), 0);
 
 	return psta;
 }
-
 
 /* using pstapriv->sta_hash_lock to protect */
 u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta)
@@ -610,7 +599,7 @@ u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta)
 		rtw_list_delete(&psta->hash_list);
 		pstapriv->asoc_sta_count--;
 		_exit_critical_bh(&(pstapriv->sta_hash_lock), &irqL0);
-		rtw_mi_update_iface_status(&(padapter->mlmepriv), 0);
+		rtw_mi_update_iface_status2(&(padapter->mlmepriv), 0);
 	} else {
 		_enter_critical_bh(&psta->lock, &irqL0);
 		psta->state = WIFI_FW_PRE_LINK;

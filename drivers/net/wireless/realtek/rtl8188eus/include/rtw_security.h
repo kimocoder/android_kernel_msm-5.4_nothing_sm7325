@@ -326,53 +326,53 @@ struct mic_data {
 	u32     nBytesInM;      /*  # bytes in M */
 };
 
-extern const u32 Te0[256];
+extern const u32 Te02[256];
 extern const u32 Te1[256];
 extern const u32 Te2[256];
 extern const u32 Te3[256];
 extern const u32 Te4[256];
-extern const u32 Td0[256];
+extern const u32 Td02[256];
 extern const u32 Td1[256];
 extern const u32 Td2[256];
 extern const u32 Td3[256];
 extern const u32 Td4[256];
 extern const u32 rcon[10];
-extern const u8 Td4s[256];
-extern const u8 rcons[10];
+extern const u8 Td4s2[256];
+extern const u8 rcons2[10];
 
-#define RCON(i) (rcons[(i)] << 24)
+#define RCON(i) (rcons2[(i)] << 24)
 
 static inline u32 rotr(u32 val, int bits)
 {
 	return (val >> bits) | (val << (32 - bits));
 }
 
-#define TE0(i) Te0[((i) >> 24) & 0xff]
-#define TE1(i) rotr(Te0[((i) >> 16) & 0xff], 8)
-#define TE2(i) rotr(Te0[((i) >> 8) & 0xff], 16)
-#define TE3(i) rotr(Te0[(i) & 0xff], 24)
-#define TE41(i) ((Te0[((i) >> 24) & 0xff] << 8) & 0xff000000)
-#define TE42(i) (Te0[((i) >> 16) & 0xff] & 0x00ff0000)
-#define TE43(i) (Te0[((i) >> 8) & 0xff] & 0x0000ff00)
-#define TE44(i) ((Te0[(i) & 0xff] >> 8) & 0x000000ff)
-#define TE421(i) ((Te0[((i) >> 16) & 0xff] << 8) & 0xff000000)
-#define TE432(i) (Te0[((i) >> 8) & 0xff] & 0x00ff0000)
-#define TE443(i) (Te0[(i) & 0xff] & 0x0000ff00)
-#define TE414(i) ((Te0[((i) >> 24) & 0xff] >> 8) & 0x000000ff)
-#define TE4(i) ((Te0[(i)] >> 8) & 0x000000ff)
+#define TE02(i) Te02[((i) >> 24) & 0xff]
+#define TE1(i) rotr(Te02[((i) >> 16) & 0xff], 8)
+#define TE2(i) rotr(Te02[((i) >> 8) & 0xff], 16)
+#define TE3(i) rotr(Te02[(i) & 0xff], 24)
+#define TE41(i) ((Te02[((i) >> 24) & 0xff] << 8) & 0xff000000)
+#define TE42(i) (Te02[((i) >> 16) & 0xff] & 0x00ff0000)
+#define TE43(i) (Te02[((i) >> 8) & 0xff] & 0x0000ff00)
+#define TE44(i) ((Te02[(i) & 0xff] >> 8) & 0x000000ff)
+#define TE421(i) ((Te02[((i) >> 16) & 0xff] << 8) & 0xff000000)
+#define TE432(i) (Te02[((i) >> 8) & 0xff] & 0x00ff0000)
+#define TE443(i) (Te02[(i) & 0xff] & 0x0000ff00)
+#define TE414(i) ((Te02[((i) >> 24) & 0xff] >> 8) & 0x000000ff)
+#define TE4(i) ((Te02[(i)] >> 8) & 0x000000ff)
 
-#define TD0(i) Td0[((i) >> 24) & 0xff]
-#define TD1(i) rotr(Td0[((i) >> 16) & 0xff], 8)
-#define TD2(i) rotr(Td0[((i) >> 8) & 0xff], 16)
-#define TD3(i) rotr(Td0[(i) & 0xff], 24)
-#define TD41(i) (Td4s[((i) >> 24) & 0xff] << 24)
-#define TD42(i) (Td4s[((i) >> 16) & 0xff] << 16)
-#define TD43(i) (Td4s[((i) >> 8) & 0xff] << 8)
-#define TD44(i) (Td4s[(i) & 0xff])
-#define TD0_(i) Td0[(i) & 0xff]
-#define TD1_(i) rotr(Td0[(i) & 0xff], 8)
-#define TD2_(i) rotr(Td0[(i) & 0xff], 16)
-#define TD3_(i) rotr(Td0[(i) & 0xff], 24)
+#define TD02(i) Td02[((i) >> 24) & 0xff]
+#define TD1(i) rotr(Td02[((i) >> 16) & 0xff], 8)
+#define TD2(i) rotr(Td02[((i) >> 8) & 0xff], 16)
+#define TD3(i) rotr(Td02[(i) & 0xff], 24)
+#define TD41(i) (Td4s2[((i) >> 24) & 0xff] << 24)
+#define TD42(i) (Td4s2[((i) >> 16) & 0xff] << 16)
+#define TD43(i) (Td4s2[((i) >> 8) & 0xff] << 8)
+#define TD44(i) (Td4s2[(i) & 0xff])
+#define TD02_(i) Td02[(i) & 0xff]
+#define TD1_(i) rotr(Td02[(i) & 0xff], 8)
+#define TD2_(i) rotr(Td02[(i) & 0xff], 16)
+#define TD3_(i) rotr(Td02[(i) & 0xff], 24)
 
 #define GETU32(pt) (((u32)(pt)[0] << 24) ^ ((u32)(pt)[1] << 16) ^ \
 			((u32)(pt)[2] <<  8) ^ ((u32)(pt)[3]))
@@ -444,7 +444,7 @@ static const unsigned long K[64] = {
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #endif
 #ifdef CONFIG_IEEE80211W
-int omac1_aes_128(const u8 *key, const u8 *data, size_t data_len, u8 *mac);
+int omac1_aes_1282(const u8 *key, const u8 *data, size_t data_len, u8 *mac);
 #endif /* CONFIG_IEEE80211W */
 #ifdef CONFIG_RTW_MESH_AEK
 int aes_siv_encrypt(const u8 *key, const u8 *pw, size_t pwlen
@@ -452,9 +452,9 @@ int aes_siv_encrypt(const u8 *key, const u8 *pw, size_t pwlen
 int aes_siv_decrypt(const u8 *key, const u8 *iv_crypt, size_t iv_c_len
 	, size_t num_elem, const u8 *addr[], const size_t *len, u8 *out);
 #endif
-void rtw_secmicsetkey(struct mic_data *pmicdata, u8 *key);
+void rtw_secmicsetkey2(struct mic_data *pmicdata, u8 *key);
 void rtw_secmicappendbyte2(struct mic_data *pmicdata, u8 b);
-void rtw_secmicappend(struct mic_data *pmicdata, u8 *src, u32 nBytes);
+void rtw_secmicappend2(struct mic_data *pmicdata, u8 *src, u32 nBytes);
 void rtw_secgetmic(struct mic_data *pmicdata, u8 *dst);
 
 void rtw_seccalctkipmic2(
