@@ -155,7 +155,7 @@ extern void rtw_intf_stop(_adapter *adapter);
 void rtw_mi_intf_start2(_adapter *adapter);
 void rtw_mi_buddy_intf_start2(_adapter *adapter);
 void rtw_mi_intf_stop2(_adapter *adapter);
-void rtw_mi_buddy_intf_stop(_adapter *adapter);
+void rtw_mi_buddy_intf_stop2(_adapter *adapter);
 
 void rtw_mi_suspend_free_assoc_resource(_adapter *adapter);
 void rtw_mi_buddy_suspend_free_assoc_resource(_adapter *adapter);
@@ -169,12 +169,12 @@ void rtw_mi_buddy_set_scan_deny(_adapter *adapter, u32 ms);
 #endif
 
 u8 rtw_mi_is_scan_deny2(_adapter *adapter);
-u8 rtw_mi_buddy_is_scan_deny(_adapter *adapter);
+u8 rtw_mi_buddy_is_scan_deny2(_adapter *adapter);
 
 void rtw_mi_beacon_update2(_adapter *padapter);
-void rtw_mi_buddy_beacon_update(_adapter *padapter);
+void rtw_mi_buddy_beacon_update2(_adapter *padapter);
 
-void rtw_mi_hal_dump_macaddr(_adapter *padapter);
+void rtw_mi_hal_dump_macaddr2(_adapter *padapter);
 void rtw_mi_buddy_hal_dump_macaddr(_adapter *padapter);
 
 #ifdef CONFIG_PCI_HCI

@@ -253,7 +253,7 @@ int proc_get_fwstate(struct seq_file *m, void *v);
 int proc_get_sec_info2(struct seq_file *m, void *v);
 int proc_get_mlmext_state(struct seq_file *m, void *v);
 #ifdef CONFIG_LAYER2_ROAMING
-int proc_get_roam_flags(struct seq_file *m, void *v);
+int proc_get_roam_flags2(struct seq_file *m, void *v);
 ssize_t proc_set_roam_flags(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);
 int proc_get_roam_param2(struct seq_file *m, void *v);
 ssize_t proc_set_roam_param2(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data);

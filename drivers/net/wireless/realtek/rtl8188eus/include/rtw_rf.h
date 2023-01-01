@@ -33,7 +33,7 @@
 #define	MAX_CHANNEL_NUM_5G	CENTER_CH_5G_20M_NUM
 #define	MAX_CHANNEL_NUM		(MAX_CHANNEL_NUM_2G + MAX_CHANNEL_NUM_5G)
 
-extern u8 center_ch_2g[CENTER_CH_2G_NUM];
+extern u8 center_ch_2g2[CENTER_CH_2G_NUM];
 extern u8 center_ch_2g_40m[CENTER_CH_2G_40M_NUM];
 
 u8 center_chs_2g_num2(u8 bw);

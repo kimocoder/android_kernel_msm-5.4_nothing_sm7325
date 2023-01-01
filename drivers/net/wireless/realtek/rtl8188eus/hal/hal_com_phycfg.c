@@ -1094,7 +1094,7 @@ void dump_hal_txpwr_info_2g(void *sel, _adapter *adapter, u8 rfpath_num, u8 max_
 	RTW_PRINT_SEL(sel, "CCK-1T base:\n");
 	RTW_PRINT_SEL(sel, "%4s ", "");
 	for (ch_idx = 0; ch_idx < CENTER_CH_2G_NUM; ch_idx++)
-		_RTW_PRINT_SEL(sel, "%2d ", center_ch_2g[ch_idx]);
+		_RTW_PRINT_SEL(sel, "%2d ", center_ch_2g2[ch_idx]);
 	_RTW_PRINT_SEL(sel, "\n");
 	for (path = 0; path < MAX_RF_PATH && path < rfpath_num; path++) {
 		RTW_PRINT_SEL(sel, "[%c]: ", rf_path_char(path));
@@ -1120,7 +1120,7 @@ void dump_hal_txpwr_info_2g(void *sel, _adapter *adapter, u8 rfpath_num, u8 max_
 	RTW_PRINT_SEL(sel, "BW40-1S base:\n");
 	RTW_PRINT_SEL(sel, "%4s ", "");
 	for (ch_idx = 0; ch_idx < CENTER_CH_2G_NUM; ch_idx++)
-		_RTW_PRINT_SEL(sel, "%2d ", center_ch_2g[ch_idx]);
+		_RTW_PRINT_SEL(sel, "%2d ", center_ch_2g2[ch_idx]);
 	_RTW_PRINT_SEL(sel, "\n");
 	for (path = 0; path < MAX_RF_PATH && path < rfpath_num; path++) {
 		RTW_PRINT_SEL(sel, "[%c]: ", rf_path_char(path));

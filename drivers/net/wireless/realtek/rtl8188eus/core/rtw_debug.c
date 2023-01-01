@@ -867,7 +867,7 @@ int proc_get_mlmext_state(struct seq_file *m, void *v)
 }
 
 #ifdef CONFIG_LAYER2_ROAMING
-int proc_get_roam_flags(struct seq_file *m, void *v)
+int proc_get_roam_flags2(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);

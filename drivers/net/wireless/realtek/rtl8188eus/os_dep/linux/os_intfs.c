@@ -2283,8 +2283,8 @@ u8 rtw_init_drv_sw(_adapter *padapter)
 	rtw_mesh_cfg_init(padapter);
 #endif
 
-	if (_rtw_init_xmit_priv(&padapter->xmitpriv, padapter) == _FAIL) {
-		RTW_INFO("Can't _rtw_init_xmit_priv\n");
+	if (_rtw_init_xmit_priv2(&padapter->xmitpriv, padapter) == _FAIL) {
+		RTW_INFO("Can't _rtw_init_xmit_priv2\n");
 		ret8 = _FAIL;
 		goto exit;
 	}

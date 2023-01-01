@@ -17,7 +17,7 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-u8 center_ch_2g[CENTER_CH_2G_NUM] = {
+u8 center_ch_2g2[CENTER_CH_2G_NUM] = {
 /* G00 */1, 2,
 /* G01 */3, 4, 5,
 /* G02 */6, 7, 8,
@@ -183,7 +183,7 @@ struct center_chs_ent_t {
 };
 
 struct center_chs_ent_t center_chs_2g_by_bw2[] = {
-	{CENTER_CH_2G_NUM, center_ch_2g},
+	{CENTER_CH_2G_NUM, center_ch_2g2},
 	{CENTER_CH_2G_40M_NUM, center_ch_2g_40m},
 };
 
@@ -253,7 +253,7 @@ struct op_chs_ent_t {
 };
 
 struct op_chs_ent_t op_chs_of_cch_2g_by_bw2[] = {
-	{1, center_ch_2g},
+	{1, center_ch_2g2},
 	{2, (u8 *)op_chs_of_cch_2g_40m},
 };
 

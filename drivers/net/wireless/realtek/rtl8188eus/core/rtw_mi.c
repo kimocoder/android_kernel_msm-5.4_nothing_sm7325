@@ -743,7 +743,7 @@ void rtw_mi_intf_stop2(_adapter *adapter)
 {
 	_rtw_mi_process(adapter, _FALSE, NULL, _rtw_mi_intf_stop2);
 }
-void rtw_mi_buddy_intf_stop(_adapter *adapter)
+void rtw_mi_buddy_intf_stop2(_adapter *adapter)
 {
 	_rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_intf_stop2);
 }
@@ -771,7 +771,7 @@ u8 rtw_mi_is_scan_deny2(_adapter *adapter)
 	return _rtw_mi_process(adapter, _FALSE, NULL, _rtw_mi_is_scan_deny2);
 
 }
-u8 rtw_mi_buddy_is_scan_deny(_adapter *adapter)
+u8 rtw_mi_buddy_is_scan_deny2(_adapter *adapter)
 {
 	return _rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_is_scan_deny2);
 }
@@ -813,12 +813,12 @@ void rtw_mi_beacon_update2(_adapter *padapter)
 	_rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_beacon_update2);
 }
 
-void rtw_mi_buddy_beacon_update(_adapter *padapter)
+void rtw_mi_buddy_beacon_update2(_adapter *padapter)
 {
 	_rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_beacon_update2);
 }
 
-static u8 _rtw_mi_hal_dump_macaddr(_adapter *padapter, void *data)
+static u8 _rtw_mi_hal_dump_macaddr2(_adapter *padapter, void *data)
 {
 	u8 mac_addr[ETH_ALEN] = {0};
 
@@ -826,13 +826,13 @@ static u8 _rtw_mi_hal_dump_macaddr(_adapter *padapter, void *data)
 	RTW_INFO(ADPT_FMT"MAC Address ="MAC_FMT"\n", ADPT_ARG(padapter), MAC_ARG(mac_addr));
 	return _TRUE;
 }
-void rtw_mi_hal_dump_macaddr(_adapter *padapter)
+void rtw_mi_hal_dump_macaddr2(_adapter *padapter)
 {
-	_rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_hal_dump_macaddr);
+	_rtw_mi_process(padapter, _FALSE, NULL, _rtw_mi_hal_dump_macaddr2);
 }
 void rtw_mi_buddy_hal_dump_macaddr(_adapter *padapter)
 {
-	_rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_hal_dump_macaddr);
+	_rtw_mi_process(padapter, _TRUE, NULL, _rtw_mi_hal_dump_macaddr2);
 }
 
 #ifdef CONFIG_PCI_HCI

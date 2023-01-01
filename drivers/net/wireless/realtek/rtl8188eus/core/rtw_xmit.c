@@ -63,7 +63,7 @@ void rtw_free_xmit_block(_adapter *padapter)
 	struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
 }
 
-s32	_rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, _adapter *padapter)
+s32	_rtw_init_xmit_priv2(struct xmit_priv *pxmitpriv, _adapter *padapter)
 {
 	int i;
 	struct xmit_buf *pxmitbuf;

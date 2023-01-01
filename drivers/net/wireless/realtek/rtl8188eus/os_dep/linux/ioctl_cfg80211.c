@@ -163,7 +163,7 @@ static struct ieee80211_rate rtw_rates[] = {
 #define rtw_g_rates		(rtw_rates + 0)
 #define RTW_G_RATES_NUM	12
 
-/* from center_ch_2g */
+/* from center_ch_2g2 */
 static struct ieee80211_channel rtw_2ghz_channels[MAX_CHANNEL_NUM_2G] = {
 	CHAN2G(1, 2412, 0),
 	CHAN2G(2, 2417, 0),

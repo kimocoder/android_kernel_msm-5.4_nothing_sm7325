@@ -957,7 +957,7 @@ s32 rtw_txframes_sta_ac_pending(_adapter *padapter, struct pkt_attrib *pattrib);
 void rtw_init_hwxmits(struct hw_xmit *phwxmit, sint entry);
 
 
-s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, _adapter *padapter);
+s32 _rtw_init_xmit_priv2(struct xmit_priv *pxmitpriv, _adapter *padapter);
 void _rtw_free_xmit_priv(struct xmit_priv *pxmitpriv);
 
 
