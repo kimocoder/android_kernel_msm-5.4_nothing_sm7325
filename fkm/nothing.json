@@ -2,10 +2,10 @@
   "kernel": {
     "name": "Nothing Nethunter 1",
     "version": "0.9",
-    "link": "https://github.com/anupamroy777/RM6785_json/releases/download/TS2.1/ThunderStorm-lto-KERNEL-RM6785-2022-08-05.zip",
+    "link": "https://github.com/kimocoder/android_kernel_msm-5.4_nothing_sm7325/raw/nethunter-13.0/fkm/KERNEL-R1.zip",
     "changelog_url": "https://raw.githubusercontent.com/kimocoder/android_kernel_msm-5.4_nothing_sm7325/nethunter-13.0/fkm/changelog.txt",
     "date": "2023-01-07",
-    "sha1": "f5ddef1b15af16c278b4b4e2550442d10e81a403"
+    "sha1": "0a9352d6d7c18843ca1b30cdeab2b795336600b2"
   },
   "support": {
     "link": "https://t.me/kimocoder"
