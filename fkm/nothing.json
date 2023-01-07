@@ -2,7 +2,7 @@
   "kernel": {
     "name": "Nothing Nethunter 1",
     "version": "0.9",
-    "link": "https://github.com/kimocoder/android_kernel_msm-5.4_nothing_sm7325/raw/nethunter-13.0/fkm/KERNEL-R1.zip",
+    "link": "https://raw.githubusercontent.com/kimocoder/android_kernel_msm-5.4_nothing_sm7325/nethunter-13.0/fkm/KERNEL-R1.zip",
     "changelog_url": "https://raw.githubusercontent.com/kimocoder/android_kernel_msm-5.4_nothing_sm7325/nethunter-13.0/fkm/changelog.txt",
     "date": "2023-01-07",
     "sha1": "0a9352d6d7c18843ca1b30cdeab2b795336600b2"
