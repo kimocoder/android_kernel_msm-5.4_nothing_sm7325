@@ -1,0 +1,21 @@
+## Build Information
+```
+Kernel: Nothing NetHunter 1
+Device: Nothing Phone 1 - SM7325
+Type: beta
+Compiler: Clang 15
+Build Number: R1
+```
+## Changelog
+**R1**
+* Supports a ton of USB adapters
+  such as RTLSDR, WIFI, BT, Serial, HID,
+  gadgets, mices, keyboards, media adapters ++
+
+* HID/CONFIGFS supported
+* BT HCI0 (vhci) supported
+* USB OTG-Y supported
+* Added WireGuard support
+* WiFi monitor mode and frame injection capabilites added.
+* Latest code (CAF) from Qualcomm imported.
+* Latest WiFi SoC (QCACLD-3) from Qualcomm imported.
