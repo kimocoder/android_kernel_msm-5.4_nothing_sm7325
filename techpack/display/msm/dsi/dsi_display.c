@@ -1266,7 +1266,6 @@ int dsi_display_set_power(struct drm_connector *connector,
 				DSI_WARN("failed to set load for lp1 state\n");
 		}
 		rc = dsi_panel_set_lp1(display->panel);
-		rm692e5_aod_flag = 1;
 		break;
 	case SDE_MODE_DPMS_LP2:
 		rc = dsi_panel_set_lp2(display->panel);
@@ -1281,7 +1280,6 @@ int dsi_display_set_power(struct drm_connector *connector,
 		if ((display->panel->power_mode == SDE_MODE_DPMS_LP1) ||
 			(display->panel->power_mode == SDE_MODE_DPMS_LP2))
 			rc = dsi_panel_set_nolp(display->panel);
-		rm692e5_aod_flag = 0;
 		break;
 	case SDE_MODE_DPMS_OFF:
 	default:
@@ -6079,7 +6077,7 @@ int dsi_display_dev_probe(struct platform_device *pdev)
 			DSI_WARN("panel_node %s not found\n", boot_disp->name);
 	} else {
 		panel_node = of_parse_phandle(node,
-				"qcom,dsi-dummy-panel", 0);
+				"qcom,dsi-default-panel", 0);
 		if (!panel_node)
 			DSI_WARN("default panel not found\n");
 	}
@@ -7513,7 +7511,6 @@ int dsi_display_set_mode(struct dsi_display *display,
 			timing.h_active, timing.v_active, timing.refresh_rate);
 	SDE_EVT32(adj_mode.priv_info->mdp_transfer_time_us,
 			timing.h_active, timing.v_active, timing.refresh_rate);
-	current_refresh_rate = timing.refresh_rate;
 
 	memcpy(display->panel->cur_mode, &adj_mode, sizeof(adj_mode));
 error:
