@@ -11,8 +11,13 @@ Build Number: R2
 * Fixed NFC not working.
   (hci0 VHCI support also working)
 
-* Fixed few compiler warnings
-  in some drivers.
+* Bluetooth: Added few fixes.
+
+* Fixed minor compiler warnings
+  in few drivers.
+
+* Small cleanup in drivers/net/wireless drivers.
+
 
 
 **R1**
@@ -24,6 +29,7 @@ Build Number: R2
 * BT HCI0 (vhci) supported
 * USB OTG-Y supported
 * Added WireGuard support
+* Added rtl8812au (88XXau) from aircrack-ng
 * WiFi monitor mode and frame injection capabilites added.
 * Latest code (CAF) from Qualcomm imported.
 * Latest WiFi SoC (QCACLD-3) from Qualcomm imported.
