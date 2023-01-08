@@ -4,9 +4,17 @@ Kernel: Nothing NetHunter 1
 Device: Nothing Phone 1 - SM7325
 Type: beta
 Compiler: Clang 15
-Build Number: R1
+Build Number: R2
 ```
 ## Changelog
+**R2**
+* Fixed NFC not working.
+  (hci0 VHCI support also working)
+
+* Fixed few compiler warnings
+  in some drivers.
+
+
 **R1**
 * Supports a ton of USB adapters
   such as RTLSDR, WIFI, BT, Serial, HID,
