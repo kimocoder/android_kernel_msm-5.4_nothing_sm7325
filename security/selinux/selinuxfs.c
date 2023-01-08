@@ -121,12 +121,11 @@ static void selinux_fs_info_free(struct super_block *sb)
 static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
 				size_t count, loff_t *ppos)
 {
-	struct selinux_fs_info *fsi = file_inode(filp)->i_sb->s_fs_info;
+	//struct selinux_fs_info *fsi = file_inode(filp)->i_sb->s_fs_info;
 	char tmpbuf[TMPBUFLEN];
 	ssize_t length;
 
-	length = scnprintf(tmpbuf, TMPBUFLEN, "%d",
-			   0);
+	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", 0);
 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
 }
 
