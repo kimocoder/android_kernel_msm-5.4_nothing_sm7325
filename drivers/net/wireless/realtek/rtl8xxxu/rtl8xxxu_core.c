@@ -6169,7 +6169,7 @@ rtl8xxxu_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		//dev_dbg(dev,
 		//	"Changed HT: ampdu_factor %02x, ampdu_density %02x\n",
 		//	ampdu_factor, ampdu_density);
-		//return IEEE80211_AMPDU_TX_START_IMMEDIATE;
+		//return IEEE80211_AMPDU_TX_START_IMMEDIATE;                       // kimocoder was here
 	case IEEE80211_AMPDU_TX_STOP_CONT:
 	case IEEE80211_AMPDU_TX_STOP_FLUSH:
 	case IEEE80211_AMPDU_TX_STOP_FLUSH_CONT:
