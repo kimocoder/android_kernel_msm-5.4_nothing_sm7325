@@ -237,6 +237,18 @@ static void ipa_pci_io_resume(struct pci_dev *pci_dev)
 {
 }
 
+#ifndef CONFIG_PCI
+static inline void pci_release_region(struct pci_dev *pci_dev, int bar)
+{
+}
+
+static inline int pci_request_region(struct pci_dev *pci_dev, int bar,
+				     const char *res_name)
+{
+	return -EINVAL;
+}
+#endif
+
 /* PCI Error Recovery */
 static const struct pci_error_handlers ipa_pci_err_handler = {
 	.error_detected = ipa_pci_io_error_detected,
@@ -456,7 +468,7 @@ EXPORT_SYMBOL(ipa_smmu_free_sgt);
 
 static int ipa_pm_notify(struct notifier_block *b, unsigned long event, void *p)
 {
-	IPAERR("Entry\n");
+	IPADBG("Entry\n");
 #if IS_ENABLED(CONFIG_DEEPSLEEP) || IS_ENABLED(CONFIG_HIBERNATION)
 	switch (event) {
 		case PM_POST_SUSPEND:
@@ -476,7 +488,7 @@ static int ipa_pm_notify(struct notifier_block *b, unsigned long event, void *p)
 			break;
 	}
 #endif
-	IPAERR("Exit\n");
+	IPADBG("Exit\n");
 	return NOTIFY_DONE;
 }
 
@@ -6921,19 +6933,11 @@ static void ipa3_load_ipa_fw(struct work_struct *work)
 			 * using different signing images, adding support to
 			 * load specific FW image to based on dt entry.
 			 */
-#if IS_ENABLED(CONFIG_QCOM_MDT_LOADER)
-			if (ipa3_ctx->gsi_fw_file_name)
-				result = ipa3_mdt_load_ipa_fws(
-							ipa3_ctx->gsi_fw_file_name);
-			else
-				result = ipa3_mdt_load_ipa_fws(IPA_SUBSYSTEM_NAME);
-#else /* IS_ENABLED(CONFIG_QCOM_MDT_LOADER) */
 			if (ipa3_ctx->gsi_fw_file_name)
 				result = ipa3_pil_load_ipa_fws(
 							ipa3_ctx->gsi_fw_file_name);
 			else
 				result = ipa3_pil_load_ipa_fws(IPA_SUBSYSTEM_NAME);
-#endif /* IS_ENABLED(CONFIG_QCOM_MDT_LOADER) */
 		} else {
 			result = ipa3_manual_load_ipa_fws();
 		}

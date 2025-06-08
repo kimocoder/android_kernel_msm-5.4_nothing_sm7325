@@ -164,6 +164,7 @@ struct dp_display {
 			u32 strm_id, const char **display_type);
 	int (*edp_detect)(struct dp_display *dp_display);
 };
+
 #if IS_ENABLED(CONFIG_DRM_MSM_DP)
 int dp_display_get_num_of_displays(void);
 int dp_display_get_num_of_boot_displays(void);

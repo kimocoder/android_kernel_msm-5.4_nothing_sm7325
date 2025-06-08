@@ -353,7 +353,6 @@ int dp_display_cont_splash_config(void *display)
 	return rc;
 }
 
-
 static int dp_display_parse_boot_display_selection(void)
 {
 	char *pos = NULL;

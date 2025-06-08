@@ -268,12 +268,11 @@ KBUILD_EXTRA_SYMBOLS +=$(OUT)/obj/vendor/qcom/opensource/audio-kernel/soc/Module
 endif
 
 ifeq ($(KERNEL_BUILD), 1)
-	obj-y	+= wcd934x/
-	obj-y	+= wcd937x/
 	obj-y	+= wcd938x/
 	obj-y	+= bolero/
 	obj-y	+= wsa883x/
 	obj-y	+= rouleur/
+	obj-y	+= tfa98xx/
 endif
 # Module information used by KBuild framework
 obj-$(CONFIG_WCD9XXX_CODEC_CORE) += wcd_core_dlkm.o
@@ -314,6 +313,3 @@ endif
 
 obj-$(CONFIG_SND_SWR_HAPTICS) += swr_haptics_dlkm.o
 swr_haptics_dlkm-y := $(SWR_HAP_OBJS)
-
-# inject some build related information
-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
