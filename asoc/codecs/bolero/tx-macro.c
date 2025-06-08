@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /* Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -186,7 +185,6 @@ struct tx_macro_priv {
 	bool register_event_listener;
 	u16 current_clk_id;
 	int disable_afe_wakeup_event_listener;
-	u32 mclk_freq;
 };
 
 static bool tx_macro_get_data(struct snd_soc_component *component,
@@ -421,6 +419,7 @@ static int tx_macro_event_handler(struct snd_soc_component *component,
 
 	switch (event) {
 	case BOLERO_MACRO_EVT_SSR_DOWN:
+		trace_printk("%s, enter SSR down\n", __func__);
 		if (tx_priv->swr_ctrl_data) {
 			swrm_wcd_notify(
 				tx_priv->swr_ctrl_data[0].tx_swr_pdev,
@@ -437,6 +436,7 @@ static int tx_macro_event_handler(struct snd_soc_component *component,
 		}
 		break;
 	case BOLERO_MACRO_EVT_SSR_UP:
+		trace_printk("%s, enter SSR up\n", __func__);
 		/* reset swr after ssr/pdr */
 		tx_priv->reset_swr = true;
 		if (tx_priv->swr_ctrl_data)
@@ -2632,6 +2632,9 @@ static int tx_macro_tx_va_mclk_enable(struct tx_macro_priv *tx_priv,
 {
 	int ret = 0, clk_tx_ret = 0;
 
+	trace_printk("%s: clock type %s, enable: %s tx_mclk_users: %d\n",
+		__func__, (clk_type ? "VA_MCLK" : "TX_MCLK"),
+		(enable ? "enable" : "disable"), tx_priv->tx_mclk_users);
 	dev_dbg(tx_priv->dev,
 		"%s: clock type %s, enable: %s tx_mclk_users: %d\n",
 		__func__, (clk_type ? "VA_MCLK" : "TX_MCLK"),
@@ -2639,6 +2642,7 @@ static int tx_macro_tx_va_mclk_enable(struct tx_macro_priv *tx_priv,
 
 	if (enable) {
 		if (tx_priv->swr_clk_users == 0) {
+			trace_printk("%s: tx swr clk users 0\n", __func__);
 			ret = msm_cdc_pinctrl_select_active_state(
 						tx_priv->tx_swr_gpio_p);
 			if (ret < 0) {
@@ -2656,6 +2660,7 @@ static int tx_macro_tx_va_mclk_enable(struct tx_macro_priv *tx_priv,
 						   TX_CORE_CLK,
 						   true);
 		if (clk_type == TX_MCLK) {
+			trace_printk("%s: requesting TX_MCLK\n", __func__);
 			ret = tx_macro_mclk_enable(tx_priv, 1);
 			if (ret < 0) {
 				if (tx_priv->swr_clk_users == 0)
@@ -2668,6 +2673,7 @@ static int tx_macro_tx_va_mclk_enable(struct tx_macro_priv *tx_priv,
 			}
 		}
 		if (clk_type == VA_MCLK) {
+			trace_printk("%s: requesting VA_MCLK\n", __func__);
 			ret = bolero_clk_rsc_request_clock(tx_priv->dev,
 							   TX_CORE_CLK,
 							   VA_CORE_CLK,
@@ -2700,6 +2706,8 @@ static int tx_macro_tx_va_mclk_enable(struct tx_macro_priv *tx_priv,
 		}
 		if (tx_priv->swr_clk_users == 0) {
 			dev_dbg(tx_priv->dev, "%s: reset_swr: %d\n",
+				__func__, tx_priv->reset_swr);
+			trace_printk("%s: reset_swr: %d\n",
 				__func__, tx_priv->reset_swr);
 			if (tx_priv->reset_swr)
 				regmap_update_bits(regmap,
@@ -2798,6 +2806,7 @@ done:
 				TX_CORE_CLK,
 				false);
 exit:
+	trace_printk("%s: exit\n", __func__);
 	return ret;
 }
 
@@ -2911,6 +2920,10 @@ static int tx_macro_swrm_clock(void *handle, bool enable)
 	}
 
 	mutex_lock(&tx_priv->swr_clk_lock);
+	trace_printk("%s: swrm clock %s tx_swr_clk_cnt: %d va_swr_clk_cnt: %d\n",
+		__func__,
+		(enable ? "enable" : "disable"),
+		tx_priv->tx_swr_clk_cnt, tx_priv->va_swr_clk_cnt);
 	dev_dbg(tx_priv->dev,
 		"%s: swrm clock %s tx_swr_clk_cnt: %d va_swr_clk_cnt: %d\n",
 		__func__, (enable ? "enable" : "disable"),
@@ -2973,6 +2986,9 @@ static int tx_macro_swrm_clock(void *handle, bool enable)
 		}
 	}
 
+	trace_printk("%s: swrm clock users %d tx_clk_sts_cnt: %d va_clk_sts_cnt: %d\n",
+		__func__, tx_priv->swr_clk_users, tx_priv->tx_clk_status,
+                tx_priv->va_clk_status);
 	dev_dbg(tx_priv->dev,
 		"%s: swrm clock users %d tx_clk_sts_cnt: %d va_clk_sts_cnt: %d\n",
 		__func__, tx_priv->swr_clk_users, tx_priv->tx_clk_status,
@@ -2986,12 +3002,13 @@ static int tx_macro_validate_dmic_sample_rate(u32 dmic_sample_rate,
 				      struct tx_macro_priv *tx_priv)
 {
 	u32 div_factor = TX_MACRO_CLK_DIV_2;
+	u32 mclk_rate = TX_MACRO_MCLK_FREQ;
 
 	if (dmic_sample_rate == TX_MACRO_DMIC_SAMPLE_RATE_UNDEFINED ||
-	    tx_priv->mclk_freq % dmic_sample_rate != 0)
+	    mclk_rate % dmic_sample_rate != 0)
 		goto undefined_rate;
 
-	div_factor = tx_priv->mclk_freq / dmic_sample_rate;
+	div_factor = mclk_rate / dmic_sample_rate;
 
 	switch (div_factor) {
 	case 2:
@@ -3019,13 +3036,13 @@ static int tx_macro_validate_dmic_sample_rate(u32 dmic_sample_rate,
 
 	/* Valid dmic DIV factors */
 	dev_dbg(tx_priv->dev, "%s: DMIC_DIV = %u, mclk_rate = %u\n",
-		__func__, div_factor, tx_priv->mclk_freq);
+		__func__, div_factor, mclk_rate);
 
 	return dmic_sample_rate;
 
 undefined_rate:
 	dev_dbg(tx_priv->dev, "%s: Invalid rate %d, for mclk %d\n",
-		 __func__, dmic_sample_rate, tx_priv->mclk_freq);
+		 __func__, dmic_sample_rate, mclk_rate);
 	dmic_sample_rate = TX_MACRO_DMIC_SAMPLE_RATE_UNDEFINED;
 
 	return dmic_sample_rate;
@@ -3362,11 +3379,10 @@ static int tx_macro_probe(struct platform_device *pdev)
 {
 	struct macro_ops ops = {0};
 	struct tx_macro_priv *tx_priv = NULL;
-	u32 tx_base_addr = 0, sample_rate = 0, mclk_freq = 0;
+	u32 tx_base_addr = 0, sample_rate = 0;
 	char __iomem *tx_io_base = NULL;
 	int ret = 0;
 	const char *dmic_sample_rate = "qcom,tx-dmic-sample-rate";
-	const char *cdc_mclk_clk_rate = "qcom,cdc-mclk-clk-rate";
 	u32 is_used_tx_swr_gpio = 1;
 	const char *is_used_tx_swr_gpio_dt = "qcom,is-used-swr-gpio";
 	u32 disable_afe_wakeup_event_listener = 0;
@@ -3426,17 +3442,6 @@ static int tx_macro_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 	tx_priv->tx_io_base = tx_io_base;
-
-	ret = of_property_read_u32(pdev->dev.of_node, cdc_mclk_clk_rate,
-				   &mclk_freq);
-	if (ret) {
-		tx_priv->mclk_freq = TX_MACRO_MCLK_FREQ;
-	} else {
-		tx_priv->mclk_freq = mclk_freq;
-	}
-	dev_dbg(tx_priv->dev,
-		"%s: mclk_freq = %u\n", __func__, tx_priv->mclk_freq);
-
 	ret = of_property_read_u32(pdev->dev.of_node, dmic_sample_rate,
 				   &sample_rate);
 	if (ret) {

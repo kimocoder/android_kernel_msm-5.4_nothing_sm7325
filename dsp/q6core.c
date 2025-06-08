@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
- * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  */
 
 #include <linux/kernel.h>
@@ -205,7 +204,7 @@ EXPORT_SYMBOL(q6core_send_uevent);
 static int parse_fwk_version_info(uint32_t *payload, uint16_t payload_size)
 {
 	size_t ver_size;
-	uint16_t num_services;
+	int num_services;
 
 	pr_debug("%s: Payload info num services %d\n",
 		 __func__, payload[4]);
@@ -1506,10 +1505,8 @@ int q6core_map_mdf_memory_regions(uint64_t *buf_add, uint32_t mempool_id,
 			* bufcnt;
 
 	mmap_region_cmd = kzalloc(cmd_size, GFP_KERNEL);
-	if (mmap_region_cmd == NULL) {
-		mutex_unlock(&q6core_lcl.cmd_lock);
+	if (mmap_region_cmd == NULL)
 		return -ENOMEM;
-	}
 
 	mmap_regions = (struct avs_cmd_shared_mem_map_regions *)mmap_region_cmd;
 	mmap_regions->hdr.hdr_field = APR_HDR_FIELD(APR_MSG_TYPE_SEQ_CMD,
