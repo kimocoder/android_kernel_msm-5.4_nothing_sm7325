@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -164,7 +165,7 @@ u8 ccp_rsn_oui_13[HDD_RSN_OUI_SIZE] = {0x50, 0x6F, 0x9A, 0x01};
 
 #define HDD_PEER_AUTHORIZE_WAIT 10
 
-/**
+/*
  * beacon_filter_table - table of IEs used for beacon filtering
  */
 static const int beacon_filter_table[] = {
@@ -433,18 +434,6 @@ struct hdd_adapter *hdd_get_sta_connection_in_progress(
 					hdd_adapter_dev_put_debug(next_adapter,
 								  dbgid);
 				return adapter;
-			} else if ((eConnectionState_Associated ==
-				   hdd_sta_ctx->conn_info.conn_state) &&
-				   sme_is_sta_key_exchange_in_progress(
-							hdd_ctx->mac_handle,
-							adapter->vdev_id)) {
-				hdd_debug("vdev_id %d: Key exchange is in progress",
-					  adapter->vdev_id);
-				hdd_adapter_dev_put_debug(adapter, dbgid);
-				if (next_adapter)
-					hdd_adapter_dev_put_debug(next_adapter,
-								  dbgid);
-				return adapter;
 			}
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
@@ -468,6 +457,47 @@ void hdd_abort_ongoing_sta_connection(struct hdd_context *hdd_ctx)
 			hdd_err("wlan_hdd_disconnect failed, status: %d",
 				status);
 		}
+	}
+}
+
+void hdd_abort_ongoing_sta_sae_connection(struct hdd_context *hdd_ctx,
+					  struct hdd_adapter *adapter)
+{
+	struct hdd_adapter *sta_adapter;
+	struct wlan_objmgr_vdev *vdev;
+	int32_t key_mgmt;
+	QDF_STATUS status;
+
+	sta_adapter = hdd_get_sta_connection_in_progress(hdd_ctx);
+	if (!sta_adapter) {
+		hdd_err("sta_adapter is NULL");
+		return;
+	}
+
+	vdev = hdd_objmgr_get_vdev(adapter);
+	if (!vdev) {
+		hdd_err("vdev is NULL");
+		return;
+	}
+
+	key_mgmt = wlan_crypto_get_param(vdev, WLAN_CRYPTO_PARAM_KEY_MGMT);
+	hdd_objmgr_put_vdev(vdev);
+
+	if (key_mgmt < 0) {
+		hdd_debug_rl("Invalid key_mgmt: %d", key_mgmt);
+		return;
+	}
+
+	if (QDF_HAS_PARAM(key_mgmt, WLAN_CRYPTO_KEY_MGMT_SAE) ||
+	    QDF_HAS_PARAM(key_mgmt, WLAN_CRYPTO_KEY_MGMT_FT_SAE)) {
+		hdd_debug("Disconnecting STA on vdev: %d",
+			  sta_adapter->vdev_id);
+		status = wlan_hdd_disconnect(sta_adapter,
+					     eCSR_DISCONNECT_REASON_DEAUTH,
+					     REASON_DISASSOC_NETWORK_LEAVING);
+		if (QDF_IS_STATUS_ERROR(status))
+			hdd_err("wlan_hdd_disconnect failed, status: %d",
+				status);
 	}
 }
 
@@ -902,6 +932,9 @@ static void hdd_copy_ht_operation(struct hdd_station_ctx *hdd_sta_ctx,
 		hdd_ht_ops->operation_mode |=
 			IEEE80211_HT_OP_MODE_NON_HT_STA_PRSNT;
 
+	if (roam_ht_ops->chan_center_freq_seg2)
+		hdd_ht_ops->operation_mode |=
+			(roam_ht_ops->chan_center_freq_seg2 << IEEE80211_HT_OP_MODE_CCFS2_SHIFT);
 	/* stbc_param */
 	temp_ht_ops = roam_ht_ops->basicSTBCMCS &
 			HT_STBC_PARAM_MCS;

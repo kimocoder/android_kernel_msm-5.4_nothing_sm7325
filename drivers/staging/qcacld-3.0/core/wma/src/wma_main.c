@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -1014,7 +1014,13 @@ static void wma_process_cli_set_cmd(tp_wma_handle wma,
 			ret = wma_reset_tsf_gpio(wma, privcmd->param_value);
 			break;
 		default:
-			wma_err("Invalid param id 0x%x", privcmd->param_id);
+			ret = wma_set_tsf_auto_report(wma,
+						      privcmd->param_vdev_id,
+						      privcmd->param_id,
+						      privcmd->param_value);
+			if (ret == QDF_STATUS_E_FAILURE)
+				wma_err("Invalid param id 0x%x",
+					privcmd->param_id);
 			break;
 		}
 		break;
@@ -2647,8 +2653,6 @@ static int wma_unified_phyerr_rx_event_handler(void *handle,
 
 void wma_vdev_init(struct wma_txrx_node *vdev)
 {
-	qdf_wake_lock_create(&vdev->vdev_set_key_wakelock, "vdev_set_key");
-	qdf_runtime_lock_init(&vdev->vdev_set_key_runtime_wakelock);
 	vdev->is_waiting_for_key = false;
 }
 
@@ -2720,8 +2724,6 @@ void wma_vdev_deinit(struct wma_txrx_node *vdev)
 		vdev->plink_status_req = NULL;
 	}
 
-	qdf_runtime_lock_deinit(&vdev->vdev_set_key_runtime_wakelock);
-	qdf_wake_lock_destroy(&vdev->vdev_set_key_wakelock);
 	vdev->is_waiting_for_key = false;
 }
 
@@ -3410,6 +3412,11 @@ QDF_STATUS wma_open(struct wlan_objmgr_psoc *psoc,
 					wmi_vdev_disconnect_event_id,
 					wma_roam_vdev_disconnect_event_handler,
 					WMA_RX_SERIALIZER_CTX);
+
+	wmi_unified_register_event_handler(wma_handle->wmi_handle,
+					   wmi_roam_frame_event_id,
+					   wma_roam_candidate_frame_event_handler,
+					   WMA_RX_SERIALIZER_CTX);
 
 #endif /* WLAN_FEATURE_ROAM_OFFLOAD */
 	wmi_unified_register_event_handler(wma_handle->wmi_handle,
@@ -7033,13 +7040,12 @@ int wma_rx_service_ready_ext_event(void *handle, uint8_t *event,
 	 * the num_vdevs by 1.
 	 */
 
-	if (QDF_GLOBAL_FTM_MODE != cds_get_conparam()) {
-		if (ucfg_nan_is_vdev_creation_allowed(wma_handle->psoc)) {
-			wlan_res_cfg->nan_separate_iface_support = true;
-		} else {
-			wlan_res_cfg->num_vdevs--;
-			wma_update_num_peers_tids(wma_handle, wlan_res_cfg);
-		}
+	if (ucfg_nan_is_vdev_creation_allowed(wma_handle->psoc) ||
+	    QDF_GLOBAL_FTM_MODE == cds_get_conparam()) {
+		wlan_res_cfg->nan_separate_iface_support = true;
+	} else {
+		wlan_res_cfg->num_vdevs--;
+		wma_update_num_peers_tids(wma_handle, wlan_res_cfg);
 	}
 
 	if ((ucfg_pkt_capture_get_mode(wma_handle->psoc) !=
@@ -9295,6 +9301,7 @@ QDF_STATUS wma_send_set_pcl_cmd(tp_wma_handle wma_handle,
 {
 	uint32_t i;
 	QDF_STATUS status;
+	bool is_channel_allowed;
 
 	if (!wma_handle) {
 		wma_err("WMA handle is NULL. Cannot issue command");
@@ -9316,33 +9323,107 @@ QDF_STATUS wma_send_set_pcl_cmd(tp_wma_handle wma_handle,
 	}
 
 	msg->chan_weights.saved_num_chan = wma_handle->saved_chan.num_channels;
+
 	status = policy_mgr_get_valid_chan_weights(wma_handle->psoc,
 		(struct policy_mgr_pcl_chan_weights *)&msg->chan_weights,
 		PM_STA_MODE);
+	if (QDF_IS_STATUS_ERROR(status)) {
+		wma_err("Error in creating weighed pcl");
+		return status;
+	}
 
 	for (i = 0; i < msg->chan_weights.saved_num_chan; i++) {
 		msg->chan_weights.weighed_valid_list[i] =
 			wma_map_pcl_weights(
 				msg->chan_weights.weighed_valid_list[i]);
-		/* Dont allow roaming on 2G when 5G_ONLY configured */
+
+		if (msg->band_mask ==
+		      (BIT(REG_BAND_2G) | BIT(REG_BAND_5G) | BIT(REG_BAND_6G)))
+			continue;
+
+		/*
+		 * Dont allow roaming on 5G/6G band if only 2G band configured
+		 * as supported roam band mask
+		 */
+		if (((wma_handle->bandcapability == BAND_2G) ||
+		    (msg->band_mask == BIT(REG_BAND_2G))) &&
+		    !WLAN_REG_IS_24GHZ_CH_FREQ(
+		    msg->chan_weights.saved_chan_list[i])) {
+			msg->chan_weights.weighed_valid_list[i] =
+				WEIGHT_OF_DISALLOWED_CHANNELS;
+			continue;
+		}
+
+		/*
+		 * Dont allow roaming on 2G/6G band if only 5G band configured
+		 * as supported roam band mask
+		 */
 		if (((wma_handle->bandcapability == BAND_5G) ||
 		    (msg->band_mask == BIT(REG_BAND_5G))) &&
+		    !WLAN_REG_IS_5GHZ_CH_FREQ(
+		    msg->chan_weights.saved_chan_list[i])) {
+			msg->chan_weights.weighed_valid_list[i] =
+				WEIGHT_OF_DISALLOWED_CHANNELS;
+			continue;
+		}
+
+		/*
+		 * Dont allow roaming on 2G/5G band if only 6G band configured
+		 * as supported roam band mask
+		 */
+		if (msg->band_mask == BIT(REG_BAND_6G) &&
+		    !WLAN_REG_IS_6GHZ_CHAN_FREQ(
+		    msg->chan_weights.saved_chan_list[i])) {
+			msg->chan_weights.weighed_valid_list[i] =
+				WEIGHT_OF_DISALLOWED_CHANNELS;
+			continue;
+		}
+
+		/*
+		 * Dont allow roaming on 6G band if only 2G + 5G band configured
+		 * as supported roam band mask.
+		 */
+		if (msg->band_mask == (BIT(REG_BAND_2G) | BIT(REG_BAND_5G)) &&
+		    (WLAN_REG_IS_6GHZ_CHAN_FREQ(
+		    msg->chan_weights.saved_chan_list[i]))) {
+			msg->chan_weights.weighed_valid_list[i] =
+				WEIGHT_OF_DISALLOWED_CHANNELS;
+			continue;
+		}
+
+		/*
+		 * Dont allow roaming on 2G band if only 5G + 6G band configured
+		 * as supported roam band mask.
+		 */
+		if (msg->band_mask == (BIT(REG_BAND_5G) | BIT(REG_BAND_6G)) &&
 		    (WLAN_REG_IS_24GHZ_CH_FREQ(
 		    msg->chan_weights.saved_chan_list[i]))) {
 			msg->chan_weights.weighed_valid_list[i] =
 				WEIGHT_OF_DISALLOWED_CHANNELS;
+			continue;
 		}
-		if (msg->band_mask == BIT(REG_BAND_2G) &&
-		    !WLAN_REG_IS_24GHZ_CH_FREQ(
-		    msg->chan_weights.saved_chan_list[i]))
+
+		/*
+		 * Dont allow roaming on 5G band if only 2G + 6G band configured
+		 * as supported roam band mask.
+		 */
+		if (msg->band_mask == (BIT(REG_BAND_2G) | BIT(REG_BAND_6G)) &&
+		    (WLAN_REG_IS_5GHZ_CH_FREQ(
+		    msg->chan_weights.saved_chan_list[i]))) {
 			msg->chan_weights.weighed_valid_list[i] =
 				WEIGHT_OF_DISALLOWED_CHANNELS;
+			continue;
+		}
+
+		is_channel_allowed =
+			policy_mgr_is_sta_chan_valid_for_connect_and_roam(
+					wma_handle->pdev,
+					msg->chan_weights.saved_chan_list[i]);
+		if (!is_channel_allowed)
+			msg->chan_weights.weighed_valid_list[i] =
+						WEIGHT_OF_DISALLOWED_CHANNELS;
 	}
 
-	if (!QDF_IS_STATUS_SUCCESS(status)) {
-		wma_err("Error in creating weighed pcl");
-		return status;
-	}
 	wma_debug("Dump channel list send to wmi");
 	policy_mgr_dump_channel_list(msg->chan_weights.saved_num_chan,
 				     msg->chan_weights.saved_chan_list,
