@@ -34,7 +34,7 @@ echo -e "HOME directory is set to: $HOME_DIR\n"
 if [ -z "$TC_DIR" ]; then
     TC_DIR="$HOME_DIR/tc"
 else
-    TC_DIR="$HOME_DIR/$TC_DIR"
+    TC_DIR="/media/kimocoder/0a8f4e77-590d-467f-8f46-21390a5ac67b/tc"
 fi
 echo -e "Toolchain directory is set to: $TC_DIR\n"
 
@@ -54,8 +54,7 @@ CLANG_DIR="$TC_DIR/linux-x86/clang-r547379"
 AK3_DIR="AnyKernel3"
 DEFCONFIG="spacewar_defconfig"
 
-MAKE_PARAMS="O=out ARCH=arm64 CC=clang CLANG_TRIPLE=$CLANG_DIR/bin/llvm- LLVM=1 LLVM_IAS=1 \
-    CROSS_COMPILE=aarch64-linux-gnu-"
+MAKE_PARAMS="O=out ARCH=arm64 CC=clang CLANG_TRIPLE=$CLANG_DIR/bin/llvm- LLVM=1 LLVM_IAS=1 CROSS_COMPILE=aarch64-linux-gnu-"
 
 #BACKPORT_DIR=$(pwd)/backports BACKPORTS_VERSION=$(cd backports; git describe --always) BACKPORTED_KERNEL_VERSION=$(make -s kernelversion) BACKPORTED_KERNEL_NAME=Linux"
 
