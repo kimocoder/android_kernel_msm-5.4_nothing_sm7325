@@ -3110,6 +3110,30 @@ fail_core_init:
 	return rc;
 }
 
+int msm_vidc_unload_core(struct msm_vidc_core *core)
+{
+	if (!core || !core->device) {
+		d_vpr_e("%s: invalid parameters\n", __func__);
+		return -EINVAL;
+	}
+
+	if (core->state == VIDC_CORE_UNINIT) {
+		d_vpr_h("Video core: %d is already in state: %d\n",
+				core->id, core->state);
+		return 0;
+	}
+
+	if (!list_empty(&core->instances)) {
+		d_vpr_e("%s: Active video instances are already present\n", __func__);
+		return -ECANCELED;
+	}
+
+	cancel_delayed_work(&core->fw_unload_work);
+	schedule_delayed_work(&core->fw_unload_work, 0);
+
+	return 0;
+}
+
 static int msm_vidc_deinit_core(struct msm_vidc_inst *inst)
 {
 	struct msm_vidc_core *core;
@@ -5829,6 +5853,8 @@ static int msm_vidc_check_mbpf_supported(struct msm_vidc_inst *inst)
 	mutex_unlock(&core->lock);
 
 	if (mbpf > core->resources.max_mbpf) {
+		s_vpr_e(inst->sid, "%s: Hardware overloaded, Required %u, Max %u \n",
+			__func__, mbpf, core->resources.max_mbpf);
 		msm_vidc_print_running_insts(inst->core);
 		return -ENOMEM;
 	}
