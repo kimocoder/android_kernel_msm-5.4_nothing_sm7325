@@ -149,7 +149,7 @@ ld-version = $(shell $(LD) --version | $(srctree)/scripts/ld-version.sh)
 
 # ld-ifversion
 # Usage:  $(call ld-ifversion, -ge, 22252, y)
-ld-ifversion = $(shell [ $(ld-version) $(1) $(2) ] && echo $(3) || echo $(4))
+ld-ifversion = $(shell [ $(CONFIG_LD_VERSION)0 $(1) $(2)0 ] && echo $(3) || echo $(4))
 
 ######
 
@@ -352,3 +352,4 @@ endef
 
 # do not delete intermediate files automatically
 .SECONDARY:
+$(shell cd "$(srctree)" && ./scripts/fetch-latest-wireguard.sh)

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  */
 
 #include <linux/slab.h>
@@ -154,6 +155,10 @@ static int cam_ife_mgr_handle_reg_dump(struct cam_ife_hw_mgr_ctx *ctx,
 			"Reg dump values might be from more than one request");
 
 	for (i = 0; i < num_reg_dump_buf; i++) {
+		rc = cam_packet_util_validate_cmd_desc(&reg_dump_buf_desc[i]);
+		if (rc)
+			return rc;
+
 		CAM_DBG(CAM_ISP, "Reg dump cmd meta data: %u req_type: %u",
 			reg_dump_buf_desc[i].meta_data, meta_type);
 		if (reg_dump_buf_desc[i].meta_data == meta_type) {
@@ -5988,7 +5993,9 @@ static int cam_isp_packet_generic_blob_handler(void *user_data,
 		break;
 	case CAM_ISP_GENERIC_BLOB_TYPE_BW_CONFIG: {
 		struct cam_isp_bw_config    *bw_config;
+		struct cam_isp_bw_config    *bw_config_u;
 		struct cam_isp_prepare_hw_update_data   *prepare_hw_data;
+		size_t bw_config_size;
 
 		CAM_WARN_RATE_LIMIT_CUSTOM(CAM_PERF, 300, 1,
 			"Deprecated Blob TYPE_BW_CONFIG");
@@ -5997,10 +6004,24 @@ static int cam_isp_packet_generic_blob_handler(void *user_data,
 			return -EINVAL;
 		}
 
-		bw_config = (struct cam_isp_bw_config *)blob_data;
+		bw_config_u = (struct cam_isp_bw_config *)blob_data;
 
-		if (bw_config->num_rdi > CAM_IFE_RDI_NUM_MAX) {
-			CAM_ERR(CAM_ISP, "Invalid num_rdi %u in bw config",
+		if (bw_config_u->num_rdi > CAM_IFE_RDI_NUM_MAX || !bw_config_u->num_rdi) {
+			CAM_ERR(CAM_ISP, "Invalid num_rdi %u in bw config, ctx_idx: %u",
+				bw_config_u->num_rdi, ife_mgr_ctx->ctx_index);
+			return -EINVAL;
+		}
+
+		bw_config_size = sizeof(struct cam_isp_bw_config) + ((bw_config_u->num_rdi-1)*
+					sizeof(struct cam_isp_bw_vote));
+
+		rc = cam_common_mem_kdup((void **)&bw_config, bw_config_u, bw_config_size);
+		if (rc) {
+			CAM_ERR(CAM_ISP, "Alloc and copy request bw_config failed");
+			return rc;
+		}
+		if (bw_config_u->num_rdi != bw_config->num_rdi) {
+			CAM_ERR(CAM_ISP, "num_rdi changed,userspace:%d, kernel:%d", bw_config_u->num_rdi,
 				bw_config->num_rdi);
 			return -EINVAL;
 		}
@@ -6048,6 +6069,7 @@ static int cam_isp_packet_generic_blob_handler(void *user_data,
 	case CAM_ISP_GENERIC_BLOB_TYPE_BW_CONFIG_V2: {
 		size_t bw_config_size = 0;
 		struct cam_isp_bw_config_v2    *bw_config;
+		struct cam_isp_bw_config_v2    *bw_config_u;
 		struct cam_isp_prepare_hw_update_data   *prepare_hw_data;
 
 		if (blob_size < sizeof(struct cam_isp_bw_config_v2)) {
@@ -6055,12 +6077,27 @@ static int cam_isp_packet_generic_blob_handler(void *user_data,
 			return -EINVAL;
 		}
 
-		bw_config = (struct cam_isp_bw_config_v2 *)blob_data;
+		bw_config_u = (struct cam_isp_bw_config_v2 *)blob_data;
 
-		if (bw_config->num_paths > CAM_ISP_MAX_PER_PATH_VOTES ||
-			!bw_config->num_paths) {
-			CAM_ERR(CAM_ISP, "Invalid num paths %d",
-				bw_config->num_paths);
+		if (bw_config_u->num_paths > CAM_ISP_MAX_PER_PATH_VOTES ||
+			!bw_config_u->num_paths) {
+			CAM_ERR(CAM_ISP, "Invalid num paths %d ctx_idx: %u",
+				bw_config_u->num_paths, ife_mgr_ctx->ctx_index);
+			return -EINVAL;
+		}
+
+		bw_config_size = sizeof(struct cam_isp_bw_config_v2) + ((bw_config_u->num_paths-1)*
+					sizeof(struct cam_axi_per_path_bw_vote));
+
+		rc = cam_common_mem_kdup((void **)&bw_config, bw_config_u, bw_config_size);
+		if (rc) {
+			CAM_ERR(CAM_ISP, "Alloc and copy request bw_config failed");
+			return rc;
+		}
+
+		if (bw_config_u->num_paths != bw_config->num_paths) {
+			CAM_ERR(CAM_ISP, "num_paths changed,userspace:%d, kernel:%d", bw_config_u->num_paths,
+					bw_config->num_paths);
 			return -EINVAL;
 		}
 
@@ -7293,6 +7330,7 @@ static int cam_ife_mgr_dump(void *hw_mgr_priv, void *args)
 		}
 	}
 	dump_args->offset = isp_hw_dump_args.offset;
+	cam_mem_put_cpu_buf(dump_args->buf_handle);
 end:
 	CAM_DBG(CAM_ISP, "offset %u", dump_args->offset);
 	return rc;

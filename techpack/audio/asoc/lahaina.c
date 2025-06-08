@@ -283,7 +283,7 @@ static struct afe_clk_set mi2s_clk[MI2S_MAX] = {
 	{
 		AFE_API_VERSION_I2S_CONFIG,
 		Q6AFE_LPASS_CLK_ID_PRI_MI2S_IBIT,
-		Q6AFE_LPASS_IBIT_CLK_3_P072_MHZ,
+		Q6AFE_LPASS_IBIT_CLK_1_P536_MHZ,
 		Q6AFE_LPASS_CLK_ATTRIBUTE_COUPLE_NO,
 		Q6AFE_LPASS_CLK_ROOT_DEFAULT,
 		0,
@@ -493,7 +493,7 @@ static struct dev_config aux_pcm_tx_cfg[] = {
 
 /* Default configuration of MI2S channels */
 static struct dev_config mi2s_rx_cfg[] = {
-	[PRIM_MI2S] = {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S32_LE, 2},
+	[PRIM_MI2S] = {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 2},
 	[SEC_MI2S]  = {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 2},
 	[TERT_MI2S] = {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 2},
 	[QUAT_MI2S] = {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 2},
@@ -502,7 +502,7 @@ static struct dev_config mi2s_rx_cfg[] = {
 };
 
 static struct dev_config mi2s_tx_cfg[] = {
-	[PRIM_MI2S] = {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S32_LE, 2},
+	[PRIM_MI2S] = {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1},
 	[SEC_MI2S]  = {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1},
 	[TERT_MI2S] = {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1},
 	[QUAT_MI2S] = {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1},
@@ -1019,13 +1019,13 @@ static int msm_int_wsa_init(struct snd_soc_pcm_runtime*);
 static struct wcd_mbhc_config wcd_mbhc_cfg = {
 	.read_fw_bin = false,
 	.calibration = NULL,
-	.detect_extn_cable = false,
+	.detect_extn_cable = true,
 	.mono_stero_detection = false,
 	.swap_gnd_mic = NULL,
 	.hs_ext_micbias = true,
 	.key_code[0] = KEY_MEDIA,
-	.key_code[1] = KEY_VOLUMEUP,
-	.key_code[2] = 0,
+	.key_code[1] = KEY_VOICECOMMAND,
+	.key_code[2] = KEY_VOLUMEUP,
 	.key_code[3] = KEY_VOLUMEDOWN,
 	.key_code[4] = 0,
 	.key_code[5] = 0,
@@ -6638,8 +6638,8 @@ static void *def_wcd_mbhc_cal(void)
 		(sizeof(btn_cfg->_v_btn_low[0]) * btn_cfg->num_btn);
 
 	btn_high[0] = 75;
-	btn_high[1] = 237;
-	btn_high[2] = 237;//key_code[2] = 0 now,not useful
+	btn_high[1] = 150;
+	btn_high[2] = 237;
 	btn_high[3] = 500;
 	btn_high[4] = 500;
 	btn_high[5] = 500;
@@ -7271,30 +7271,6 @@ static struct snd_soc_dai_link msm_common_misc_fe_dai_links[] = {
 		.ignore_suspend = 1,
 		.ignore_pmdown_time = 1,
 		SND_SOC_DAILINK_REG(display_port_hostless),
-	},
-	{/* hw:x,46 */
-		.name = "Primary MI2S RX_Hostless",
-		.stream_name = "Primary MI2S_RX Hostless Playback",
-		.dynamic = 1,
-		.dpcm_playback = 1,
-		.trigger = {SND_SOC_DPCM_TRIGGER_POST,
-				SND_SOC_DPCM_TRIGGER_POST},
-		.no_host_mode = SND_SOC_DAI_LINK_NO_HOST,
-		.ignore_suspend = 1,
-		.ignore_pmdown_time = 1,
-		SND_SOC_DAILINK_REG(pri_mi2s_rx_hostless),
-	},
-	{/* hw:x,47 */
-		.name = "Primary MI2S TX_Hostless",
-		.stream_name = "Primary MI2S_TX Hostless Capture",
-		.dynamic = 1,
-		.dpcm_capture = 1,
-		.trigger = {SND_SOC_DPCM_TRIGGER_POST,
-				SND_SOC_DPCM_TRIGGER_POST},
-		.no_host_mode = SND_SOC_DAI_LINK_NO_HOST,
-		.ignore_suspend = 1,
-		.ignore_pmdown_time = 1,
-		SND_SOC_DAILINK_REG(pri_mi2s_tx_hostless),
 	},
 };
 
@@ -8461,7 +8437,7 @@ static int msm_snd_card_late_probe(struct snd_soc_card *card)
 	if (!is_wcd937x)
 		ret = wcd938x_mbhc_hs_detect(component, &wcd_mbhc_cfg);
 	else
-		ret = wcd937x_mbhc_hs_detect(component, &wcd_mbhc_cfg);
+		panic("Device is wcd937x, which is unsupported");
 	if (ret) {
 		dev_err(component->dev, "%s: mbhc hs detect failed, err:%d\n",
 			__func__, ret);
@@ -8830,20 +8806,7 @@ static int msm_rx_tx_codec_init(struct snd_soc_pcm_runtime *rtd)
 
 	if (!strncmp(component->driver->name, WCD937X_DRV_NAME,
 	    strlen(WCD937X_DRV_NAME))) {
-		wcd937x_info_create_codec_entry(pdata->codec_root, component);
-		codec_variant = wcd937x_get_codec_variant(component);
-		dev_dbg(component->dev, "%s: variant %d\n",
-			 __func__, codec_variant);
-		if (codec_variant == WCD9370_VARIANT)
-			ret = snd_soc_add_component_controls(component,
-				msm_int_wcd9370_snd_controls,
-				ARRAY_SIZE(msm_int_wcd9370_snd_controls));
-		else if (codec_variant == WCD9375_VARIANT)
-			ret = snd_soc_add_component_controls(component,
-				msm_int_wcd9375_snd_controls,
-				ARRAY_SIZE(msm_int_wcd9375_snd_controls));
-		bolero_set_port_map(bolero_component,
-			ARRAY_SIZE(sm_port_map_wcd937x), sm_port_map_wcd937x);
+		panic("Device is wcd937x, which is unsupported");
 	} else if (!strncmp(component->driver->name, WCD938X_DRV_NAME,
 		   strlen(WCD938X_DRV_NAME))) {
 		wcd938x_info_create_codec_entry(pdata->codec_root, component);

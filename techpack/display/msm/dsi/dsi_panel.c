@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
  */
 
@@ -12,6 +12,7 @@
 #include <video/mipi_display.h>
 
 #include "dsi_panel.h"
+#include "dsi_display.h"
 #include "dsi_ctrl_hw.h"
 #include "dsi_parser.h"
 #include "sde_dbg.h"
@@ -624,6 +625,47 @@ error:
 	return rc;
 }
 
+static u32 interpolate(uint32_t x, uint32_t xa, uint32_t xb,
+		       uint32_t ya, uint32_t yb)
+{
+	return ya - (ya - yb) * (x - xa) / (xb - xa);
+}
+
+static u32 dsi_panel_calc_fod_dim_alpha(struct dsi_panel *panel, u32 bl_level)
+{
+	int i;
+
+	if (!panel->fod_dim_lut)
+		return 0;
+
+	for (i = 0; i < panel->fod_dim_lut_len; i++)
+		if (panel->fod_dim_lut[i].brightness >= bl_level)
+			break;
+
+	if (i == 0)
+		return panel->fod_dim_lut[i].alpha;
+
+	if (i == panel->fod_dim_lut_len)
+		return panel->fod_dim_lut[i - 1].alpha;
+
+	return interpolate(bl_level,
+			   panel->fod_dim_lut[i - 1].brightness,
+			   panel->fod_dim_lut[i].brightness,
+			   panel->fod_dim_lut[i - 1].alpha,
+			   panel->fod_dim_lut[i].alpha);
+}
+
+u8 dsi_panel_get_fod_dim_alpha(struct dsi_panel *panel)
+{
+	u8 alpha;
+
+	mutex_lock(&panel->panel_lock);
+	alpha = panel->fod_dim_alpha;
+	mutex_unlock(&panel->panel_lock);
+
+	return alpha;
+}
+
 int dsi_panel_set_backlight(struct dsi_panel *panel, u32 bl_lvl)
 {
 	int rc = 0;
@@ -632,6 +674,7 @@ int dsi_panel_set_backlight(struct dsi_panel *panel, u32 bl_lvl)
 	if (panel->host_config.ext_bridge_mode)
 		return 0;
 
+	DSI_DEBUG("backlight type:%d lvl:%d\n", bl->type, bl_lvl);
 	switch (bl->type) {
 	case DSI_BACKLIGHT_WLED:
 		rc = backlight_device_set_brightness(bl->raw_bd, bl_lvl);
@@ -648,6 +691,8 @@ int dsi_panel_set_backlight(struct dsi_panel *panel, u32 bl_lvl)
 		DSI_ERR("Backlight type(%d) not supported\n", bl->type);
 		rc = -ENOTSUPP;
 	}
+
+	panel->fod_dim_alpha = dsi_panel_calc_fod_dim_alpha(panel, panel->bl_config.real_bl_level);
 
 	return rc;
 }
@@ -710,6 +755,18 @@ static int dsi_panel_pwm_register(struct dsi_panel *panel)
 	}
 
 	return 0;
+}
+
+bool dsi_panel_get_fod_ui(struct dsi_panel *panel)
+{
+	return panel->fod_ui;
+}
+
+void dsi_panel_set_fod_ui(struct dsi_panel *panel, bool status)
+{
+	panel->fod_ui = status;
+
+	sysfs_notify(&panel->parent->kobj, NULL, "fod_ui");
 }
 
 static int dsi_panel_bl_register(struct dsi_panel *panel)
@@ -1142,7 +1199,8 @@ static int dsi_panel_parse_misc_host_config(struct dsi_host_common_cfg *host,
 
 	host->ext_bridge_mode = utils->read_bool(utils->data,
 					"qcom,mdss-dsi-ext-bridge-mode");
-
+	host->ext_bridge_hpd_en = utils->read_bool(utils->data,
+					"qcom,mdss-dsi-ext-bridge-hpd");
 	host->force_hs_clk_lane = utils->read_bool(utils->data,
 					"qcom,mdss-dsi-force-clock-lane-hs");
 	panel_cphy_mode = utils->read_bool(utils->data,
@@ -2065,14 +2123,12 @@ static int dsi_panel_parse_misc_features(struct dsi_panel *panel)
 	const char *string;
 	int i, rc = 0;
 
-	panel->ulps_feature_enabled =
-		utils->read_bool(utils->data, "qcom,ulps-enabled");
+	panel->ulps_feature_enabled = true;
 
 	DSI_DEBUG("%s: ulps feature %s\n", __func__,
 		(panel->ulps_feature_enabled ? "enabled" : "disabled"));
 
-	panel->ulps_suspend_enabled =
-		utils->read_bool(utils->data, "qcom,suspend-ulps-enabled");
+	panel->ulps_suspend_enabled = true;
 
 	DSI_DEBUG("%s: ulps during suspend feature %s\n", __func__,
 		(panel->ulps_suspend_enabled ? "enabled" : "disabled"));
@@ -2306,6 +2362,60 @@ error:
 	return rc;
 }
 
+static int dsi_panel_parse_fod_dim_lut(struct dsi_panel *panel,
+		struct dsi_parser_utils *utils)
+{
+	const char *prop_name = "qcom,fod-dim-lut";
+	unsigned int i;
+	u32 *array;
+	int count;
+	int rc;
+
+	count = utils->count_u32_elems(utils->data, prop_name);
+	if (count <= 0 || count % BRIGHTNESS_ALPHA_PAIR_LEN) {
+		DSI_ERR("[%s] invalid number of elements %d\n",
+			panel->name, count);
+		rc = -EINVAL;
+		goto count_fail;
+	}
+
+	array = kcalloc(count, sizeof(u32), GFP_KERNEL);
+	if (!array) {
+		rc = -ENOMEM;
+		goto alloc_array_fail;
+	}
+
+	rc = utils->read_u32_array(utils->data, prop_name, array, count);
+	if (rc) {
+		DSI_ERR("[%s] failed to read array, rc=%d\n", panel->name, rc);
+		goto read_fail;
+	}
+
+	count /= BRIGHTNESS_ALPHA_PAIR_LEN;
+	panel->fod_dim_lut = kcalloc(count, sizeof(*panel->fod_dim_lut),
+				     GFP_KERNEL);
+	if (!panel->fod_dim_lut) {
+		rc = -ENOMEM;
+		goto alloc_lut_fail;
+	}
+
+	panel->fod_dim_lut_len = count;
+
+	for (i = 0; i < count; i++) {
+		struct brightness_alpha_pair *pair = &panel->fod_dim_lut[i];
+		pair->brightness = array[i * BRIGHTNESS_ALPHA_PAIR_LEN + 0];
+		pair->alpha = array[i * BRIGHTNESS_ALPHA_PAIR_LEN + 1];
+	}
+
+alloc_lut_fail:
+read_fail:
+	kfree(array);
+alloc_array_fail:
+count_fail:
+
+	return rc;
+}
+
 static int dsi_panel_parse_tlmm_gpio(struct dsi_panel *panel)
 {
 	struct dsi_parser_utils *utils = &panel->utils;
@@ -2418,6 +2528,7 @@ static int dsi_panel_parse_bl_config(struct dsi_panel *panel)
 
 	panel->bl_config.bl_scale = MAX_BL_SCALE_LEVEL;
 	panel->bl_config.bl_scale_sv = MAX_SV_BL_SCALE_LEVEL;
+	panel->bl_config.real_bl_level = 0;
 
 	rc = utils->read_u32(utils->data, "qcom,mdss-dsi-bl-min-level", &val);
 	if (rc) {
@@ -2468,6 +2579,10 @@ static int dsi_panel_parse_bl_config(struct dsi_panel *panel)
 	else
 		DSI_ERR("bl-dsc-cmd-state command state unrecognized-%s\n",
 			state);
+
+	rc = dsi_panel_parse_fod_dim_lut(panel, utils);
+	if (rc)
+		DSI_ERR("[%s] failed to parse fod dim lut\n", panel->name);
 
 	if (panel->bl_config.type == DSI_BACKLIGHT_PWM) {
 		rc = dsi_panel_parse_bl_pwm_config(panel);
@@ -3485,6 +3600,47 @@ static void dsi_panel_setup_vm_ops(struct dsi_panel *panel, bool trusted_vm_env)
 	}
 }
 
+static ssize_t sysfs_fod_ui_read(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+	struct dsi_display *display = dev_get_drvdata(dev);
+	struct dsi_panel *panel = display->panel;
+	bool status;
+
+	mutex_lock(&panel->panel_lock);
+	status = panel->fod_ui;
+	mutex_unlock(&panel->panel_lock);
+
+	return snprintf(buf, PAGE_SIZE, "%u\n", status);
+}
+
+static DEVICE_ATTR(fod_ui, 0444, sysfs_fod_ui_read, NULL);
+
+static struct attribute *panel_attrs[] = {
+	&dev_attr_fod_ui.attr,
+	NULL,
+};
+
+static struct attribute_group panel_attrs_group = {
+	.attrs = panel_attrs,
+};
+
+static int dsi_panel_sysfs_init(struct dsi_panel *panel)
+{
+	int rc = 0;
+
+	rc = sysfs_create_group(&panel->parent->kobj, &panel_attrs_group);
+	if (rc)
+		DSI_ERR("failed to create panel sysfs attributes\n");
+
+	return rc;
+}
+
+static void dsi_panel_sysfs_deinit(struct dsi_panel *panel)
+{
+	sysfs_remove_group(&panel->parent->kobj, &panel_attrs_group);
+}
+
 struct dsi_panel *dsi_panel_get(struct device *parent,
 				struct device_node *of_node,
 				struct device_node *parser_node,
@@ -3617,6 +3773,10 @@ struct dsi_panel *dsi_panel_get(struct device *parent,
 	if (rc)
 		goto error_vreg_put;
 
+	rc = dsi_panel_sysfs_init(panel);
+	if (rc)
+		goto error;
+
 	mutex_init(&panel->panel_lock);
 
 	return panel;
@@ -3629,6 +3789,8 @@ error:
 
 void dsi_panel_put(struct dsi_panel *panel)
 {
+	dsi_panel_sysfs_deinit(panel);
+
 	drm_panel_remove(&panel->drm_panel);
 
 	/* free resources allocated for ESD check */

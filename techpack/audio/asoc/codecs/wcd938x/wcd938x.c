@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022,2024 Qualcomm Innovation Center, Inc. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -395,6 +395,12 @@ static int wcd938x_parse_port_mapping(struct device *dev,
 
 	for (i = 0; i < map_length; i++) {
 		port_num = dt_array[NUM_SWRS_DT_PARAMS * i];
+
+		if (port_num >= MAX_PORT || ch_iter >= MAX_CH_PER_PORT) {
+			dev_err(dev, "%s: Invalid port or channel number\n", __func__);
+			goto err_pdata_fail;
+		}
+
 		slave_port_type = dt_array[NUM_SWRS_DT_PARAMS * i + 1];
 		ch_mask = dt_array[NUM_SWRS_DT_PARAMS * i + 2];
 		ch_rate = dt_array[NUM_SWRS_DT_PARAMS * i + 3];
@@ -2791,14 +2797,14 @@ static int wcd938x_ldoh_put(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
-const char * const tx_master_ch_text[] = {
+static const char * const tx_master_ch_text[] = {
 	"ZERO", "SWRM_TX1_CH1", "SWRM_TX1_CH2", "SWRM_TX1_CH3", "SWRM_TX1_CH4",
 	"SWRM_TX2_CH1", "SWRM_TX2_CH2", "SWRM_TX2_CH3", "SWRM_TX2_CH4",
 	"SWRM_TX3_CH1", "SWRM_TX3_CH2", "SWRM_TX3_CH3", "SWRM_TX3_CH4",
 	"SWRM_PCM_IN",
 };
 
-const struct soc_enum tx_master_ch_enum =
+static const struct soc_enum tx_master_ch_enum =
 	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(tx_master_ch_text),
 					tx_master_ch_text);
 

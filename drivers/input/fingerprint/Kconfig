@@ -1,5 +1,5 @@
 config GOODIX_FINGERPRINT
 	tristate "generic goodix fingerprint driver"
-	default y
+	default n
 	help
-	add support for goodix fingerprint driver.
+	  add support for goodix fingerprint driver.

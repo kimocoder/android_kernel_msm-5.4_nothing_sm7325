@@ -542,10 +542,6 @@ struct sde_connector {
 	u32 unset_bl_level;
 	bool allow_bl_update;
 
-	bool fingerlayer_dirty;
-	u32 finger_flag;
-	struct work_struct set_brightness_work;
-
 	u32 hdr_eotf;
 	bool hdr_metadata_type_one;
 	u32 hdr_max_luminance;

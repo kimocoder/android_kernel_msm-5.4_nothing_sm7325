@@ -1,0 +1,146 @@
+  GEN     Makefile
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina.dtb
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-v2.dtb
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-v2.1.dtb
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahainap.dtb
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahainap-v2.dtb
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahainap-v2.1.dtb
+  DTC     arch/arm64/boot/dts/vendor/qcom/shima.dtb
+  DTC     arch/arm64/boot/dts/vendor/qcom/yupik.dtb
+  DTC     arch/arm64/boot/dts/vendor/qcom/yupikp.dtb
+  CALL    ../scripts/atomic/check-atomics.sh
+  CALL    ../scripts/checksyscalls.sh
+  CHK     include/generated/compile.h
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-mtp-hsp-overlay.dtbo
+  CC      net/core/dev.o
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-qrd-hsp-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-qrd-hsp-pro-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-qrd-module-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-qrd-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-rumi-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahainap-atp-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahainap-cdp-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahainap-hhg-hsp-pro-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahainap-mtp-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahainap-qrd-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/shima-atp-overlay.dtbo
+  CHK     kernel/kheaders_data.tar.xz
+  DTC     arch/arm64/boot/dts/vendor/qcom/shima-idp-120fps-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/shima-idp-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/shima-idps-digital-mics-120fps-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/shima-idps-digital-mics-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/shima-qrd-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/shima-rumi-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/yupik-qrd-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/yupik-qrd-pm7250b-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/yupikp-qrd-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-atp-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-cdp-hsp-pro-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-cdp-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-cdp-v2.2-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-hdk-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-hhg-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-mtp-hsp-pro-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-mtp-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-mtp-v2-overlay.dtbo
+  DTC     arch/arm64/boot/dts/vendor/qcom/lahaina-mtp-v2.1-overlay.dtbo
+  AR      net/core/built-in.a
+  AR      net/built-in.a
+  GEN     .version
+  CHK     include/generated/compile.h
+  UPD     include/generated/compile.h
+  CC      init/version.o
+  AR      init/built-in.a
+  LTO     vmlinux.o
+  MODPOST vmlinux.o
+WARNING: "tsens_mtc_reset_history_counter" [vmlinux] is a static EXPORT_SYMBOL
+  MODINFO modules.builtin.modinfo
+  LD      .tmp_vmlinux.kallsyms1
+  KSYM    .tmp_vmlinux.kallsyms1.o
+  LD      .tmp_vmlinux.kallsyms2
+  KSYM    .tmp_vmlinux.kallsyms2.o
+  LD      vmlinux
+  SORTEX  vmlinux
+  SYSMAP  System.map
+  LTO [M] drivers/bluetooth/bt_fm_slim.lto.o
+  LTO [M] drivers/bluetooth/btpower.lto.o
+  OBJCOPY arch/arm64/boot/Image
+  LTO [M] drivers/char/rdbg.lto.o
+  LTO [M] drivers/edac/qcom_edac.lto.o
+  LTO [M] drivers/hid/hid-aksys.lto.o
+  LTO [M] drivers/input/fingerprint/goodix_fp.lto.o
+  LTO [M] drivers/input/touchscreen/focaltech_touch/fts_tp.lto.o
+  LTO [M] drivers/media/tuners/e4000.lto.o
+  LTO [M] drivers/media/tuners/fc0011.lto.o
+  LTO [M] drivers/media/tuners/fc0012.lto.o
+  LTO [M] drivers/media/tuners/fc0013.lto.o
+  LTO [M] drivers/media/tuners/fc2580.lto.o
+  LTO [M] drivers/media/tuners/it913x.lto.o
+  LTO [M] drivers/media/tuners/m88rs6000t.lto.o
+  LTO [M] drivers/media/tuners/max2165.lto.o
+  LTO [M] drivers/media/tuners/mc44s803.lto.o
+  LTO [M] drivers/media/tuners/msi001.lto.o
+  LTO [M] drivers/media/tuners/mt2060.lto.o
+  LTO [M] drivers/media/tuners/mt2063.lto.o
+  LTO [M] drivers/media/tuners/mt20xx.lto.o
+  LTO [M] drivers/media/tuners/mt2131.lto.o
+  LTO [M] drivers/media/tuners/mt2266.lto.o
+  LTO [M] drivers/media/tuners/mxl301rf.lto.o
+  LTO [M] drivers/media/tuners/mxl5005s.lto.o
+  LTO [M] drivers/media/tuners/mxl5007t.lto.o
+  LTO [M] drivers/media/tuners/qm1d1b0004.lto.o
+  LTO [M] drivers/media/tuners/qm1d1c0042.lto.o
+  LTO [M] drivers/media/tuners/qt1010.lto.o
+  LTO [M] drivers/media/tuners/r820t.lto.o
+  LTO [M] drivers/media/tuners/si2157.lto.o
+  LTO [M] drivers/media/tuners/tda18212.lto.o
+  LTO [M] drivers/media/tuners/tda18218.lto.o
+  LTO [M] drivers/media/tuners/tda18250.lto.o
+  LTO [M] drivers/media/tuners/tda9887.lto.o
+  LTO [M] drivers/media/tuners/tea5761.lto.o
+  LTO [M] drivers/media/tuners/tea5767.lto.o
+  LTO [M] drivers/media/tuners/tua9001.lto.o
+  LTO [M] drivers/media/tuners/tuner-simple.lto.o
+  LTO [M] drivers/media/tuners/tuner-types.lto.o
+  LTO [M] drivers/media/tuners/tuner-xc2028.lto.o
+  LTO [M] drivers/media/tuners/xc4000.lto.o
+  LTO [M] drivers/media/tuners/xc5000.lto.o
+  LTO [M] drivers/slimbus/slimbus-ngd.lto.o
+  LTO [M] drivers/slimbus/slimbus.lto.o
+  LTO [M] drivers/soc/qcom/llcc_perfmon.lto.o
+  LTO [M] drivers/staging/qcacld-3.0/wlan.lto.o
+  LTO [M] techpack/audio/asoc/codecs/bolero/bolero_cdc_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/bolero/rx_macro_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/bolero/tx_macro_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/bolero/va_macro_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/bolero/wsa_macro_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/hdmi_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/mbhc_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/stub_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/swr_dmic_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/swr_haptics_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/tfa98xx/tfa98xx_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/wcd938x/wcd938x_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/wcd938x/wcd938x_slave_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/wcd9xxx_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/wcd_core_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/codecs/wsa883x/wsa883x_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/machine_dlkm.lto.o
+  LTO [M] techpack/audio/asoc/platform_dlkm.lto.o
+  LTO [M] techpack/audio/dsp/adsp_loader_dlkm.lto.o
+  LTO [M] techpack/audio/dsp/codecs/native_dlkm.lto.o
+  LTO [M] techpack/audio/dsp/q6_dlkm.lto.o
+  LTO [M] techpack/audio/dsp/q6_notifier_dlkm.lto.o
+  LTO [M] techpack/audio/dsp/q6_pdr_dlkm.lto.o
+  LTO [M] techpack/audio/ipc/apr_dlkm.lto.o
+  LTO [M] techpack/audio/soc/pinctrl_lpi_dlkm.lto.o
+  LTO [M] techpack/audio/soc/pinctrl_wcd_dlkm.lto.o
+  LTO [M] techpack/audio/soc/snd_event_dlkm.lto.o
+  LTO [M] techpack/audio/soc/swr_ctrl_dlkm.lto.o
+  LTO [M] techpack/audio/soc/swr_dlkm.lto.o
+  LTO [M] techpack/datarmnet-ext/offload/rmnet_offload.lto.o
+  LTO [M] techpack/datarmnet-ext/shs/rmnet_shs.lto.o
+  LTO [M] techpack/datarmnet/core/rmnet_core.lto.o
+  LTO [M] techpack/datarmnet/core/rmnet_ctl.lto.o
+  Building modules, stage 2.
+  MODPOST 79 modules
