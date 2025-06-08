@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
- * Copyright (c) 2022-2023, Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022, Qualcomm Innovation Center, Inc. All rights reserved.
  */
 #ifndef __Q6AFE_V2_H__
 #define __Q6AFE_V2_H__
@@ -55,8 +55,6 @@
 /* for external mclk dynamic switch */
 #define AFE_API_VERSION_V8		8
 #define AFE_API_VERSION_V10		10
-/* for external mclk selection through mux */
-#define AFE_API_VERSION_V11		11
 
 #define AFE_SAMPLING_RATE_8KHZ 8000
 
@@ -65,16 +63,8 @@
 #define BAP_BROADCAST        2
 #define BAP_BA_SIMULCAST     3
 
-#define AFE_TDM_INTERFACE_MAX 10
-#define AFE_ID_MASK 0xFF
-#define AFE_ID_SHIFT 4
-#define PORT_ID_TO_INTF_IDX(b) ((b & AFE_ID_MASK) >> AFE_ID_SHIFT)
-#define AFE_TDM_RX_GET_GROUP_IDX(b) ((PORT_ID_TO_INTF_IDX(b)) * 2)
-#define AFE_TDM_TX_GET_GROUP_IDX(b) ((PORT_ID_TO_INTF_IDX(b)) * 2 + 1)
-#define MAX_PORTS_PER_INTF 8
 
 typedef int (*routing_cb)(int port);
-u16 num_of_bits_set(u16 sd_line_mask);
 
 enum {
 	/* IDX 0->4 */
@@ -421,7 +411,6 @@ enum afe_mclk_freq {
 	MCLK_FREQ_11P2896_MHZ = MCLK_FREQ_MIN,
 	MCLK_FREQ_12P288_MHZ,
 	MCLK_FREQ_16P384_MHZ,
-	MCLK_FREQ_19P200_MHZ,
 	MCLK_FREQ_22P5792_MHZ,
 	MCLK_FREQ_24P576_MHZ,
 	MCLK_FREQ_MAX,
@@ -602,15 +591,10 @@ int afe_tdm_port_start(u16 port_id, struct afe_tdm_port_config *tdm_port,
 void afe_set_routing_callback(routing_cb cb);
 int afe_port_send_logging_cfg(u16 port_id,
 	struct afe_param_id_port_data_log_disable_t *log_disable);
-int afe_port_send_afe_limiter_param(u16 port_id,
-	struct afe_param_id_port_afe_limiter_disable_t *disable_limiter);
 int afe_get_av_dev_drift(struct afe_param_id_dev_timing_stats *timing_stats,
 		u16 port);
-int afe_set_lpass_clk_cfg_ext_mclk(int index, struct afe_clk_set *cfg,
-				   uint32_t mclk_freq);
 int afe_set_lpass_clk_cfg_ext_mclk_v2(int index,
 	struct afe_param_id_clock_set_v2_t *dyn_mclk_cfg, uint32_t mclk_freq);
-int afe_set_lpass_ext_mclk_mux_cfg(const char *mux_str, uint32_t mux_val);
 int afe_get_sp_rx_tmax_xmax_logging_data(
 		struct afe_sp_rx_tmax_xmax_logging_param *xt_logging,
 		u16 port_id);
@@ -640,14 +624,6 @@ int afe_set_source_clk(u16 port_id, const char *clk_src);
 void afe_set_clk_src_array(const char *clk_src[CLK_SRC_MAX]);
 int afe_set_mclk_src_cfg(u16 port_id, uint32_t mclk_src_id, uint32_t mclk_freq);
 
-/* Client of AFE registers afe_enable_mclk_and_get_info_cb_func callback function via
- * afe_register_ext_mclk_cb() when external clock is supported by the platform. During
- * clock enable sequence, AFE triggers this callback before requesting DSP for clock
- * enable. Client can provide Div2X, M, N, D and clock root as part of this callback.
- * Client can also enable required GPIO that are essential to route external clock in
- * this callback. During clock disable sequence, AFE triggers this callback after
- * requesting DSP for clock disable. Client can disable required GPIOs in this callback.
- */
 typedef int (*afe_enable_mclk_and_get_info_cb_func) (void *private_data,
 			uint32_t enable, uint32_t mclk_freq,
 			struct afe_param_id_clock_set_v2_t *dyn_mclk_cfg);
@@ -700,15 +676,4 @@ int afe_get_spk_v_vali_flag(void);
 void afe_get_spk_v_vali_sts(int *spk_v_vali_sts);
 void afe_set_spk_initial_cal(int initial_cal);
 void afe_set_spk_v_vali_flag(int v_vali_flag);
-struct afe_tdm_intf_paired_rx_cfg {
-	int afe_port_id;
-	union afe_port_group_config tdm_group; /* hold tdm group config */
-	struct afe_tdm_port_config tdm_port; /* hold tdm config */
-	struct afe_param_id_tdm_lane_cfg tdm_lane; /* hold tdm lane config */
-};
-void afe_tdm_paired_rx_cfg_val(int intf_idx, int afe_port_id,
-	union afe_port_group_config tdm_group, struct afe_tdm_port_config tdm_port,
-	struct afe_param_id_tdm_lane_cfg tdm_lane);
-int afe_paired_rx_tdm_port_ops(int intf_idx, bool enable, atomic_t *dai_group_ref);
-
 #endif /* __Q6AFE_V2_H__ */
