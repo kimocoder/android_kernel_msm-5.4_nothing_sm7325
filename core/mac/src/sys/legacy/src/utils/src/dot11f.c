@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -10202,6 +10203,10 @@ static const tIEDefn IES_AssocResponse[] = {
 	offsetof(tDot11fIEVHTOperation, present), 0, "VHTOperation",
 	0, 7, 7, SigIeVHTOperation, {0, 0, 0, 0, 0},
 	0, DOT11F_EID_VHTOPERATION, 0, 0, },
+	{ offsetof(tDot11fAssocResponse, OperatingMode),
+	 offsetof(tDot11fIEOperatingMode, present), 0, "OperatingMode",
+	 0, 3, 3, SigIeOperatingMode, {0, 0, 0, 0, 0},
+	 0, DOT11F_EID_OPERATINGMODE, 0, 0, },
 	{ offsetof(tDot11fAssocResponse, ExtCap), offsetof(tDot11fIEExtCap,
 	present), 0, "ExtCap", 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0},
 	0, DOT11F_EID_EXTCAP, 0, 0, },
@@ -12055,6 +12060,10 @@ static const tIEDefn IES_ReAssocResponse[] = {
 	offsetof(tDot11fIEVHTOperation, present), 0, "VHTOperation",
 	0, 7, 7, SigIeVHTOperation, {0, 0, 0, 0, 0},
 	0, DOT11F_EID_VHTOPERATION, 0, 0, },
+	{ offsetof(tDot11fReAssocResponse, OperatingMode),
+	 offsetof(tDot11fIEOperatingMode, present), 0, "OperatingMode",
+	 0, 3, 3, SigIeOperatingMode, {0, 0, 0, 0, 0},
+	 0, DOT11F_EID_OPERATINGMODE, 0, 0, },
 	{ offsetof(tDot11fReAssocResponse, ExtCap), offsetof(tDot11fIEExtCap,
 	present), 0, "ExtCap", 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0},
 	0, DOT11F_EID_EXTCAP, 0, 0, },
