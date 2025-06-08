@@ -46,7 +46,7 @@ static inline void *hh_msgq_register(enum hh_msgq_label label)
 	return ERR_PTR(-ENODEV);
 }
 
-static inline int hh_msgq_unregister(void *msgq_client_desc)
+static inline int *hh_msgq_unregister(void *msgq_client_desc)
 {
 	return ERR_PTR(-ENODEV);
 }
