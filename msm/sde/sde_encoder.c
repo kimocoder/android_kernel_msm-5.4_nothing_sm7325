@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  * Copyright (c) 2014-2021, The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -141,10 +141,7 @@ void sde_encoder_uidle_enable(struct drm_encoder *drm_enc, bool enable)
 	for (i = 0; i < sde_enc->num_phys_encs; i++) {
 		struct sde_encoder_phys *phys = sde_enc->phys_encs[i];
 
-		if (phys && phys->hw_ctl && phys->hw_ctl->ops.uidle_enable &&
-				phys->split_role != ENC_ROLE_SLAVE) {
-			if (enable)
-				SDE_EVT32(DRMID(drm_enc), enable);
+		if (phys && phys->hw_ctl && phys->hw_ctl->ops.uidle_enable) {
 			phys->hw_ctl->ops.uidle_enable(phys->hw_ctl, enable);
 		}
 	}
@@ -1434,17 +1431,10 @@ static int _sde_encoder_update_rsc_client(
 void sde_encoder_irq_control(struct drm_encoder *drm_enc, bool enable)
 {
 	struct sde_encoder_virt *sde_enc;
-	struct sde_kms *sde_kms = NULL;
 	int i;
 
 	if (!drm_enc) {
 		SDE_ERROR("invalid encoder\n");
-		return;
-	}
-
-	sde_kms = sde_encoder_get_kms(drm_enc);
-	if (!sde_kms) {
-		SDE_ERROR("invalid kms\n");
 		return;
 	}
 
@@ -1457,7 +1447,7 @@ void sde_encoder_irq_control(struct drm_encoder *drm_enc, bool enable)
 		if (phys && phys->ops.irq_control)
 			phys->ops.irq_control(phys, enable);
 	}
-	sde_kms_cpu_vote_for_irq(sde_kms, enable);
+	sde_kms_cpu_vote_for_irq(sde_encoder_get_kms(drm_enc), enable);
 
 }
 
@@ -1692,17 +1682,6 @@ static void _sde_encoder_rc_cancel_delayed(struct sde_encoder_virt *sde_enc,
 	if (kthread_cancel_delayed_work_sync(&sde_enc->delayed_off_work))
 		SDE_DEBUG_ENC(sde_enc, "sw_event:%d, work cancelled\n",
 				sw_event);
-}
-
-void sde_encoder_cancel_delayed_work(struct drm_encoder *encoder)
-{
-	struct sde_encoder_virt *sde_enc;
-
-	if (!encoder)
-		return;
-
-	sde_enc = to_sde_encoder_virt(encoder);
-	_sde_encoder_rc_cancel_delayed(sde_enc, 0);
 }
 
 static void _sde_encoder_rc_kickoff_delayed(struct sde_encoder_virt *sde_enc,
