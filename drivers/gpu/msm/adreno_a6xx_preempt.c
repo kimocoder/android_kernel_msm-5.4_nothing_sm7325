@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  * Copyright (c) 2022-2023, Qualcomm Innovation Center, Inc. All rights reserved.
+=======
+ * Copyright (c) 2022,2025, Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> 8ccf8066911cd8236c5c31dd534eadee216afbe1
  */
 
 #include "adreno.h"
@@ -733,10 +737,18 @@ int a6xx_preemption_init(struct adreno_device *adreno_dev)
 		return ret;
 
 	/*
+<<<<<<< HEAD
 	 * First 28 dwords of the device scratch buffer are used to store shadow rb data.
 	 * Reserve 11 dwords in the device scratch buffer from SCRATCH_POSTAMBLE_OFFSET for
 	 * KMD postamble pm4 packets. This should be in *device->scratch* so that userspace
 	 * cannot access it.
+=======
+	 * First 28 dwords of the device scratch buffer are used to store
+	 * shadow rb data. Reserve 11 dwords in the device scratch buffer
+	 * from SCRATCH_POSTAMBLE_OFFSET for KMD postamble pm4 packets.
+	 * This should be in *device->scratch* so that userspace cannot
+	 * access it.
+>>>>>>> 8ccf8066911cd8236c5c31dd534eadee216afbe1
 	 */
 	if (!adreno_dev->perfcounter) {
 		u32 *postamble = device->scratch->hostptr + SCRATCH_POSTAMBLE_OFFSET;

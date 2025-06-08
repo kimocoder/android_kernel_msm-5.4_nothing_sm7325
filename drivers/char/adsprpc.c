@@ -1215,12 +1215,11 @@ static int fastrpc_mmap_remove(struct fastrpc_file *fl, int fd, uintptr_t va,
 		return 0;
 	}
 	hlist_for_each_entry_safe(map, n, &fl->maps, hn) {
-		if ((fd < 0 || map->fd == fd) &&
+		/* Remove if only one reference map and no context map */
+		if (map->refs == 1 &&
+			!map->ctx_refs &&
 			map->raddr == va &&
 			map->raddr + map->len == va + len &&
-			/* Remove if only one reference map and no context map */
-			map->refs == 1 &&
-			!map->ctx_refs &&
 			/* Remove map only if it isn't being used by DSP */
 			!map->dma_handle_refs &&
 			/* Remove map if not used in process initialization */
@@ -1282,7 +1281,7 @@ static void fastrpc_mmap_free(struct fastrpc_mmap *map, uint32_t flags)
 			map->refs--;
 		/* flags is passed as 1 during fastrpc_file_free
 		 * (ie process exit), so that maps will be cleared
-		 *  even though references are present.
+		 * even though references are present.
 		 */
 		if (!map->refs && !map->ctx_refs && !map->dma_handle_refs)
 			hlist_del_init(&map->hn);
@@ -2508,7 +2507,8 @@ static int get_args(uint32_t kernel, struct smq_invoke_ctx *ctx)
 			ctx->maps[i]->dma_handle_refs++;
 		if (err) {
 			for (j = bufs; j < i; j++) {
-				if (ctx->maps[j] && ctx->maps[j]->dma_handle_refs) {
+				if (ctx->maps[j] &&
+					ctx->maps[j]->dma_handle_refs) {
 					ctx->maps[j]->dma_handle_refs--;
 					fastrpc_mmap_free(ctx->maps[j], 0);
 				}
@@ -2669,7 +2669,7 @@ static int get_args(uint32_t kernel, struct smq_invoke_ctx *ctx)
 			} else {
 				/* map already freed by some other call */
 				mutex_unlock(&ctx->fl->map_mutex);
-				ADSPRPC_ERR("could not find map associated with dma handle fd %d\n",
+				pr_err("could not find map associated with dma handle fd %d\n",
 					ctx->fds[i]);
 				goto bail;
 			}
