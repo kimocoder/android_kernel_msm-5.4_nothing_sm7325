@@ -42,13 +42,8 @@
 #include <linux/kthread.h>
 #include <linux/init.h>
 #include <linux/mmu_notifier.h>
-<<<<<<< HEAD
 #include <linux/show_mem_notifier.h>
 #include <linux/memory_hotplug.h>
-=======
-#include <linux/cred.h>
-#include <linux/nmi.h>
->>>>>>> 027c685e9cb8bc1e0d9774b6db5d47707df8d208
 
 #include <asm/tlb.h>
 #include "internal.h"
@@ -460,15 +455,10 @@ static void dump_tasks(struct oom_control *oc)
 		mem_cgroup_scan_tasks(oc->memcg, dump_task, oc);
 	else {
 		struct task_struct *p;
-		int i = 0;
 
 		rcu_read_lock();
-		for_each_process(p) {
-			/* Avoid potential softlockup warning */
-			if ((++i & 1023) == 0)
-				touch_softlockup_watchdog();
+		for_each_process(p)
 			dump_task(p, oc);
-		}
 		rcu_read_unlock();
 	}
 }
@@ -753,12 +743,6 @@ static void __mark_oom_victim(struct task_struct *tsk)
  */
 static void mark_oom_victim(struct task_struct *tsk)
 {
-<<<<<<< HEAD
-=======
-	const struct cred *cred;
-	struct mm_struct *mm = tsk->mm;
-
->>>>>>> 027c685e9cb8bc1e0d9774b6db5d47707df8d208
 	WARN_ON(oom_killer_disabled);
 	/* OOM killer might race with memcg OOM */
 	if (test_and_set_tsk_thread_flag(tsk, TIF_MEMDIE))
@@ -775,9 +759,7 @@ static void mark_oom_victim(struct task_struct *tsk)
 	 */
 	__thaw_task(tsk);
 	atomic_inc(&oom_victims);
-	cred = get_task_cred(tsk);
-	trace_mark_victim(tsk, cred->uid.val);
-	put_cred(cred);
+	trace_mark_victim(tsk->pid);
 }
 
 /**

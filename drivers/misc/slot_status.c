@@ -51,7 +51,7 @@ static struct class slot_class = {
 	.class_groups = slot_class_groups,
 };
 
-static int slot_parse_dt()
+static int slot_parse_dt(void)
 {
 	slot->gpio112 = of_get_named_gpio(slot->pdev->dev.of_node,"gpio112",0);
 	if(slot->gpio112 < 0){

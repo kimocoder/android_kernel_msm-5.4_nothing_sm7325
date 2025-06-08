@@ -246,7 +246,7 @@ static inline int qcom_scm_spin_cpu(void) { return -ENODEV; }
 static inline void qcom_scm_set_download_mode(enum qcom_download_mode mode,
 		phys_addr_t tcsr_boot_misc) {}
 static inline int qcom_scm_get_download_mode(unsigned int *mode,
-		phys_addr_t tcsr_boot_misc) {}
+		phys_addr_t tcsr_boot_misc) { return 0; }
 static inline int qcom_scm_config_cpu_errata(void)
 		{ return -ENODEV; }
 static inline void qcom_scm_phy_update_scm_level_shifter(u32 val) {}
