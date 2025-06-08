@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -88,7 +88,6 @@
 #include "wlan_hdd_object_manager.h"
 #include <linux/igmp.h>
 #include "qdf_types.h"
-#include <wlan_cp_stats_mc_ucfg_api.h>
 /* Preprocessor definitions and constants */
 #ifdef QCA_WIFI_NAPIER_EMULATION
 #define HDD_SSR_BRING_UP_TIME 3000000
@@ -572,23 +571,11 @@ void hdd_enable_ns_offload(struct hdd_adapter *adapter,
 	ns_req->trigger = trigger;
 	ns_req->count = 0;
 
-	vdev = hdd_objmgr_get_vdev(adapter);
-	if (!vdev) {
-		hdd_err("vdev is NULL");
-		goto free_req;
-	}
-
 	/* check if offload cache and send is required or not */
 	status = ucfg_pmo_ns_offload_check(psoc, trigger, adapter->vdev_id);
 	if (QDF_IS_STATUS_ERROR(status)) {
 		hdd_debug("NS offload is not required");
-		goto put_vdev;
-	}
-
-	if (ucfg_pmo_get_arp_ns_offload_dynamic_disable(vdev)) {
-		hdd_debug("Dynamic arp ns offload disabled");
-		ucfg_pmo_flush_ns_offload_req(vdev);
-		goto skip_cache_ns;
+		goto free_req;
 	}
 
 	/* Unicast Addresses */
@@ -598,7 +585,7 @@ void hdd_enable_ns_offload(struct hdd_adapter *adapter,
 	if (errno) {
 		hdd_disable_ns_offload(adapter, trigger);
 		hdd_debug("Max supported addresses: disabling NS offload");
-		goto put_vdev;
+		goto free_req;
 	}
 
 	/* Anycast Addresses */
@@ -608,21 +595,25 @@ void hdd_enable_ns_offload(struct hdd_adapter *adapter,
 	if (errno) {
 		hdd_disable_ns_offload(adapter, trigger);
 		hdd_debug("Max supported addresses: disabling NS offload");
-		goto put_vdev;
+		goto free_req;
 	}
 
 	/* cache ns request */
 	status = ucfg_pmo_cache_ns_offload_req(ns_req);
 	if (QDF_IS_STATUS_ERROR(status)) {
-		hdd_debug("Failed to cache ns request; status:%d", status);
-		goto put_vdev;
+		hdd_err("Failed to cache ns request; status:%d", status);
+		goto free_req;
 	}
 
-skip_cache_ns:
+	vdev = hdd_objmgr_get_vdev(adapter);
+	if (!vdev) {
+		hdd_err("vdev is NULL");
+		goto free_req;
+	}
 	/* enable ns request */
 	status = ucfg_pmo_enable_ns_offload_in_fwr(vdev, trigger);
 	if (QDF_IS_STATUS_ERROR(status)) {
-		hdd_debug("Failed to enable ns offload; status:%d", status);
+		hdd_err("Failed to enable ns offload; status:%d", status);
 		goto put_vdev;
 	}
 
@@ -1292,12 +1283,6 @@ void hdd_enable_arp_offload(struct hdd_adapter *adapter,
 		goto put_vdev;
 	}
 
-	if (ucfg_pmo_get_arp_ns_offload_dynamic_disable(vdev)) {
-		hdd_debug("Dynamic arp ns offload disabled");
-		ucfg_pmo_flush_arp_offload_req(vdev);
-		goto skip_cache_arp;
-	}
-
 	ifa = hdd_get_ipv4_local_interface(adapter);
 	if (!ifa || !ifa->ifa_local) {
 		hdd_info("IP Address is not assigned");
@@ -1313,7 +1298,6 @@ void hdd_enable_arp_offload(struct hdd_adapter *adapter,
 		goto put_vdev;
 	}
 
-skip_cache_arp:
 	status = ucfg_pmo_enable_arp_offload_in_fwr(vdev, trigger);
 	if (QDF_IS_STATUS_ERROR(status)) {
 		hdd_err("failed arp offload config in fw; status:%d", status);
@@ -1511,17 +1495,12 @@ hdd_suspend_wlan(void)
 		hdd_adapter_dev_put_debug(adapter, NET_DEV_HOLD_SUSPEND_WLAN);
 	}
 
-	hdd_ctx->hdd_wlan_suspend_in_progress = true;
-
 	status = ucfg_pmo_psoc_user_space_suspend_req(hdd_ctx->psoc,
 						      QDF_SYSTEM_SUSPEND);
-	if (status != QDF_STATUS_SUCCESS) {
-		hdd_ctx->hdd_wlan_suspend_in_progress = false;
+	if (status != QDF_STATUS_SUCCESS)
 		return -EAGAIN;
-	}
 
 	hdd_ctx->hdd_wlan_suspended = true;
-	hdd_ctx->hdd_wlan_suspend_in_progress = false;
 
 	hdd_configure_sar_sleep_index(hdd_ctx);
 
@@ -2371,7 +2350,7 @@ static int __wlan_hdd_cfg80211_suspend_wlan(struct wiphy *wiphy,
 	if (ucfg_ipa_suspend(hdd_ctx->pdev)) {
 		hdd_err("IPA not ready to suspend!");
 		wlan_hdd_inc_suspend_stats(hdd_ctx, SUSPEND_FAIL_IPA);
-		goto resume_all_components;
+		return -EAGAIN;
 	}
 
 	/* Suspend control path scheduler */
@@ -2456,9 +2435,6 @@ resume_ol_rx:
 	hdd_ctx->is_scheduler_suspended = false;
 resume_tx:
 	hdd_resume_wlan();
-resume_all_components:
-	ucfg_pmo_resume_all_components(hdd_ctx->psoc, QDF_SYSTEM_SUSPEND);
-
 	return -ETIME;
 
 }
@@ -2940,7 +2916,6 @@ static int __wlan_hdd_cfg80211_get_txpower(struct wiphy *wiphy,
 	int status;
 	struct hdd_station_ctx *sta_ctx;
 	static bool is_rate_limited;
-	struct wlan_objmgr_vdev *vdev;
 
 	hdd_enter_dev(ndev);
 
@@ -2992,13 +2967,7 @@ static int __wlan_hdd_cfg80211_get_txpower(struct wiphy *wiphy,
 	    is_rate_limited) {
 		hdd_debug("Modules not enabled/rate limited, use cached stats");
 		/* Send cached data to upperlayer*/
-		vdev = hdd_objmgr_get_vdev(adapter);
-		if (!vdev) {
-			hdd_err("vdev is NULL");
-			return -EINVAL;
-		}
-		ucfg_mc_cp_stats_get_tx_power(vdev, dbm);
-		hdd_objmgr_put_vdev(vdev);
+		*dbm = adapter->hdd_stats.class_a_stat.max_pwr;
 		return 0;
 	}
 
