@@ -454,9 +454,7 @@ int ipa3_remove_interrupt_handler(enum ipa_irq_type interrupt)
 		return -EFAULT;
 	}
 
-	/*If free ipa3_ctx pointer causing device crash during remove interrupt*/
-	if(ipa_interrupt_to_cb[irq_num].private_data != ipa3_ctx)
-		kfree(ipa_interrupt_to_cb[irq_num].private_data);
+	kfree(ipa_interrupt_to_cb[irq_num].private_data);
 	ipa_interrupt_to_cb[irq_num].deferred_flag = false;
 	ipa_interrupt_to_cb[irq_num].handler = NULL;
 	ipa_interrupt_to_cb[irq_num].private_data = NULL;
